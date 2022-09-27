@@ -17,6 +17,7 @@ class MachineConsumer(Consumer_interface):
         return [1] * self.get_minimizing_variables_count(calculationParams)
     def _get_minimizing_constraints(self, calculationParams : CalculationParams) -> List[np.ndarray]:
         #better mecanism may be thought about in the future
+        #DO NOT USE UNTIL THIS MESSAGE DISAPEAR
         sim_size = calculationParams.get_simulation_size()
         first_constraint = np.zeros((sim_size, self._get_minimizing_variables_count(calculationParams)))
         start_time = maxi(self.start_time, calculationParams.begin)
@@ -24,11 +25,11 @@ class MachineConsumer(Consumer_interface):
         for i in range(self._get_minimizing_variables_count):
             for j in range(len(self.profile)):
                 first_constraint[start_step + i + j][i] = self.profile[j]
-        return [first_constraint]
+        return [first_constraint]# has to be modified for tests
     def _get_functionnal_constraints(self, calculationParams : CalculationParams) -> np.ndarray:
         return np.ones((1, self._get_constraints_size(calculationParams)))
-    def _get_functionnal_constraints_boundaries(self, calculationParams : CalculationParams) -> List[np.ndarray]:
-        return [np.array([self.machine_count]), np.array([self.machine_count])]
+    def _get_functionnal_constraints_boundaries(self, calculationParams : CalculationParams) -> List[List[List[float]]]:
+        return [[self.machine_count], [self.machine_count]]
     def _get_minimizing_variables_count(self, calculationParams : CalculationParams) -> int:
         if (self.start_time + len(self.profile) > calculationParams.end):
             return 0
@@ -44,4 +45,16 @@ class MachineConsumer(Consumer_interface):
 
     def _get_constraints_size(self, calculationParams : CalculationParams) -> int:
         return 1 # only a sum constraint
-    
+
+    def _fill_minimizing_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpars: List[int], ypars: List[int]):
+        sim_size = calculationParams.get_simulation_size()
+        start_time = maxi(self.start_time, calculationParams.begin)
+        start_step = int(round((start_time - calculationParams.begin) / calculationParams.step_size))
+        xpar = xpars[0]
+        ypar = ypars[0]
+        for i in range(self._get_minimizing_variables_count(calculationParams)):
+            for j in range(len(self.profile)):
+                tofill[start_step + ypar + i + j, xpar + i] = self.profile[j]
+    def _fill__functionnal_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpar: int, ypar: int):
+        for x in range(self._get_constraints_size(calculationParams)):
+            tofill[ypar, xpar + x] = 1

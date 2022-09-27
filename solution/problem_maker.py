@@ -22,3 +22,13 @@ def get_constraint_matrix(consumers : List[Consumer_interface], calculationParam
         constraint_matrix[i, i] = 1
     current_x += calculationParams.get_simulation_size()
     current_y += calculationParams.get_simulation_size()
+    constraint_low  = [0.0 for i in range(calculationParams.get_simulation_size())]
+    constraint_high = [np.inf for i in range(calculationParams.get_simulation_size())]
+    for consumer in consumers:
+        consumer.fill_minimizing_constraints(calculationParams, constraint_matrix, [current_x], [0])
+        consumer.fill_functionnal_constraints(calculationParams, constraint_matrix, current_x, current_y)
+        current_x += consumer.get_minimizing_variables_count()
+        current_y += consumer.get_constraints_size()
+        consumer_constraints_boundaries = consumer.get_functionnal_constraints_boundaries(calculationParams)
+        constraint_low  += consumer_constraints_boundaries[0].tolist()
+        constraint_high += consumer_constraints_boundaries[1].tolist()
