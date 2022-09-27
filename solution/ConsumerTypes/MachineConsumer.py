@@ -41,6 +41,7 @@ class MachineConsumer(Consumer_interface):
         end_time = mini(self.end_time, calculationParams.end + calculationParams.step_size)
         steps_count = (end_time - start_time) / calculationParams.step_size
         steps_count -= len(self.profile)
+        steps_count = round(steps_count)
         return steps_count
 
     def _get_constraints_size(self, calculationParams : CalculationParams) -> int:
@@ -55,6 +56,6 @@ class MachineConsumer(Consumer_interface):
         for i in range(self._get_minimizing_variables_count(calculationParams)):
             for j in range(len(self.profile)):
                 tofill[start_step + ypar + i + j, xpar + i] = self.profile[j]
-    def _fill__functionnal_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpar: int, ypar: int):
-        for x in range(self._get_constraints_size(calculationParams)):
+    def _fill_functionnal_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpar: int, ypar: int):
+        for x in range(self._get_minimizing_variables_count(calculationParams)):
             tofill[ypar, xpar + x] = 1

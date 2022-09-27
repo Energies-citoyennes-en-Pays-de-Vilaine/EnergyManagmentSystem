@@ -33,7 +33,7 @@ class Consumer_interface():
 	def get_functionnal_constraints_boundaries(self, calculationParams : CalculationParams) -> List[List[float]]:
 		checkFunctionExist(self, "_get_functionnal_constraints_boundaries")
 		functionnal_constraints = self._get_functionnal_constraints_boundaries(calculationParams)
-		check_for_specified_list_type_exception(functionnal_constraints, List[float])
+		check_for_specified_list_type_exception(functionnal_constraints, List)
 		check_list_size(functionnal_constraints, 2)
 		#TODO add better checks once all get_size interfaces will be required
 		return functionnal_constraints
@@ -58,4 +58,4 @@ class Consumer_interface():
 	def fill_functionnal_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpar: int, ypar: int):
 		checkFunctionExist(self, "_fill_functionnal_constraints")
 		#TODO add unit tests
-		self._fill__functionnal_constraints(calculationParams, tofill, xpar, ypar)
+		self._fill_functionnal_constraints(calculationParams, tofill, xpar, ypar)

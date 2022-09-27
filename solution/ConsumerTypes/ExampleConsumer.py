@@ -21,5 +21,5 @@ class ExampleConsumer(Consumer_interface):
         raise "not implemented yet"
     def _fill_minimizing_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpar: int, ypar: int):
         raise "not implemented yet"
-    def _fill__functionnal_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpars: List[int], ypars: List[int]):
+    def _fill_functionnal_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpars: List[int], ypars: List[int]):
         raise "not implemented yet"
