@@ -13,7 +13,7 @@ class ExampleConsumer(Consumer_interface):
         raise "not implemented yet"
     def _get_functionnal_constraints(self, calculationParams : CalculationParams) -> np.ndarray:
         raise "not implemented yet"
-    def _get_functionnal_constraints_boundaries(self, calculationParams : CalculationParams) -> List[np.ndarray]:
+    def _get_functionnal_constraints_boundaries(self, calculationParams : CalculationParams) -> List[List[float]]:
         raise "not implemented yet"
     def _get_minimizing_variables_count(self, calculationParams : CalculationParams) -> int:
         raise "not implemented yet"
