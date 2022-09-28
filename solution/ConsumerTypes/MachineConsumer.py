@@ -6,7 +6,8 @@ from solution.Consumer_interface import Consumer_interface
 from solution.Calculation_Params import CalculationParams
 from solution.Utils.utils import maxi, mini
 class MachineConsumer(Consumer_interface):
-    def __init__(self, profile, start_time, end_time, machine_count = 1):
+    def __init__(self, id, profile, start_time, end_time, machine_count = 1):
+        self.id = id
         self.profile = profile
         self.start_time = start_time
         self.end_time = end_time #machine MUST have finished BEFORE end_time
@@ -42,7 +43,7 @@ class MachineConsumer(Consumer_interface):
         steps_count = (end_time - start_time) / calculationParams.step_size
         steps_count -= len(self.profile)
         steps_count = round(steps_count)
-        return steps_count
+        return steps_count + 1
 
     def _get_constraints_size(self, calculationParams : CalculationParams) -> int:
         return 1 # only a sum constraint

@@ -22,7 +22,7 @@ class Problem():
 def get_base_variables_matrix(calculationParams : CalculationParams) -> np.ndarray: 
     return np.eye(calculationParams.get_simulation_size())
 
-def get_constraint_matrix(consumers : List[Consumer_interface], calculationParams : CalculationParams):
+def create_problem(consumers : List[Consumer_interface], calculationParams : CalculationParams):
     check_for_specified_list_type_exception(consumers, Consumer_interface)
     constraint_matrix_width  = calculationParams.get_simulation_size()
     constraint_matrix_height = calculationParams.get_simulation_size()
