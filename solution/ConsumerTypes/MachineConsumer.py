@@ -57,6 +57,17 @@ class MachineConsumer(Consumer_interface):
         for i in range(self._get_minimizing_variables_count(calculationParams)):
             for j in range(len(self.profile)):
                 tofill[start_step + ypar + i + j, xpar + i] = self.profile[j]
+
     def _fill_functionnal_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpar: int, ypar: int):
         for x in range(self._get_minimizing_variables_count(calculationParams)):
             tofill[ypar, xpar + x] = 1
+
+    def _get_consumption_curve(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
+        sim_size = calculationParams.get_simulation_size()
+        toReturn = np.zeros((sim_size,), np.float64)
+        start_time = maxi(self.start_time, calculationParams.begin)
+        start_step = int(round((start_time - calculationParams.begin) / calculationParams.step_size))
+        for i in range(len(variables)):
+            for j in range(len(self.profile)):
+                toReturn[start_step + i + j] = variables[i] * self.profile[j]
+        return toReturn

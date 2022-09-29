@@ -50,6 +50,13 @@ class Consumer_interface():
 		functionnal_constraints = self._get_constraints_size(calculationParams)
 		return functionnal_constraints
 
+	def get_consumption_curve(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
+		checkFunctionExist(self, "_get_consumption_curve")
+		consumption_curve = self._get_consumption_curve(calculationParams, variables)
+		#TODO add unit tests
+		check_for_specified_numpy_array_type_exception(consumption_curve, np.float64)
+		return consumption_curve
+
 	def fill_minimizing_constraints(self, calculationParams : CalculationParams, tofill : np.ndarray, xpars : List[int], ypars : List[int]):
 		checkFunctionExist(self, "_fill_minimizing_constraints")
 		#TODO add unit tests
