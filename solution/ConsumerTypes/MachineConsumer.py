@@ -56,7 +56,7 @@ class MachineConsumer(Consumer_interface):
         ypar = ypars[0]
         for i in range(self._get_minimizing_variables_count(calculationParams)):
             for j in range(len(self.profile)):
-                tofill[start_step + ypar + i + j, xpar + i] = self.profile[j]
+                tofill[start_step + ypar + i + j, xpar + i] = -self.profile[j]
 
     def _fill_functionnal_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpar: int, ypar: int):
         for x in range(self._get_minimizing_variables_count(calculationParams)):
@@ -68,6 +68,7 @@ class MachineConsumer(Consumer_interface):
         start_time = maxi(self.start_time, calculationParams.begin)
         start_step = int(round((start_time - calculationParams.begin) / calculationParams.step_size))
         for i in range(len(variables)):
-            for j in range(len(self.profile)):
-                toReturn[start_step + i + j] = variables[i] * self.profile[j]
+            if (variables[i] != 0):
+                for j in range(len(self.profile)):
+                    toReturn[start_step + i + j] = variables[i] * self.profile[j]
         return toReturn
