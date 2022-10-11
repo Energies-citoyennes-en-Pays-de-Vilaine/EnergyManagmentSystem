@@ -13,3 +13,5 @@ class CalculationParams():
 	def get_simulation_size(self) -> int:
 		result = (self.end - self.begin) / self.step_size
 		return int(result) + 1
+	def get_time_array(self):
+		return [i * self.step_size + self.begin for i in range(self.get_simulation_size())]

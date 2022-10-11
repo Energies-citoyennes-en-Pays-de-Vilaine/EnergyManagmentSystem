@@ -14,6 +14,7 @@ class Problem():
     has_ran                       : bool
     has_results                   : bool
     is_ready_to_run               : bool
+    fun_val                       : float
     result                        : np.ndarray
     constraint_matrix             : np.ndarray
     constraint_low                : List[float]
@@ -53,6 +54,12 @@ class Problem():
         constraint_low    = []
         for base_minimization_constraint in calculationParams.base_minimization_constraints:
             constraint_low += base_minimization_constraint
+        for consumer in consumers:
+            if consumer.has_base_consumption:
+                consumer_base_consumption = consumer.get_base_consumption(calculationParams)
+                for i in range(len(consumer_base_consumption)):
+                    if consumer_base_consumption[i] != 0:
+                        constraint_low[i] += consumer_base_consumption[i]
         constraint_high   = [np.inf for i in range(calculationParams.get_simulation_size())]
         minimizing_matrix = [1 for i in range(calculationParams.get_simulation_size())]
         integrality       = [0 for i in range(calculationParams.get_simulation_size())]
@@ -72,14 +79,18 @@ class Problem():
         self.integrality       = integrality
         self.minimizing_matrix = minimizing_matrix
         self.is_ready_to_run   = True
-    def solve(self, timeout: int = 100, force : bool = False):
+    def solve(self, timeout: int = 100, has_solver : bool = False, force : bool = False):
         if self.has_results and not force:
             return
         if not self.is_ready_to_run:
             self.prepare()
-        result = opt.milp(self.minimizing_matrix, integrality = self.integrality, bounds = opt.Bounds(lb = 0, ub = np.inf), constraints = opt.LinearConstraint(self.constraint_matrix, self.constraint_bound_low, self.constraint_bound_high), options={"time_limit": timeout})
+        if has_solver:
+            result = opt.milp(self.minimizing_matrix, integrality = self.integrality, bounds = opt.Bounds(lb = 0, ub = np.inf), constraints = opt.LinearConstraint(self.constraint_matrix, self.constraint_bound_low, self.constraint_bound_high), options={"time_limit": timeout, "solver": "ipm"})
+        else:
+            result = opt.milp(self.minimizing_matrix, integrality = self.integrality, bounds = opt.Bounds(lb = 0, ub = np.inf), constraints = opt.LinearConstraint(self.constraint_matrix, self.constraint_bound_low, self.constraint_bound_high), options={"time_limit": timeout})
         self.result = result.x
         self.has_results = True
+        self.fun_val     = result.fun
         return result
     def get_consumption(self) -> np.ndarray:
         consumption = np.zeros((self.calculationParams.get_simulation_size(),), np.float64)

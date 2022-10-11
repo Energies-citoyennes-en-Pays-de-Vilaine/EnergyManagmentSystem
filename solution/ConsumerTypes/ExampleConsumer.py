@@ -25,3 +25,6 @@ class ExampleConsumer(Consumer_interface):
         raise "not implemented yet"
     def _get_consumption_curve(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
         raise "not implemented yet"
+    #ONLY IF it hase a base consumption ie it consumes no matter what
+    def _get_base_consumption(self, calculationParams : CalculationParams) -> np.ndarray:
+        raise "not implemented yet"

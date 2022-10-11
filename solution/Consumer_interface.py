@@ -1,3 +1,4 @@
+from email.mime import base
 from typing import *
 from solution.Exceptions.ListShapeException import check_list_size
 from solution.Exceptions.SpecifiedListTypeException import *
@@ -5,6 +6,7 @@ from solution.Exceptions.FunctionNotExistingException import *
 from solution.Calculation_Params import CalculationParams
 import numpy as np
 class Consumer_interface():
+	has_base_consumption : bool
 
 	def get_f_contrib(self, calculationParams : CalculationParams) -> List[float]:
 		checkFunctionExist(self, "_get_f_contrib")
@@ -56,6 +58,14 @@ class Consumer_interface():
 		#TODO add unit tests
 		check_for_specified_numpy_array_type_exception(consumption_curve, np.float64)
 		return consumption_curve
+
+	def get_base_consumption(self, calculationParams : CalculationParams) -> np.ndarray:
+		if not self.has_base_consumption:
+			return np.zeros((len(calculationParams.get_time_array()),))
+		checkFunctionExist(self, "_get_base_consumption")
+		#TODO add unit tests
+		base_consumption = self._get_base_consumption(calculationParams)
+		return base_consumption
 
 	def fill_minimizing_constraints(self, calculationParams : CalculationParams, tofill : np.ndarray, xpars : List[int], ypars : List[int]):
 		checkFunctionExist(self, "_fill_minimizing_constraints")
