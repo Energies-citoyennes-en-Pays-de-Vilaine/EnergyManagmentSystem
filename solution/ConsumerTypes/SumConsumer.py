@@ -1,16 +1,18 @@
 #this is just a template of the functions required to implement, do not use
 from time import time
+from EMS.solution.Utils.VersionChecker import UpdateChecked
 from solution.Consumer_interface import Consumer_interface
 from solution.Calculation_Params import CalculationParams
 import numpy as np
 from typing import *
 from solution.ConsumerTypes.types.SumPeriod import SumPeriod
-class SumConsumer(Consumer_interface):
+class SumConsumer(Consumer_interface, UpdateChecked):
     conso_low            : float
     conso_high           : float
     sum_periods          : List[SumPeriod]
     variables_timestamps : List[int]
     def __init__(self, conso_low: float, conso_high: float, sum_periods : List[SumPeriod]):
+        super.__init__()
         self.conso_low   = conso_low
         self.conso_high  = conso_high
         self.sum_periods = sum_periods#sum_period to assert that : Sum(conso_high_t) == expected_sum for each time period
@@ -30,7 +32,7 @@ class SumConsumer(Consumer_interface):
         return [bound[:], bound[:]]
 
     def get_variables_timestamps(self, calculationParams : CalculationParams, forceRebuild : bool = False) -> List[float]:
-        if len(self.variables_timestamps) != 0 and not forceRebuild == True :
+        if len(self.variables_timestamps) != 0 and not forceRebuild == True  and not self.has_been_updated:
             return self.variables_timestamps #this is lazy loaded to save computation power, add id method to check if calculation params stayed the same
         candidate_timestamps : List[int] = calculationParams.get_time_array()
         timestamps_used      : List[int] = []
@@ -41,6 +43,7 @@ class SumConsumer(Consumer_interface):
                     timestamps_used.append(candidate_timestamps[i])
                     break
         self.variables_timestamps = timestamps_used
+        self.has_been_updated = False
         return timestamps_used
         
     def _get_minimizing_variables_count(self, calculationParams : CalculationParams) -> int:
