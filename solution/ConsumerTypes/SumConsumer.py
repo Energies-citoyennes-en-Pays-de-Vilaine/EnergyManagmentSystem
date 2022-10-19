@@ -1,18 +1,17 @@
 #this is just a template of the functions required to implement, do not use
 from time import time
-from EMS.solution.Utils.VersionChecker import UpdateChecked
+from solution.Utils.VersionChecker import UpdateChecked
 from solution.Consumer_interface import Consumer_interface
 from solution.Calculation_Params import CalculationParams
 import numpy as np
 from typing import *
 from solution.ConsumerTypes.types.SumPeriod import SumPeriod
-class SumConsumer(Consumer_interface, UpdateChecked):
+class SumConsumer(Consumer_interface):
     conso_low            : float
     conso_high           : float
     sum_periods          : List[SumPeriod]
     variables_timestamps : List[int]
     def __init__(self, conso_low: float, conso_high: float, sum_periods : List[SumPeriod]):
-        super.__init__()
         self.conso_low   = conso_low
         self.conso_high  = conso_high
         self.sum_periods = sum_periods#sum_period to assert that : Sum(conso_high_t) == expected_sum for each time period
