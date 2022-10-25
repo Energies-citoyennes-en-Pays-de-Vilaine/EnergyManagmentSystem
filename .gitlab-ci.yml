@@ -1,0 +1,40 @@
+image: continuumio/anaconda3
+stages:          # List of stages for jobs, and their order of execution
+  - build
+  - test
+  - deploy
+conda-install:
+  cache:
+    - key: conda
+      paths:
+        - cache/conda
+      policy: pull-push
+  stage: build
+  script:
+    - conda init bash
+    - source ~/.bashrc 
+    - mkdir -p cache/conda cache/hash
+    - conda env update -f anaconda.yml -p cache/conda
+
+unit-test-job:   # This job runs in the test stage.
+  cache:
+    - key: conda
+      paths:
+        - cache/conda
+      policy: pull
+  stage: test    # It only starts when the job in the build stage completes successfully.
+  script:
+    - conda init bash
+    - source ~/.bashrc
+    - conda activate ./cache/conda
+    - echo "Running unit tests..."
+    - python -m coverage run -m unittest
+    - python -m coverage report
+
+
+deploy-job:      # This job runs in the deploy stage.
+  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+  environment: production
+  script:
+    - echo "Deploying application..."
+    - echo "Application successfully deployed."
