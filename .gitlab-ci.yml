@@ -25,6 +25,7 @@ unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
   script:
     - conda init bash
+    - mamba init bash
     - source ~/.bashrc
     - conda activate ./cache/conda
     - echo "Running unit tests..."
