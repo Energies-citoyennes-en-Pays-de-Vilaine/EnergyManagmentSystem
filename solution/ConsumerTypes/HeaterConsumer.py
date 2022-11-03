@@ -9,21 +9,23 @@ class HeaterConsumer(Consumer_interface):
     """
         temperatures are in K
     """
-    T_init       : float
-    T_ext        : np.ndarray #note T_ext[0] has to be the current temperature
-    T_wish_low   : np.ndarray
-    T_wish_high  : np.ndarray
-    R_th         : float
-    C_th         : float
-    P_rad        : float
-    def __init__(self, T_init: float, T_ext: np.ndarray, T_wish_low: np.ndarray, T_wish_high: np.ndarray, R_th: float, C_th: float, P_rad: float) -> None:
-        self.T_init      = T_init  
-        self.T_ext       = T_ext   
-        self.T_wish_low  = T_wish_low
-        self.T_wish_high = T_wish_high
-        self.R_th        = R_th    
-        self.C_th        = C_th    
-        self.P_rad       = P_rad
+    T_init        : float
+    initial_state : bool
+    T_ext         : np.ndarray #note T_ext[0] has to be the current temperature
+    T_wish_low    : np.ndarray
+    T_wish_high   : np.ndarray
+    R_th          : float
+    C_th          : float
+    P_rad         : float
+    def __init__(self, T_init: float, initial_state: bool, T_ext: np.ndarray, T_wish_low: np.ndarray, T_wish_high: np.ndarray, R_th: float, C_th: float, P_rad: float) -> None:
+        self.T_init        = T_init 
+        self.initial_state = initial_state 
+        self.T_ext         = T_ext   
+        self.T_wish_low    = T_wish_low
+        self.T_wish_high   = T_wish_high
+        self.R_th          = R_th    
+        self.C_th          = C_th    
+        self.P_rad         = P_rad
         self.has_base_consumption = False   
     def _get_f_contrib(self, calculationParams : CalculationParams) -> List[float]:
         return [0.0 for i in range(self._get_minimizing_variables_count(calculationParams))]
@@ -42,26 +44,31 @@ class HeaterConsumer(Consumer_interface):
         sim_size = calculationParams.get_simulation_size()
         to_return_low  : List[float] = []
         to_return_high : List[float] = []
-        current_max_heat = self.T_init
         #power constraint:
         #only one heater
         for i in range(sim_size):
             to_return_low.append(0)
             to_return_high.append(1)
         #physics is ok
-        for i in range(sim_size):
+        for i in range(1, sim_size + 1):
             power_ok = a2 * self.T_ext[i] + a1 * self.T_ext[i + 1]
             to_return_low.append(power_ok)
             to_return_high.append(power_ok)
         #temperature target
-        to_return_low .append(self.T_init)
-        to_return_high.append(self.T_init)
-        for i in range(sim_size):
+        initial_delta_T = self.T_init - self.T_ext[0]
+        if self.initial_state == True:
+            T_init = self.T_ext[1] + (calculationParams.time_delta / self.C_th) * (self.P_rad - initial_delta_T / self.R_th) + initial_delta_T
+        else:
+            T_init = self.T_ext[1] + (calculationParams.time_delta / self.C_th) * (0 - initial_delta_T / self.R_th) + initial_delta_T
+        to_return_low .append(T_init)
+        to_return_high.append(T_init)
+        current_max_heat = T_init
+        for i in range(1, sim_size + 1):
             current_delta_T = current_max_heat - self.T_ext[i]
             current_max_heat = self.T_ext[i + 1] + (calculationParams.time_delta / self.C_th) * (self.P_rad - current_delta_T / self.R_th) + current_delta_T
-            current_target_temperature = min(current_max_heat, self.T_wish_low[i])
+            current_target_temperature = min(current_max_heat, self.T_wish_low[i - 1])
             to_return_low.append(current_target_temperature)
-            to_return_high.append(self.T_wish_high[i])
+            to_return_high.append(self.T_wish_high[i - 1])
         return [to_return_low, to_return_high]
 
     def _get_minimizing_variables_count(self, calculationParams : CalculationParams) -> int:

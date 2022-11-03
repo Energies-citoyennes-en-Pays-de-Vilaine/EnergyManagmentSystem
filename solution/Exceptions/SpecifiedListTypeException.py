@@ -11,6 +11,7 @@ class SpecifiedListTypeException(Exception):
 			super().__init__(self.message)
 			return
 		self.message = f"{index}th element of the list is not of the specified type {expected_type}. got {type(self.object[index])}"
+		super().__init__(self.message)
 
 
 def check_for_specified_list_type_exception(list_to_check, expected_type):

@@ -1,4 +1,3 @@
-from email.mime import base
 from typing import *
 from solution.Exceptions.ListShapeException import check_list_size
 from solution.Exceptions.SpecifiedListTypeException import *
@@ -42,13 +41,13 @@ class Consumer_interface():
 	
 	def get_minimizing_variables_count(self, calculationParams : CalculationParams) -> int:
 		checkFunctionExist(self, "_get_minimizing_variables_count")
-		#TODO add unit tests
+		#TODO add better tests
 		functionnal_constraints = self._get_minimizing_variables_count(calculationParams)
 		return functionnal_constraints
 	
 	def get_constraints_size(self, calculationParams : CalculationParams) -> int:
 		checkFunctionExist(self, "_get_constraints_size")
-		#TODO add unit tests
+		#TODO better unit tests
 		functionnal_constraints = self._get_constraints_size(calculationParams)
 		return functionnal_constraints
 
