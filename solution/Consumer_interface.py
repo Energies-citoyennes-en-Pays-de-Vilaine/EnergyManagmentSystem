@@ -36,6 +36,8 @@ class Consumer_interface():
 		functionnal_constraints = self._get_functionnal_constraints_boundaries(calculationParams)
 		check_for_specified_list_type_exception(functionnal_constraints, List)
 		check_list_size(functionnal_constraints, 2)
+		check_for_specified_list_type_exception(functionnal_constraints[0], float)
+		check_for_specified_list_type_exception(functionnal_constraints[1], float)
 		#TODO add better checks once all get_size interfaces will be required
 		return functionnal_constraints
 	
@@ -65,7 +67,7 @@ class Consumer_interface():
 		except AttributeError:
 			return np.zeros((len(calculationParams.get_time_array()),))
 		checkFunctionExist(self, "_get_base_consumption")
-		#TODO add unit tests
+		#TODO better unit tests
 		base_consumption = self._get_base_consumption(calculationParams)
 		check_for_specified_numpy_array_type_exception(base_consumption, np.float64)
 		return base_consumption
@@ -73,6 +75,8 @@ class Consumer_interface():
 	def fill_minimizing_constraints(self, calculationParams : CalculationParams, tofill : np.ndarray, xpars : List[int], ypars : List[int]):
 		checkFunctionExist(self, "_fill_minimizing_constraints")
 		#TODO add unit tests
+		check_for_specified_list_type_exception(xpars, int)
+		check_for_specified_list_type_exception(ypars, int)
 		self._fill_minimizing_constraints(calculationParams, tofill, xpars, ypars)
 
 	def fill_functionnal_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpar: int, ypar: int):

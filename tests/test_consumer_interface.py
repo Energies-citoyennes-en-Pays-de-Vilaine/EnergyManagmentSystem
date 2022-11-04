@@ -2,6 +2,7 @@ from unittest import TestCase
 import numpy as np
 from solution.Consumer_interface import *
 from solution.Calculation_Params import CalculationParams
+from solution.Exceptions.ListShapeException import ListShapeException
 basic_calculation_params = CalculationParams(0, 5, 1, 1, [0 for i in range(6)])
 basic_vars = [1.0, 2.0, 3.0]
 class Consumer_No_implemented_Methods(Consumer_interface):
@@ -89,6 +90,36 @@ class Consumer_get_base_consumption_valid(Consumer_interface):
 	def _get_base_consumption(self, calculationParams: CalculationParams):
 		return np.array([0.3])
 
+class Consumer_fill_minimizing_constraints_valid(Consumer_interface):
+	def _fill_minimizing_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpars:List[int], ypars:List[int]):
+		for i in range(len(tofill)):
+			tofill[i] = xpars[0] + ypars[0] * 2 + i
+
+class Consumer_fill_functionnal_constraints(Consumer_interface):
+	def _fill_functionnal_constraints(self, calculationParams: CalculationParams, toFill: np.ndarray, x: int, y: int):
+		for i in range(len(toFill)):
+			toFill[i] = x + y * 2 + i
+
+class Consumer_get_functionnal_constraints_boundaries_invalid_array_length(Consumer_interface):
+	def _get_functionnal_constraints_boundaries(self, calculationParams: CalculationParams):
+		return [[1], [2], [3]]
+
+class Consumer_get_functionnal_constraints_boundaries_invalid_global_array_type(Consumer_interface):
+	def _get_functionnal_constraints_boundaries(self, calculationParams: CalculationParams):
+		return [1, 2]
+
+class Consumer_get_functionnal_constraints_boundaries_invalid_array_type_1(Consumer_interface):
+	def _get_functionnal_constraints_boundaries(self, calculationParams: CalculationParams):
+		return [[""], [2]]
+
+class Consumer_get_functionnal_constraints_boundaries_invalid_array_type_2(Consumer_interface):
+	def _get_functionnal_constraints_boundaries(self, calculationParams: CalculationParams):
+		return [[1], [""]]
+
+class Consumer_get_functionnal_constraints_boundaries_valid(Consumer_interface):
+	def _get_functionnal_constraints_boundaries(self, calculationParams: CalculationParams):
+		return [[1.5], [2]]
+
 class Consumer_interface_TestCase(TestCase):
 	def test_Consumer_No_implemented_Methods_integrality(self):
 		toCheck = Consumer_No_implemented_Methods()
@@ -138,6 +169,24 @@ class Consumer_interface_TestCase(TestCase):
 			toCheck.get_base_consumption(basic_calculation_params)
 		self.assertAlmostEqual(error.exception.function_name, "_get_base_consumption")
 
+	def test_Consumer_No_Implemented_Methods_fill_minimizing_constraints(self):
+		toCheck = Consumer_No_implemented_Methods()
+		with self.assertRaises(FunctionNotExistingException) as error:
+			toCheck.fill_minimizing_constraints(basic_calculation_params, np.zeros(2), [0], [1])
+		self.assertAlmostEqual(error.exception.function_name, "_fill_minimizing_constraints")
+
+	def test_Consumer_No_Implemented_Methods_fill_functionnal_constraints(self):
+		toCheck = Consumer_No_implemented_Methods()
+		with self.assertRaises(FunctionNotExistingException) as error:
+			toCheck.fill_functionnal_constraints(basic_calculation_params, np.zeros(2), [0], [1])
+		self.assertAlmostEqual(error.exception.function_name, "_fill_functionnal_constraints")
+	
+	def test_Consumer_No_Implemented_Methods_get_functionnal_constraints_boundaries(self):
+		toCheck = Consumer_No_implemented_Methods()
+		with self.assertRaises(FunctionNotExistingException) as error:
+			toCheck.get_functionnal_constraints_boundaries(basic_calculation_params)
+		self.assertAlmostEqual(error.exception.function_name, "_get_functionnal_constraints_boundaries")
+	
 	def test_Consumer_F_contrib_invalid(self):
 		toCheck = Consumer_F_contrib_invalid()
 		with self.assertRaises(SpecifiedListTypeException) as error:
@@ -235,3 +284,61 @@ class Consumer_interface_TestCase(TestCase):
 		toCheck = Consumer_get_base_consumption_valid()
 		result = toCheck.get_base_consumption(basic_calculation_params)
 		self.assertEqual(result.all(), np.array([0.3]).all())
+	
+	def test_Consumer_fill_minimizing_constraints_wrong_x_and_y(self):
+		toCheck = Consumer_fill_minimizing_constraints_valid()
+		toFill = np.zeros((5,))
+		with self.assertRaises(SpecifiedListTypeException) as error:
+			toCheck.fill_minimizing_constraints(basic_calculation_params, toFill, "hello", [12] )
+		self.assertEqual(error.exception.expected_list_type, list)
+		with self.assertRaises(SpecifiedListTypeException) as error:
+			toCheck.fill_minimizing_constraints(basic_calculation_params, toFill, [12], "hello" )
+		self.assertEqual(error.exception.expected_list_type, list)
+		with self.assertRaises(SpecifiedListTypeException) as error:
+			toCheck.fill_minimizing_constraints(basic_calculation_params, toFill, [10.5], [12] )
+		self.assertEqual(error.exception.expected_type, int)
+		with self.assertRaises(SpecifiedListTypeException) as error:
+			toCheck.fill_minimizing_constraints(basic_calculation_params, toFill, [12], [10.5] )
+		self.assertEqual(error.exception.expected_type, int)
+
+	def test_Consumer_fill_minimizing_constraints_valid(self):
+		toCheck = Consumer_fill_minimizing_constraints_valid()
+		toFill = np.zeros((5,))
+		toCheck.fill_minimizing_constraints(basic_calculation_params, toFill,  [12], [14])
+		self.assertListEqual(list(toFill), [40., 41., 42., 43., 44.])
+	
+	def test_Consumer_fill_functionnal_constraints(self):
+		toCheck = Consumer_fill_functionnal_constraints()
+		toFill = np.zeros((5,))
+		toCheck.fill_functionnal_constraints(basic_calculation_params, toFill,  12, 14)
+		self.assertListEqual(list(toFill), [40., 41., 42., 43., 44.])
+	
+	def test_Consumer_get_functionnal_constraints_boundaries_invalid_array_length(self):
+		toCheck = Consumer_get_functionnal_constraints_boundaries_invalid_array_length()
+		with self.assertRaises(ListShapeException) as error:
+			toCheck.get_functionnal_constraints_boundaries(basic_calculation_params)
+		self.assertEqual(3, error.exception.actual_shape)
+		self.assertEqual(2, error.exception.expected_shape)
+	
+	def test_Consumer_get_functionnal_constraints_boundaries_invalid_global_array_type(self):
+		toCheck = Consumer_get_functionnal_constraints_boundaries_invalid_global_array_type()
+		with self.assertRaises(SpecifiedListTypeException) as error:
+			toCheck.get_functionnal_constraints_boundaries(basic_calculation_params)
+		self.assertEqual(error.exception.expected_type, List)
+
+	def test_Consumer_get_functionnal_constraints_boundaries_invalid_array_type_1(self):
+		toCheck = Consumer_get_functionnal_constraints_boundaries_invalid_array_type_1()
+		with self.assertRaises(SpecifiedListTypeException) as error:
+			toCheck.get_functionnal_constraints_boundaries(basic_calculation_params)
+		self.assertEqual(error.exception.expected_type, float)
+
+	def test_Consumer_get_functionnal_constraints_boundaries_invalid_array_type_2(self):
+		toCheck = Consumer_get_functionnal_constraints_boundaries_invalid_array_type_2()
+		with self.assertRaises(SpecifiedListTypeException) as error:
+			toCheck.get_functionnal_constraints_boundaries(basic_calculation_params)
+		self.assertEqual(error.exception.expected_type, float)
+
+	def test_Consumer_get_functionnal_constraints_boundaries_valid(self):
+		toCheck = Consumer_get_functionnal_constraints_boundaries_valid()
+		result = toCheck.get_functionnal_constraints_boundaries(basic_calculation_params)
+		self.assertListEqual(result, [[1.5], [2]])
