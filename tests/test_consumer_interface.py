@@ -6,8 +6,7 @@ from solution.Exceptions.ListShapeException import ListShapeException
 basic_calculation_params = CalculationParams(0, 5, 1, 1, [0 for i in range(6)])
 basic_vars = [1.0, 2.0, 3.0]
 class Consumer_No_implemented_Methods(Consumer_interface):
-	def unused(self):
-		return
+	pass
 
 class Consumer_F_contrib_invalid(Consumer_interface):
 	def _get_f_contrib(self, calculationParams: CalculationParams):
@@ -157,7 +156,7 @@ class Consumer_interface_TestCase(TestCase):
 			toCheck.get_constraints_size(basic_calculation_params)
 		self.assertAlmostEqual(error.exception.function_name, "_get_constraints_size")
 
-	def test_Consumer_No_Implemented_Methods_get_constraints_size(self):
+	def test_Consumer_No_Implemented_Methods_get_consumption_curve(self):
 		toCheck = Consumer_No_implemented_Methods()
 		with self.assertRaises(FunctionNotExistingException) as error:
 			toCheck.get_consumption_curve(basic_calculation_params, basic_vars)
