@@ -62,6 +62,33 @@ class Consumer_get_minimizing_variables_count(Consumer_interface):
 class Consumer_get_constraints_size(Consumer_interface):
 	def _get_constraints_size(self, calculationParams: CalculationParams):
 		return 42
+
+class Consumer_get_base_consumption_valid_no_function(Consumer_interface):
+	def __init__(self) -> None:
+		self.has_base_consumption = False
+
+class Consumer_get_base_consumption_invalid_no_function(Consumer_interface):
+	def __init__(self) -> None:
+		self.has_base_consumption = True
+
+class Consumer_get_base_consumption_invalid_wrong_array_type(Consumer_interface):
+	def __init__(self) -> None:
+		self.has_base_consumption = True
+	def _get_base_consumption(self, calculationParams: CalculationParams):
+		return [0.3]
+
+class Consumer_get_base_consumption_invalid_val_type(Consumer_interface):
+	def __init__(self) -> None:
+		self.has_base_consumption = True
+	def _get_base_consumption(self, calculationParams: CalculationParams):
+		return np.array(["test"])
+
+class Consumer_get_base_consumption_valid(Consumer_interface):
+	def __init__(self) -> None:
+		self.has_base_consumption = True
+	def _get_base_consumption(self, calculationParams: CalculationParams):
+		return np.array([0.3])
+
 class Consumer_interface_TestCase(TestCase):
 	def test_Consumer_No_implemented_Methods_integrality(self):
 		toCheck = Consumer_No_implemented_Methods()
@@ -104,6 +131,12 @@ class Consumer_interface_TestCase(TestCase):
 		with self.assertRaises(FunctionNotExistingException) as error:
 			toCheck.get_consumption_curve(basic_calculation_params, basic_vars)
 		self.assertAlmostEqual(error.exception.function_name, "_get_consumption_curve")
+
+	def test_Consumer_No_Implemented_Methods_get_base_consumption(self):
+		toCheck = Consumer_get_base_consumption_invalid_no_function()
+		with self.assertRaises(FunctionNotExistingException) as error:
+			toCheck.get_base_consumption(basic_calculation_params)
+		self.assertAlmostEqual(error.exception.function_name, "_get_base_consumption")
 
 	def test_Consumer_F_contrib_invalid(self):
 		toCheck = Consumer_F_contrib_invalid()
@@ -169,3 +202,36 @@ class Consumer_interface_TestCase(TestCase):
 		toCheck = Consumer_get_consumption_curve_valid()
 		result = toCheck.get_consumption_curve(basic_calculation_params, basic_vars)
 		self.assertTrue(isinstance(result, np.ndarray))
+	
+	def test_Consumer_get_base_consumption_No_implemented_Methods(self):
+		toCheck = Consumer_No_implemented_Methods()
+		result = toCheck.get_base_consumption(basic_calculation_params)
+		self.assertAlmostEqual(result.all(), np.array([0.0] * basic_calculation_params.get_simulation_size()).all())
+
+	def test_Consumer_get_base_consumption_valid_no_function(self):
+		toCheck = Consumer_get_base_consumption_valid_no_function()
+		result = toCheck.get_base_consumption(basic_calculation_params)
+		self.assertAlmostEqual(result.all(), np.array([0.0] * basic_calculation_params.get_simulation_size()).all())
+	
+	def test_Consumer_get_base_consumption_invalid_no_function(self):
+		toCheck = Consumer_get_base_consumption_invalid_no_function()
+		with self.assertRaises(FunctionNotExistingException) as error:
+			toCheck.get_base_consumption(basic_calculation_params)
+		self.assertAlmostEqual(error.exception.function_name, "_get_base_consumption")
+	
+	def test_Consumer_get_base_consumption_invalid_wrong_array_type(self):
+		toCheck = Consumer_get_base_consumption_invalid_wrong_array_type()
+		with self.assertRaises(SpecifiedListTypeException) as error:
+			toCheck.get_base_consumption(basic_calculation_params)
+		self.assertEqual(error.exception.expected_list_type, np.ndarray)
+	
+	def test_Consumer_get_base_consumption_invalid_val_type(self):
+		toCheck = Consumer_get_base_consumption_invalid_val_type()
+		with self.assertRaises(SpecifiedListTypeException) as error:
+			toCheck.get_base_consumption(basic_calculation_params)
+		self.assertEqual(error.exception.expected_type, np.float64)
+	
+	def test_Consumer_get_base_consumption_valid(self):
+		toCheck = Consumer_get_base_consumption_valid()
+		result = toCheck.get_base_consumption(basic_calculation_params)
+		self.assertEqual(result.all(), np.array([0.3]).all())
