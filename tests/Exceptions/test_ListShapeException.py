@@ -25,10 +25,3 @@ class ListShapeExceptionTestCase(TestCase):
 			check_list_shape(a, (2, 2, 2))
 		self.assertEqual(exceptionReturned.exception.expected_shape, (2,2,2))
 		self.assertEqual(exceptionReturned.exception.actual_shape, (2,2))
-	
-	def test_wrong_dimension(self):
-		a = [[2,2], [3,3]]
-		with self.assertRaises(ListShapeException) as exceptionReturned:
-			check_list_shape(a, (2, 2, 2))
-		self.assertEqual(exceptionReturned.exception.expected_shape, (2,2,2))
-		self.assertEqual(exceptionReturned.exception.actual_shape, (2,2))
