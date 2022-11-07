@@ -2,8 +2,8 @@ from solution.Exceptions.FunctionNotExistingException import *
 from unittest import TestCase
 
 class test_class():
-		def present_method():
-			return
+		def present_method(self):
+			return 42
 		present_class_field = 5
 		def __init__(self) :
 			self.present_field = 42
@@ -13,6 +13,7 @@ class FunctionNotExistingExceptionTestCase(TestCase):
 	def test_present_method(self):
 		test_object = test_class()
 		checkFunctionExist(test_object, "present_method")
+		self.assertEqual(test_object.present_method(), 42)
 	
 	def test_not_present_class_field(self):
 		test_object = test_class()
