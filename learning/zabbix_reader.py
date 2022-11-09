@@ -65,7 +65,7 @@ class ZabbixReader(DataReaderInterface):
 			"time_from" : time_from,
 			"time_till" : time_till,
 			"sortfield" : "clock",
-			"sortorder" : "DESC"
+			"sortorder" : "ASC"
 		}, True)
 		toReturn = { 
 			"timestamps"  : [],

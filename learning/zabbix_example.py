@@ -9,9 +9,8 @@ zr.get_token()
 items = zr.get_items()
 i = 0
 for item in items:
-	print(i, item)
+	print(i, item, items[item])
 	i = i +1
-i = 0
 print(len(items))
 #key = 9#42883#47#64#15
 keyName = "Equilibre General P=C bis"
