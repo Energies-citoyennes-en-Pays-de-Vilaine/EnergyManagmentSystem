@@ -11,8 +11,10 @@ i = 0
 for item in items:
 	print(i, item)
 	i = i +1
-#key = 47#64#15
-keyName = "A004 puissance"
+i = 0
+print(len(items))
+#key = 9#42883#47#64#15
+keyName = "Equilibre General P=C bis"
 key=list(items.keys()).index(keyName)
 print(list(items.keys())[key])
 def average(data, period) :
@@ -35,7 +37,7 @@ def average(data, period) :
 	return toReturn
 
 current_timestamp = int(datetime.now().timestamp())
-data = zr.readData(items[list(items.keys())[key]], current_timestamp - 5*24*60*60, current_timestamp)
+data = zr.readData(items[list(items.keys())[key]], current_timestamp - 1*24*60*60, current_timestamp)
 data2 = average(data, 15*60)
 plt.plot([int(d) for d in data["timestamps"]], data["values"])
 plt.plot(data2["timestamps"], np.array(data2["values"]))

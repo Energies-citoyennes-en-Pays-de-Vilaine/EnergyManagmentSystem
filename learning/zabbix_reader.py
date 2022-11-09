@@ -48,8 +48,15 @@ class ZabbixReader(DataReaderInterface):
 		data = self.send_request("item.get", {}, True)["result"]
 		items = {}
 		for d in data:
-			if (re.search("[ADF]{1}\\d{1,3}", d["name"][:4]) != None):
+			if (re.search("[ADF]{1}\\d{1,3}", d["name"][:4]) != None or re.search("Equi", d["name"][:4]) != None ):
 				items[d["name"]] = d["itemid"]
+		return items
+
+	def get_items_by_tag(self, tag):
+		data = self.send_request("item.get", {"tags": [{"tag" : "appareil", "value": tag}]}, True)["result"]
+		items = {}
+		for d in data:
+			items[d["name"]] = d["itemid"]
 		return items
 	def readData(self, clientID, time_from, time_till) -> np.ndarray:
 		data = self.send_request("history.get", {
