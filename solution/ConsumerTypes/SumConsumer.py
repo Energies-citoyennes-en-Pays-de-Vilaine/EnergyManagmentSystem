@@ -28,7 +28,7 @@ class SumConsumer(Consumer_interface):
 
     def _get_functionnal_constraints_boundaries(self, calculationParams : CalculationParams) -> List[List[float]]:
         bound = [sum_period.expected_sum for sum_period in self.sum_periods]#TODO add check that each sum_period is fesible to include them or not !!!!important
-        return [bound[:], bound[:]]
+        return [bound[:] + [0 for i in range(self._get_minimizing_variables_count(calculationParams))], bound[:] + [1 for i in range(self._get_minimizing_variables_count(calculationParams))]]
 
     def get_variables_timestamps(self, calculationParams : CalculationParams, forceRebuild : bool = False) -> List[float]:
         if len(self.variables_timestamps) != 0 and not forceRebuild == True  and not self.has_been_updated:
@@ -49,7 +49,7 @@ class SumConsumer(Consumer_interface):
         return len(self.get_variables_timestamps(calculationParams))
 
     def _get_constraints_size(self, calculationParams : CalculationParams) -> int:
-        return len(self.sum_periods)
+        return len(self.sum_periods) + len(self.get_variables_timestamps(calculationParams))
 
     def _fill_minimizing_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpars: List[int], ypars: List[int]):
         x = xpars[0]
@@ -64,6 +64,7 @@ class SumConsumer(Consumer_interface):
             for j in range(len(self.sum_periods)):
                 if self.sum_periods[j].beginning <= timestamps[i] and self.sum_periods[j].end > timestamps[i]:
                     tofill[j + ypar, i + xpar] = 1
+                tofill[i + ypar + len(self.sum_periods), i + xpar] = 1
     def _get_consumption_curve(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
         consumption = self._get_base_consumption(calculationParams)
         timestamps = self.get_variables_timestamps(calculationParams)
