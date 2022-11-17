@@ -28,3 +28,5 @@ class ExampleConsumer(Consumer_interface):
     #ONLY IF it hase a base consumption ie it consumes no matter what
     def _get_base_consumption(self, calculationParams : CalculationParams) -> np.ndarray:
         raise "not implemented yet"
+    def _get_decisions(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
+        raise "not implemented yet"

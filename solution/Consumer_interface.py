@@ -59,6 +59,11 @@ class Consumer_interface():
 		#TODO better unit tests
 		check_for_specified_numpy_array_type_exception(consumption_curve, np.float64)
 		return consumption_curve
+	def get_decisions(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
+		checkFunctionExist(self, "_get_decisions")
+		decisions = self._get_decisions(calculationParams, variables)
+		check_for_specified_numpy_array_type_exception(decisions, np.int64)
+		return decisions
 
 	def get_base_consumption(self, calculationParams : CalculationParams) -> np.ndarray:
 		try : 
@@ -83,3 +88,4 @@ class Consumer_interface():
 		checkFunctionExist(self, "_fill_functionnal_constraints")
 		#TODO add unit tests
 		self._fill_functionnal_constraints(calculationParams, tofill, xpar, ypar)
+	

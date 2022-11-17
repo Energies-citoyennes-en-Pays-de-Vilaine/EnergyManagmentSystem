@@ -72,6 +72,15 @@ class SumConsumer(Consumer_interface):
             if variables[i] != 0.0:
                 consumption[timestamps[i]] += variables[i] * (self.conso_high - self.conso_low)
         return consumption
+    
+    def _get_decisions(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
+        timestamps = self.get_variables_timestamps(calculationParams)
+        decisions =  np.zeros((calculationParams.get_simulation_size(),), dtype=np.int64)
+        for i in range(len(timestamps)):
+            if variables[i] != 0.0:
+                decisions[timestamps[i]] += np.round(variables[i])
+        return decisions
+
     def _get_base_consumption(self, calculationParams : CalculationParams) -> np.ndarray:
         base_consumption = np.zeros((calculationParams.get_simulation_size(),))
         if self.conso_low == 0:

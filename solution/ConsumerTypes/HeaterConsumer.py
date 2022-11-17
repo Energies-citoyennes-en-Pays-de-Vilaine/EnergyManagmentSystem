@@ -101,6 +101,9 @@ class HeaterConsumer(Consumer_interface):
         tofill[y + sim_size, x + sim_size] = 1
     def _get_consumption_curve(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
         return self.P_rad * np.array(variables[:calculationParams.get_simulation_size()])
+    def _get_decisions(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
+        decisions = [np.round(i) for i in variables[:calculationParams.get_simulation_size()]]
+        return np.array(decisions, dtype=np.int64)
     def get_temperature(self, calculationParams : CalculationParams, variables : List[float]):
         return np.array(variables[calculationParams.get_simulation_size() + 1:])
    

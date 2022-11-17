@@ -73,3 +73,12 @@ class MachineConsumer(Consumer_interface):
                 for j in range(len(self.profile)):
                     toReturn[start_step + i + j] = variables[i] * self.profile[j]
         return toReturn
+    def _get_decisions(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
+        sim_size = calculationParams.get_simulation_size()
+        toReturn = np.zeros((sim_size,), np.int64)
+        start_time = maxi(self.start_time, calculationParams.begin)
+        start_step = int(round((start_time - calculationParams.begin) / calculationParams.step_size))
+        for i in range(len(variables)):
+            if (variables[i] != 0):
+                toReturn[start_step + i] = np.round(variables[i])
+        return toReturn
