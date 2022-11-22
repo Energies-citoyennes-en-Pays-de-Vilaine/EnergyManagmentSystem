@@ -3,7 +3,7 @@ from learning.zabbix_reader import ZabbixReader
 import numpy as np
 import matplotlib.pyplot as plt
 
-from learning.zabbix_credentials import zabbix_credentials
+from credentials.zabbix_credentials import zabbix_credentials
 zr = ZabbixReader("http://mqtt.projet-elfe.fr/api_jsonrpc.php", zabbix_credentials["username"], zabbix_credentials["password"])
 zr.get_token()
 items = zr.get_items()
