@@ -47,6 +47,8 @@ def make_curve(times : List[int], data: List[float], threshold_begin : float, th
 	i = 0
 	toReturn = []
 	start_time = []
+	while(i < len(times) and data[i] > threshold_begin):
+		i = i + 1
 	while (i < len(times)):
 		if data[i] > threshold_begin:
 			curve = get_full_curve(times, data, period, i)
