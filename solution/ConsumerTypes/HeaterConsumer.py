@@ -17,7 +17,7 @@ class HeaterConsumer(Consumer_interface):
     R_th          : float
     C_th          : float
     P_rad         : float
-    def __init__(self, T_init: float, initial_state: bool, T_ext: np.ndarray, T_wish_low: np.ndarray, T_wish_high: np.ndarray, R_th: float, C_th: float, P_rad: float) -> None:
+    def __init__(self, id, T_init: float, initial_state: bool, T_ext: np.ndarray, T_wish_low: np.ndarray, T_wish_high: np.ndarray, R_th: float, C_th: float, P_rad: float) -> None:
         self.T_init        = T_init 
         self.initial_state = initial_state 
         self.T_ext         = T_ext   
@@ -26,7 +26,8 @@ class HeaterConsumer(Consumer_interface):
         self.R_th          = R_th    
         self.C_th          = C_th    
         self.P_rad         = P_rad
-        self.has_base_consumption = False   
+        self.has_base_consumption = False
+        self.id = id   
     def _get_f_contrib(self, calculationParams : CalculationParams) -> List[float]:
         return [0.0 for i in range(self._get_minimizing_variables_count(calculationParams))]
     def _get_integrality(self, calculationParams : CalculationParams) -> List[int]:

@@ -1,1 +1,7 @@
 *__pycache__
+data
+.coverage
+testData
+bench*
+learning/zabbix_credentials.py
+*_credentials*

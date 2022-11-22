@@ -11,12 +11,13 @@ class SumConsumer(Consumer_interface):
     conso_high           : float
     sum_periods          : List[SumPeriod]
     variables_timestamps : List[int]
-    def __init__(self, conso_low: float, conso_high: float, sum_periods : List[SumPeriod]):
+    def __init__(self, id,  conso_low: float, conso_high: float, sum_periods : List[SumPeriod]):
         self.conso_low   = conso_low
         self.conso_high  = conso_high
         self.sum_periods = sum_periods#sum_period to assert that : Sum(conso_high_t) == expected_sum for each time period
         self.variables_timestamps = []
         self.has_base_consumption = not (conso_low == 0)
+        self.id = id
     def _get_f_contrib(self, calculationParams : CalculationParams) -> List[float]:
         return [0 for i in range(self._get_minimizing_variables_count(calculationParams))]
     def _get_integrality(self, calculationParams : CalculationParams) -> List[int]:
