@@ -28,6 +28,15 @@ class HeaterConsumer(Consumer_interface):
         self.P_rad         = P_rad
         self.has_base_consumption = False
         self.id = id   
+
+    def simulate_next_step(self, calculationParams : CalculationParams, current_temp, T_ext, next_T_ext, P_th) -> float:
+        #TODO use this in stead once calculation is validated
+        rc = self.R_th * self.C_th
+        delta_T_i = current_temp - T_ext
+        delta_t = calculationParams.time_delta
+        return next_T_ext + P_th * delta_t / self.C_th + (1.0 - delta_t / rc) * delta_T_i
+
+
     def _get_f_contrib(self, calculationParams : CalculationParams) -> List[float]:
         return [0.0 for i in range(self._get_minimizing_variables_count(calculationParams))]
     def _get_integrality(self, calculationParams : CalculationParams) -> List[int]:
@@ -57,20 +66,44 @@ class HeaterConsumer(Consumer_interface):
             to_return_high.append(power_ok)
         #temperature target
         initial_delta_T = self.T_init - self.T_ext[0]
-        if self.initial_state == True:
-            T_init = self.T_ext[1] + (calculationParams.time_delta / self.C_th) * (self.P_rad - initial_delta_T / self.R_th) + initial_delta_T
-        else:
-            T_init = self.T_ext[1] + (calculationParams.time_delta / self.C_th) * (0 - initial_delta_T / self.R_th) + initial_delta_T
-        to_return_low .append(T_init)
-        to_return_high.append(T_init)
-        current_max_heat = T_init
-        for i in range(1, sim_size + 1):
-            current_delta_T = current_max_heat - self.T_ext[i]
-            current_max_heat = self.T_ext[i + 1] + (calculationParams.time_delta / self.C_th) * (self.P_rad - current_delta_T / self.R_th) + current_delta_T
-            current_target_temperature = min(current_max_heat, self.T_wish_low[i - 1])
-            to_return_low.append(current_target_temperature)
-            to_return_high.append(self.T_wish_high[i - 1])
+        temperature_lower_bound = self.get_temperature_lower_bound(calculationParams)[0]
+        temperature_upper_bound = self.get_temperature_upper_bound(calculationParams)[0]
+        for i in range(len(temperature_lower_bound)):
+            to_return_low.append(min(temperature_lower_bound[i], temperature_upper_bound[i]))
+            to_return_high.append(max(temperature_lower_bound[i], temperature_upper_bound[i]))
         return [to_return_low, to_return_high]
+
+    def get_temperature_lower_bound(self, calculationParams : CalculationParams) -> Tuple[List[float], List[bool]]:
+        sim_size = calculationParams.get_simulation_size()
+        simulated_temp = []
+        decisions      = []
+        simulated_temp.append(self.simulate_next_step(calculationParams, self.T_init, self.T_ext[0], self.T_ext[1], self.P_rad if self.initial_state else 0.0))#take into account the current state
+        for i in range(1, sim_size + 1):
+            next_step_high = self.simulate_next_step(calculationParams, simulated_temp[-1], self.T_ext[i], self.T_ext[i + 1], self.P_rad)
+            next_step_low  = self.simulate_next_step(calculationParams, simulated_temp[-1], self.T_ext[i], self.T_ext[i + 1], 0.0)
+            if (next_step_low >= self.T_wish_low[i - 1]):
+                simulated_temp.append(next_step_low)
+                decisions.append(False)
+            else:
+                simulated_temp.append(next_step_high)
+                decisions.append(True)
+        return (simulated_temp, decisions)
+    
+    def get_temperature_upper_bound(self, calculationParams : CalculationParams) -> Tuple[List[float], List[bool]]:
+        sim_size = calculationParams.get_simulation_size()
+        simulated_temp = []
+        decisions      = []
+        simulated_temp.append(self.simulate_next_step(calculationParams, self.T_init, self.T_ext[0], self.T_ext[1], self.P_rad if self.initial_state else 0.0))
+        for i in range(1, sim_size + 1):
+            next_step_high = self.simulate_next_step(calculationParams, simulated_temp[-1], self.T_ext[i], self.T_ext[i + 1], self.P_rad)
+            next_step_low  = self.simulate_next_step(calculationParams, simulated_temp[-1], self.T_ext[i], self.T_ext[i + 1], 0.0)
+            if (next_step_high >= self.T_wish_high[i - 1]):
+                simulated_temp.append(next_step_low)
+                decisions.append(False)
+            else:
+                simulated_temp.append(next_step_high)
+                decisions.append(True)
+        return (simulated_temp, decisions)
 
     def _get_minimizing_variables_count(self, calculationParams : CalculationParams) -> int:
         return 2 * calculationParams.get_simulation_size() + 1
