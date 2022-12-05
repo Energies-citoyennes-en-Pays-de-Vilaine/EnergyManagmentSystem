@@ -140,3 +140,17 @@ class InitialWheatherForecast():
 	gust_speed         : int
 	wind_direction     : int
 	sun_hours          : Union[int, create_DB_Annotation(is_nullable=True), None] = None
+	def get_clone_at_timestamp(self, timestamp : int):
+		return InitialWheatherForecast(timestamp, self.temperature, self.wind_speed, self.gust_speed, self.wind_direction, self.sun_hours)
+
+@serializableThroughDatabase
+@dataclass(init=True, repr=True)
+class HistoricalInitialWheatherForecast():
+	Id_forecast_data   : PrimaryAutoInt
+	forecast_timestamp : int
+	wheather_timestamp : int
+	temperature        : int
+	wind_speed         : int
+	gust_speed         : int
+	wind_direction     : int
+	sun_hours          : Union[int, create_DB_Annotation(is_nullable=True), None] = None
