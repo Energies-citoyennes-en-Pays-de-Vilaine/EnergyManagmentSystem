@@ -117,7 +117,6 @@ def serializableThroughDatabase(clas):
 @dataclass(init=True, repr=True)
 class EMSMachineData():
 	Id_machine      : PrimaryAutoInt
-	Id_zabbix       : int
 	Id_viriya       : int
 	threshold_begin : int
 	threshold_end   : int
