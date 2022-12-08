@@ -18,12 +18,6 @@ def create_DB_Annotation(*, is_primary = False, is_nullable = False):
 	return toReturn
 class PrimaryAutoInt(int):
 	pass
-def make_primary(clas):
-	clas.is_db_primary = True
-	return clas
-def make_nullable(clas):
-	clas.is_nullable = True
-	return clas
 
 def serializableThroughDatabase(clas):
 	def get_create_table_str(name):
@@ -106,9 +100,18 @@ def serializableThroughDatabase(clas):
 			else:
 				print(annotations[key])
 		return (f"UPDATE {name} SET {', '.join([s + '=%s' for s in args])} WHERE {primary_key} = %s;", values + [primary_value])
+	
+	def create_from_select_output(output):
+		obj = {}
+		annotations = clas.__annotations__
+		for i in range(len(list(annotations.keys()))):
+			obj[list(annotations.keys())[i]] = output[i]
+		return clas(**obj)
+	
 	clas.get_update_in_table_str = get_update_in_table_str
 	clas.get_append_in_table_str = get_append_in_table_str
 	clas.get_create_table_str    = get_create_table_str
+	clas.create_from_select_output = create_from_select_output
 	return clas
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
@@ -125,11 +128,20 @@ class EMSMachineData():
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
 class EMSCycle():
-	Id_cycle   : PrimaryAutoInt
-	Id_machine : int
-	csv_file   : str
-	name       : str
-	duree      : int
+	Id_cycle      : PrimaryAutoInt
+	Id_machine    : int
+	Id_cycle_data : int
+	name          : str
+
+@serializableThroughDatabase
+@dataclass(init=True, repr=True)
+class EMSCycleData():
+	Id_cycle_data   : PrimaryAutoInt
+	start_time      : int
+	csv             : str
+	duree           : int
+	moved_timestamp : int
+
 
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
