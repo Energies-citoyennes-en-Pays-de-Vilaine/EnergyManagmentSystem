@@ -1,20 +1,29 @@
 import numpy as np
 from typing import List
 import matplotlib.pyplot as plt
+from typing import Union
 class Curve():
-	delta_T : int # delta time int seconds
-	points : np.ndarray
-	origin : List[np.ndarray]
-	def __init__(self, delta_T: int, points:np.ndarray, origin: List[np.ndarray]) -> None:
+	delta_T          : int # delta time int seconds
+	points           : np.ndarray
+	origin_points    : np.ndarray
+	origin_timestamp : np.ndarray
+	timestamp        : int
+	def __init__(self, delta_T: int, points:np.ndarray, origin_points: List[np.ndarray], origin_timestamp: List[np.ndarray], timestamp : int) -> None:
 		self.delta_T = delta_T
 		self.points = np.array(points, dtype=np.float64)
-		self.origin = origin
+		self.origin_points = origin_points
+		self.origin_timestamp = origin_timestamp
+		self.timestamp = timestamp
+	def cut_last_points(self, count):
+		return Curve(self.delta_T, np.array(self.points[:-count]), self.origin_points, self.origin_timestamp, self.timestamp)
 
 def get_full_curve(times: List[int], data: List[int], period : int, base_index : int):
 	#we assume the list is ordered by time ascending
 	current_list = []
 	current_time_list = []
 	current_curve = []
+	if base_index >= len(times):
+		return None
 	base_time = times[base_index]
 	for i in range(base_index, len(times)):
 		if int((times[i] - base_time) / period) > len(current_curve):
@@ -41,40 +50,51 @@ def get_full_curve(times: List[int], data: List[int], period : int, base_index :
 			current_curve.append(toAdd)
 	return np.array(current_curve, dtype = np.float64)
 
+def get_curve_starting_at(index, times : List[int], data : List[float], threshold_end : float, period: int, required_low_period_count : int = 0) -> Union[Curve, None] : 
+	curve = get_full_curve(times, data, period, index)
+	if curve is None:
+		return None
+	count_period = 0
+	for i in range(len(curve)):
+		if curve[i] < threshold_end:
+			count_period += 1
+		else:
+			count_period = 0
+		if (count_period > required_low_period_count):
+			return Curve(period, curve[:i + 1], data[index:], times[index:], times[index])
+	return None
 
+def fetch_past_time(times, time, index) -> Union[int, None]:
+	for i in range(index, len(times)):
+		if (times[i] > time):
+			return i
+	return None
+	
 
-def make_curve(times : List[int], data: List[float], threshold_begin : float, threshold_end : float, period: int, required_low_period_count : int = 0) -> List[Curve]:
+def make_curves(times : List[int], data: List[float], threshold_begin : float, threshold_end : float, period: int, required_low_period_count : int = 0) -> List[Curve]:
 	i = 0
 	toReturn = []
 	start_time = []
-	while(i < len(times) and data[i] > threshold_begin):
-		i = i + 1
+	initialCurve = get_curve_starting_at(0, times, data, threshold_end, period, required_low_period_count)
+	if initialCurve == None:
+		return []
+	i = fetch_past_time(times, times[0] + period * len(initialCurve.points), 0)
+	if i == None:
+		return []
 	while (i < len(times)):
 		if data[i] > threshold_begin:
-			curve = get_full_curve(times, data, period, i)
-			start_curve_time = times[i]
-			start_time.append(times[i])
-			j = 0
-			test = False
-			count = 0
-			while (j < len(curve) and not test):
-				if curve[j] >= threshold_end:
-					count = 0
-				else:
-					count = count + 1
-				if count > required_low_period_count:
-					test = True
-				j = j + 1
-			if test:
-				origin = [[], []]
-				while (i < len(times) and start_curve_time + j * period > times[i]):
-					origin[0].append(times[i])
-					origin[1].append(data[i])
-					i = i + 1
-				toReturn.append(Curve(period, curve[0:j], origin))
+			curve = get_curve_starting_at(i, times, data, threshold_end, period, required_low_period_count)
+			if curve != None:
+				if required_low_period_count != 0:
+					toReturn.append(curve.cut_last_points(required_low_period_count))
+				else: 
+					toReturn.append(curve)
+				i = fetch_past_time(times, times[i] + period * len(curve.points), i)
 			else:
+				i = i + 1
+			if i == None:
 				return toReturn
-					
-		i = i + 1
+		else:
+			i = i + 1
 
 	return toReturn
