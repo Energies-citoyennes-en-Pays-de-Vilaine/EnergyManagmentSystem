@@ -49,8 +49,10 @@ class HeaterConsumer(Consumer_interface):
     def _get_functionnal_constraints_boundaries(self, calculationParams : CalculationParams) -> List[List[float]]:
         #start with Power constraints
         #form : - Prad(i) + a2 Tin(i) + a1 Tin(i + 1)  == a2 Text(i) + a1 Text(i + 1)
-        a1 = self.C_th / calculationParams.time_delta
-        a2 = 1.0 / self.R_th - a1
+        R = self.R_th
+        C = self.C_th
+        P = self.P_rad
+        DT = calculationParams.time_delta
         sim_size = calculationParams.get_simulation_size()
         to_return_low  : List[float] = []
         to_return_high : List[float] = []
@@ -61,7 +63,7 @@ class HeaterConsumer(Consumer_interface):
             to_return_high.append(1)
         #physics is ok
         for i in range(1, sim_size + 1):
-            power_ok = a2 * self.T_ext[i] + a1 * self.T_ext[i + 1]
+            power_ok = self.T_ext[i + 1] + (DT / (R * C)  - 1) * self.T_ext[i]
             to_return_low.append(power_ok)
             to_return_high.append(power_ok)
         #temperature target
@@ -115,6 +117,9 @@ class HeaterConsumer(Consumer_interface):
         for i in range(calculationParams.get_simulation_size()):
             tofill[y + i, x + i] = - self.P_rad
     def _fill_functionnal_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpar: int, ypar: int):
+        R = self.R_th
+        C = self.C_th
+        P = self.P_rad
         #start with Power constraints
         #power is 0 or one
         sim_size = calculationParams.get_simulation_size()
@@ -123,16 +128,18 @@ class HeaterConsumer(Consumer_interface):
         for i in range(sim_size):
             tofill[y + i, x + i] = 1
         y = y + sim_size
-        #form : - Prad(i) + a2 Tin(i) + a1 Tin(i + 1)  == a2 Text(i) + a1 Text(i + 1)
-        a1 = self.C_th / calculationParams.time_delta
-        a2 = 1.0 / self.R_th - a1
+        #physics ok : 
+
         for i in range(sim_size):
-            tofill[y + i, x + i] = - self.P_rad
-            tofill[y + i, x + i + sim_size] = a2
-            tofill[y + i, x + i + sim_size + 1] = a1
-            #Temperature constraint
-            tofill[y + i + 1 + sim_size, x + i + sim_size + 1] = 1
-        tofill[y + sim_size, x + sim_size] = 1
+            tofill[y + i, x + i] = - calculationParams.time_delta * P / C
+            tofill[y + i, x + i + sim_size] = calculationParams.time_delta / (R * C) - 1
+            tofill[y + i, x + i + sim_size + 1] = 1
+        y = y + sim_size
+        #Temperature constraint
+        for i in range(sim_size + 1):
+            tofill[y + i, x + i + sim_size] = 1
+        
+        
     def _get_consumption_curve(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
         return self.P_rad * np.array(variables[:calculationParams.get_simulation_size()])
     def _get_decisions(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
