@@ -5,7 +5,6 @@ import typing
 from typing import Union
 from learning.database.EMS_db_types import EMSMachineData, EMSCycle, EMSCycleData ,InitialWheatherForecast, HistoricalInitialWheatherForecast
 def create_tables(credentials):
-	data = EMSMachineData(0,15, 3, 50, 50, 15*60, 2, 1)
 	tables_queries = [
 		EMSCycle.get_create_table_str("cycle"),
 		EMSCycleData.get_create_table_str("cycledata"),
