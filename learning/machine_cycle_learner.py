@@ -14,7 +14,6 @@ tags = ["LV", "LL", "SL"]
 items = {}
 for tag in tags:
 	items = {**items, **zr.get_items_by_tag(tag)}
-print(items)
 power_items = {}
 DEFAULT_THRESH_BEGIN = 40
 DEFAULT_THRESH_END   = 40
@@ -32,7 +31,6 @@ i = 0
 
 for item in power_items:
 	#power_items[item] is the id
-	print(item, power_items[item])
 	
 	current_machine = None
 	is_already_known = False
@@ -65,6 +63,7 @@ for item in power_items:
 	current_curve = curves[-1]
 	current_curve_points = current_curve.points
 	if (selected_cycle_data.csv == "default.csv" or selected_cycle_data.start_time < current_curve.timestamp):
+		print("update in", item, power_items[item])
 		out_file_name = f"{selected_cycle.Id_machine}_{selected_cycle.Id_cycle}_{current_curve.timestamp}.csv"
 		out_file_path = f"data/in_use/{out_file_name}"
 		with open(out_file_path, 'w') as out_file:
