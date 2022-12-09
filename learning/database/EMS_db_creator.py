@@ -6,8 +6,9 @@ from typing import Union
 from learning.database.EMS_db_types import EMSMachineData, EMSCycle, EMSCycleData ,InitialWheatherForecast, HistoricalInitialWheatherForecast
 def create_tables(credentials):
 	tables_queries = [
-		EMSCycle.get_create_table_str("cycle"),
 		EMSCycleData.get_create_table_str("cycledata"),
+		["INSERT INTO cycledata(id_cycle_data, start_time, csv, duree, moved_timestamp) Values(%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING;", (0,0,"default.csv", 4, 0)],
+		EMSCycle.get_create_table_str("cycle"),
 		EMSMachineData.get_create_table_str("machine"),
 		InitialWheatherForecast.get_create_table_str("initialweather"),
 		HistoricalInitialWheatherForecast.get_create_table_str("historyinitialweather")

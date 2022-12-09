@@ -105,7 +105,17 @@ def serializableThroughDatabase(clas):
 		obj = {}
 		annotations = clas.__annotations__
 		for i in range(len(list(annotations.keys()))):
-			obj[list(annotations.keys())[i]] = output[i]
+			key = list(annotations.keys())[i]
+
+			base_type = annotations[key]
+			dbannotation = DBAnnotation()
+			if type(base_type) == typing._UnionGenericAlias:
+				dbannotation = base_type.__args__[1]
+				base_type = base_type.__args__[0]
+			if (base_type == int):
+				obj[list(annotations.keys())[i]] = int(output[i])
+			else:
+				obj[list(annotations.keys())[i]] = output[i]
 		return clas(**obj)
 	
 	clas.get_update_in_table_str = get_update_in_table_str
