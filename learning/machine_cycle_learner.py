@@ -11,9 +11,10 @@ import matplotlib.pyplot as plt
 zr = ZabbixReader("http://mqtt.projet-elfe.fr/api_jsonrpc.php", zabbix_credentials["username"], zabbix_credentials["password"])
 zr.get_token()
 tags = ["LV", "LL", "SL"]
-items = []
+items = {}
 for tag in tags:
-	items += zr.get_items_by_tag(tag)
+	items = {**items, **zr.get_items_by_tag(tag)}
+print(items)
 power_items = {}
 DEFAULT_THRESH_BEGIN = 40
 DEFAULT_THRESH_END   = 40
