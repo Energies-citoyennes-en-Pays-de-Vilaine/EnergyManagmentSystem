@@ -1,0 +1,10 @@
+[Unit]
+Description="experimental timer mess-up to train and schedule EMS"
+Requires=user_temp.service
+[Timer]
+Unit=user_temp.service
+OnCalendar=*-*-* *:*:0
+AccuracySec=500ms
+
+[Install]
+WantedBy=timers.target
