@@ -100,7 +100,39 @@ def serializableThroughDatabase(clas):
 			else:
 				print(annotations[key])
 		return (f"UPDATE {name} SET {', '.join([s + '=%s' for s in args])} WHERE {primary_key} = %s;", values + [primary_value])
-	
+
+	def get_create_or_update_in_table_str(self, name):
+		args = []
+		values = []
+		annotations = clas.__annotations__
+		primary_key   = ""
+		primary_value = -1
+		for key in annotations.keys():
+			base_type = annotations[key]
+			dbannotation = DBAnnotation()
+			if type(base_type) == typing._UnionGenericAlias:
+				dbannotation = base_type.__args__[1]
+				base_type = base_type.__args__[0]
+			if (base_type == PrimaryAutoInt or dbannotation.is_db_primary):
+				primary_key = key
+				primary_value = self.__getattribute__(key)
+				continue
+			if (self.__getattribute__(key) == None):
+				if (dbannotation.is_db_nullable):
+					continue
+				else:
+					raise Exception(f"try to serialize not nullable with none ({key})")
+			if (base_type == int):
+				args.append(f"{key}")
+				values.append(self.__getattribute__(key))
+			elif (base_type == str):
+				args.append(f"{key}")
+				values.append(self.__getattribute__(key))
+			else:
+				print(annotations[key])
+		return (f"INSERT INTO {name} ({', '.join([primary_key] + args)}) VALUES ({', '.join(['%s' for s in [primary_key] + args])}) ON CONFLICT ({primary_key}) DO UPDATE SET {', '.join([s + '=%s' for s in args])};", [primary_value] + values + values)
+
+
 	def create_from_select_output(output):
 		obj = {}
 		annotations = clas.__annotations__
@@ -121,6 +153,7 @@ def serializableThroughDatabase(clas):
 	clas.get_update_in_table_str = get_update_in_table_str
 	clas.get_append_in_table_str = get_append_in_table_str
 	clas.get_create_table_str    = get_create_table_str
+	clas.get_create_or_update_in_table_str = get_create_or_update_in_table_str
 	clas.create_from_select_output = create_from_select_output
 	return clas
 @serializableThroughDatabase
@@ -175,3 +208,10 @@ class HistoricalInitialWheatherForecast():
 	gust_speed         : int
 	wind_direction     : int
 	sun_hours          : Union[int, create_DB_Annotation(is_nullable=True), None] = None
+
+@serializableThroughDatabase
+@dataclass(init=True, repr=True)
+class EMSDeviceTemperatureData():
+	Id_elfe                    : Union[int, create_DB_Annotation(is_primary=True)]
+	data_timestamp             : int
+	temperature                : int 

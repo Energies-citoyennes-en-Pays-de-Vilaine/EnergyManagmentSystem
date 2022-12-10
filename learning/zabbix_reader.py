@@ -58,6 +58,19 @@ class ZabbixReader(DataReaderInterface):
 		for d in data:
 			items[d["name"]] = d["itemid"]
 		return items
+	def get_last_data_for_items(self, items):
+		data = self.send_request("item.get", {
+			"itemids"   : items,
+		}, True)
+		to_return = []
+		for item in data["result"]:
+			to_return.append({
+				"name": item["name"],
+				"itemid" : item["itemid"],
+				"last_value" : item["lastvalue"],
+				"last_timestamp" : item["lastclock"],
+			})
+		return to_return
 	def readData(self, clientID, time_from, time_till) -> np.ndarray:
 		data = self.send_request("history.get", {
 			"itemids" : clientID,
