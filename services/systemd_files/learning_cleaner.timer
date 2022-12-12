@@ -1,5 +1,5 @@
 [Unit]
-Description="timer for the user temperature gatherer"
+Description="timer for the cleaner of machine cycle data"
 Requires=learning_cleaner.service
 [Timer]
 Unit=learning_cleaner.service

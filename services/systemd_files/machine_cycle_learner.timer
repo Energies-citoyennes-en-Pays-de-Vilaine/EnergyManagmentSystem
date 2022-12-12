@@ -1,0 +1,10 @@
+[Unit]
+Description="timer for learner for machine cycles"
+Requires=machine_cycle_learner.service
+[Timer]
+Unit=machine_cycle_learner.service
+OnCalendar=*-*-* *:14/15:00
+AccuracySec=20s
+
+[Install]
+WantedBy=timers.target

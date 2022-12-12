@@ -1,0 +1,11 @@
+[Unit]
+Description="learns the cycles of the machines"
+Wants=machine_cycle_learner.timer
+
+[Service]
+Type=oneshot
+Environment=BASHRCPATH= EMSFOLDER=
+ExecStart=/usr/bin/bash -c 'source "$BASHRCPATH"; cd "$EMSFOLDER"; conda activate milp; python -m learning.machine_cycle_learner'
+
+[Install]
+WantedBy=multi-user.target                         

@@ -1,11 +1,11 @@
 [Unit]
-Description="remove the old user data from the currently in use folder"
+Description="power prediction service"
 Wants=power_prediction.timer
 
 [Service]
 Type=oneshot
 Environment=BASHRCPATH= EMSFOLDER=
-ExecStart=/usr/bin/bash -c 'source "$BASHRCPATH"; cd "$EMSFOLDER"; conda activate milp; python -m services.learning_cleaner'
+ExecStart=/usr/bin/bash -c 'source "$BASHRCPATH"; cd "$EMSFOLDER"; conda activate milp; python -m services.power_prediction'
 
 [Install]
 WantedBy=multi-user.target                         
