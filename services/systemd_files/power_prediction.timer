@@ -1,0 +1,10 @@
+[Unit]
+Description="timer for the user temperature gatherer"
+Requires=power_prediction.service
+[Timer]
+Unit=power_prediction.service
+OnCalendar=*-*-* *:02:00
+AccuracySec=20s
+
+[Install]
+WantedBy=timers.target

@@ -1,6 +1,6 @@
 [Unit]
 Description="remove the old user data from the currently in use folder"
-Wants=learning_cleaner.timer
+Wants=power_prediction.timer
 
 [Service]
 Type=oneshot
