@@ -2,7 +2,7 @@
 Description="timer for the user temperature gatherer"
 Requires=learning_cleaner.service
 [Timer]
-Unit=user_temp.service
+Unit=learning_cleaner.service
 OnCalendar=*-*-* *:02:00
 AccuracySec=20s
 
