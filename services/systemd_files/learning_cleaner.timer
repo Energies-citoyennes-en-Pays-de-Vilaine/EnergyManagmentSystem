@@ -1,10 +1,10 @@
 [Unit]
 Description="timer for the user temperature gatherer"
-Requires=user_temp.service
+Requires=learning_cleaner.service
 [Timer]
 Unit=user_temp.service
-OnCalendar=*-*-* *:*:0
-AccuracySec=500ms
+OnCalendar=*-*-* *:02:00
+AccuracySec=20s
 
 [Install]
 WantedBy=timers.target
