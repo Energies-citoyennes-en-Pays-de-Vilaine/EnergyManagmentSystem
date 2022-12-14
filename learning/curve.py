@@ -50,6 +50,36 @@ def get_full_curve(times: List[int], data: List[int], period : int, base_index :
 			current_curve.append(toAdd)
 	return np.array(current_curve, dtype = np.float64)
 
+def get_full_curve_snapped(times: List[int], data: List[int], period : int, base_time : int):
+	#we assume the list is ordered by time ascending
+	current_list = []
+	current_time_list = []
+	current_curve = []
+	for i in range(len(times)):
+		if int((times[i] - base_time) / period) > len(current_curve):
+			toAdd = 0.0
+			toAddDelta = 0.0
+			for j in range(len(current_list) - 1):
+				toAdd += current_list[j] * (current_time_list[j + 1] - current_time_list[j])
+				toAddDelta += (current_time_list[j + 1] - current_time_list[j])
+			if (toAddDelta != 0):
+				toAdd /= toAddDelta
+				current_curve.append(toAdd)
+			current_list = []
+			current_time_list = []
+		current_list.append(data[i])
+		current_time_list.append(times[i])
+	if (len(current_list) != 0):
+		toAdd = 0.0
+		toAddDelta = 0.0
+		for j in range(len(current_list) - 1):
+			toAdd += current_list[j] * (current_time_list[j + 1] - current_time_list[j])
+			toAddDelta += current_time_list[j + 1] - current_time_list[j]
+		if toAddDelta != 0:
+			toAdd /= toAddDelta
+			current_curve.append(toAdd)
+	return np.array(current_curve, dtype = np.float64)
+	
 def get_curve_starting_at(index, times : List[int], data : List[float], threshold_end : float, period: int, required_low_period_count : int = 0) -> Union[Curve, None] : 
 	curve = get_full_curve(times, data, period, index)
 	if curve is None:

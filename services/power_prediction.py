@@ -4,7 +4,7 @@ from learning.zabbix_reader import ZabbixReader
 from credentials.db_credentials import db_credentials
 from credentials.zabbix_credentials import zabbix_credentials
 from datetime import datetime
-from learning.curve import get_full_curve
+from learning.curve import get_full_curve_snapped
 import matplotlib.pyplot as plt
 
 CURVE_KEY        = "Equilibre General P=C bis"
@@ -17,9 +17,10 @@ zr.get_token()
 items = zr.get_items()
 item_id = items[CURVE_KEY]
 current_timestamp = int(datetime.now().timestamp())
+current_timestamp = round(current_timestamp/CURVE_PERIOD) * CURVE_PERIOD
 data = zr.readData(item_id, current_timestamp - DAY_DURATION, current_timestamp)
 base_timestamp = data["timestamps"][0] - (data["timestamps"][0] % CURVE_PERIOD)
-curve = get_full_curve(data["timestamps"], data["values"], CURVE_PERIOD, 0)
+curve = get_full_curve_snapped(data["timestamps"], data["values"], CURVE_PERIOD, current_timestamp - DAY_DURATION)
 curve_base_timstamps = [base_timestamp + i * CURVE_PERIOD for i in range(len(curve))]
 
 data_to_post_to_database = []
@@ -30,3 +31,4 @@ for i in range(len(curve)):
 	curve_data = EMSPowerCurveData(curve_base_timstamps[i] + 2 * DAY_DURATION, curve[i])
 	data_to_post_to_database.append(curve_data.get_create_or_update_in_table_str(CURVE_DATA_TABLE))
 execute_queries(db_credentials["EMS"], data_to_post_to_database)
+print(current_timestamp)

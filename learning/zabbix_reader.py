@@ -49,7 +49,7 @@ class ZabbixReader(DataReaderInterface):
 		items = {}
 		for d in data:
 			if (re.search("[ADF]{1}\\d{1,3}", d["name"][:4]) != None or re.search("Equi", d["name"][:4]) != None ):
-				items[d["name"]] = d["itemid"]
+				items[d["name"]] = int(d["itemid"])
 		return items
 
 	def get_items_by_tag(self, tag):
@@ -66,9 +66,9 @@ class ZabbixReader(DataReaderInterface):
 		for item in data["result"]:
 			to_return.append({
 				"name": item["name"],
-				"itemid" : item["itemid"],
-				"last_value" : item["lastvalue"],
-				"last_timestamp" : item["lastclock"],
+				"itemid" : int(item["itemid"]),
+				"last_value" : float(item["lastvalue"]),
+				"last_timestamp" : int(item["lastclock"]),
 			})
 		return to_return
 	def readData(self, clientID, time_from, time_till) -> np.ndarray:
@@ -85,7 +85,7 @@ class ZabbixReader(DataReaderInterface):
 			"values"      : []
 			}
 		for d in data["result"]:
-			toReturn["timestamps"].append(d["clock"])
+			toReturn["timestamps"].append(int(d["clock"]))
 			toReturn["values"].append(float(d["value"]))
 		return toReturn
 	def readAllData(self, clientID) -> np.ndarray:
@@ -101,6 +101,6 @@ class ZabbixReader(DataReaderInterface):
 			"values"      : []
 			}
 		for d in data["result"]:
-			toReturn["timestamps"].append(d["clock"])
+			toReturn["timestamps"].append(int(d["clock"]))
 			toReturn["values"].append(float(d["value"]))
 		return toReturn

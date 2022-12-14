@@ -33,6 +33,8 @@ def serializableThroughDatabase(clas):
 				args.append(f"{key} SERIAL PRIMARY KEY")
 			elif (base_type == int):
 				args.append(f"{key} INTEGER {'PRIMARY KEY' if dbannotation.is_db_primary else ''} {'NOT NULL' if not dbannotation.is_db_nullable else ''}")
+			elif (base_type == bool):
+				args.append(f"{key} BOOLEAN {'NOT NULL' if not dbannotation.is_db_nullable else ''}")
 			elif (base_type == str):
 				args.append(f"{key} TEXT    {'PRIMARY KEY' if dbannotation.is_db_primary else ''} {'NOT NULL' if not dbannotation.is_db_nullable else ''}")
 			else:
@@ -66,6 +68,9 @@ def serializableThroughDatabase(clas):
 			elif (base_type == str):
 				args.append(f"{key}")
 				values.append(self.__getattribute__(key))
+			elif (base_type == bool):
+				args.append(f"{key}")
+				values.append('1' if self.__getattribute__(key) == True else '0')
 			else:
 				print(annotations[key])
 		return (f"INSERT INTO {name} ({', '.join(args)}) VALUES ({', '.join(['%s' for s in args])});", values)
@@ -97,6 +102,9 @@ def serializableThroughDatabase(clas):
 			elif (base_type == str):
 				args.append(f"{key}")
 				values.append(self.__getattribute__(key))
+			elif (base_type == bool):
+				args.append(f"{key}")
+				values.append('1' if self.__getattribute__(key) == True else '0')
 			else:
 				print(annotations[key])
 		return (f"UPDATE {name} SET {', '.join([s + '=%s' for s in args])} WHERE {primary_key} = %s;", values + [primary_value])
@@ -128,6 +136,9 @@ def serializableThroughDatabase(clas):
 			elif (base_type == str):
 				args.append(f"{key}")
 				values.append(self.__getattribute__(key))
+			elif (base_type == bool):
+				args.append(f"{key}")
+				values.append('1' if self.__getattribute__(key) == True else '0')
 			else:
 				print(annotations[key])
 		return (f"INSERT INTO {name} ({', '.join([primary_key] + args)}) VALUES ({', '.join(['%s' for s in [primary_key] + args])}) ON CONFLICT ({primary_key}) DO UPDATE SET {', '.join([s + '=%s' for s in args])};", [primary_value] + values + values)
@@ -215,3 +226,9 @@ class EMSDeviceTemperatureData():
 	Id_elfe                    : Union[int, create_DB_Annotation(is_primary=True)]
 	data_timestamp             : int
 	temperature                : int 
+
+@serializableThroughDatabase
+@dataclass(init=True, repr=True)
+class EMSPowerCurveData():
+	data_timestamp             : Union[int, create_DB_Annotation(is_primary=True)]
+	power                      : int 
