@@ -18,6 +18,7 @@ class SumConsumer(Consumer_interface):
         self.variables_timestamps = []
         self.has_base_consumption = not (conso_low == 0)
         self.id = id
+        self.is_reocurring = True
     def _get_f_contrib(self, calculationParams : CalculationParams) -> List[float]:
         return [0 for i in range(self._get_minimizing_variables_count(calculationParams))]
     def _get_integrality(self, calculationParams : CalculationParams) -> List[int]:

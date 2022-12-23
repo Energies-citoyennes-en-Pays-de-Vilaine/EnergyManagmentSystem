@@ -13,6 +13,7 @@ class MachineConsumer(Consumer_interface):
         self.end_time = end_time #machine MUST have finished BEFORE end_time
         self.machine_count = machine_count
         self.has_base_consumption = False
+        self.is_reocurring = False
     def _get_f_contrib(self, calculationParams : CalculationParams) -> List[float]:
         return [0.0] * self.get_minimizing_variables_count(calculationParams)
     def _get_integrality(self, calculationParams : CalculationParams) -> List[int]:

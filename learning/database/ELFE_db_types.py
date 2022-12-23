@@ -4,15 +4,16 @@ from dataclasses import dataclass
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
 class ELFE_EquipementPilote():
-	Id                               : PrimaryAutoInt
-	type_equipement_pilote           : int
-	equipement_pilote_mode           : int
-	etat_controle                    : int
-	etat_commande                    : int
-	nom                              : str
-	description                      : str
-	typologie_installation_domotique : int
-	ems_consigne_marche              : bool
+	Id                                  : PrimaryAutoInt
+	equipement_pilote_specifique_id     : int
+	equipement_pilote_ou_mesure_type_id : int
+	equipement_pilote_ou_mesure_mode    : int
+	etat_controle                       : int
+	etat_commande                       : int
+	nom                                 : str
+	description                         : str
+	typologie_installation_domotique    : int
+	ems_consigne_marche                 : bool
 
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
@@ -25,7 +26,7 @@ class ELFE_ChauffageAsserviModeleThermique():
 @dataclass(init=True, repr=True)
 class ELFE_ChauffageAsservi():
 	Id                                         : PrimaryAutoInt
-	equipement_pilote_id                       : int
+	equipement_pilote_ou_mesure_id             : int
 	temperature_eco                            : int
 	temperature_confort                        : int
 	prog_semaine_periode_1_confort_actif       : bool
@@ -43,14 +44,14 @@ class ELFE_ChauffageAsservi():
 	delta_temp_maximale_temp_demandee          : int
 	puissance                                  : int
 	modele_thermique_id                        : int
-	mesure_puissance_elec_id                   : int
+	mesures_puissance_elec_id                   : int
 	mesure_temperature_id                      : int
 
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
 class ELFE_ChauffageNonAsservi():
 	Id                                         : PrimaryAutoInt
-	equipement_pilote_id                       : int
+	equipement_pilote_ou_mesure_id             : int
 	prog_semaine_periode_1_confort_actif       : bool
 	prog_semaine_periode_1_confort_heure_debut : int
 	prog_semaine_periode_1_confort_heure_fin   : int
@@ -72,7 +73,7 @@ class ELFE_ChauffageNonAsservi():
 @dataclass(init=True, repr=True)
 class ELFE_MachineGenerique():
 	Id                                           : PrimaryAutoInt
-	equipement_pilote_id                         : int
+	equipement_pilote_ou_mesure_id               : int
 	timestamp_de_fin_souhaite                    : int
 	delai_attente_maximale_apres_fin             : int
 	cycle_equipement_pilote_machine_generique_id : int
@@ -82,6 +83,7 @@ class ELFE_MachineGenerique():
 @dataclass(init=True, repr=True)
 class ELFE_VehiculeElectriqueGenerique():
 	Id                                           : PrimaryAutoInt
+	equipement_pilote_ou_mesure_id               : int
 	pourcentage_charge_restant                   : int
 	pourcentage_charge_finale_minimale_souhaitee : int
 	duree_de_charge_estime                       : int
@@ -102,11 +104,11 @@ class ELFE_MachineGeneriqueCycle():
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
 class ELFE_BallonECS():
-	Id                        : PrimaryAutoInt
-	equipement_pilote_id      : int
-	volume_ballon             : int
-	puissance_chauffe         : int
-	mesures_puissance_elec_id : int
+	Id                             : PrimaryAutoInt
+	equipement_pilote_ou_mesure_id : int
+	volume_ballon                  : int
+	puissance_chauffe              : int
+	mesures_puissance_elec_id      : int
 
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)

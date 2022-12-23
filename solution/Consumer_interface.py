@@ -6,6 +6,7 @@ from solution.Calculation_Params import CalculationParams
 import numpy as np
 class Consumer_interface():
 	has_base_consumption : bool
+	is_reocurring: bool
 
 	def get_f_contrib(self, calculationParams : CalculationParams) -> List[float]:
 		checkFunctionExist(self, "_get_f_contrib")

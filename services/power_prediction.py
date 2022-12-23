@@ -24,11 +24,26 @@ curve = get_full_curve_snapped(data["timestamps"], data["values"], CURVE_PERIOD,
 curve_base_timstamps = [base_timestamp + i * CURVE_PERIOD for i in range(len(curve))]
 
 data_to_post_to_database = []
+current_data = curve[-1]
+old_data = curve[0]
+len_curve = len(curve)
 for i in range(len(curve)):
-	curve_data = EMSPowerCurveData(curve_base_timstamps[i] + DAY_DURATION, curve[i])
+	current_data += curve[i] - old_data
+	old_data = curve[i]
+	to_add_data = current_data * (len_curve - i) / len_curve + curve[i] * i / len_curve
+	current_data = to_add_data
+	curve_data = EMSPowerCurveData(curve_base_timstamps[i] + DAY_DURATION, current_data)
 	data_to_post_to_database.append(curve_data.get_create_or_update_in_table_str(CURVE_DATA_TABLE))
+
+
+old_data = curve[0]
+
 for i in range(len(curve)):
-	curve_data = EMSPowerCurveData(curve_base_timstamps[i] + 2 * DAY_DURATION, curve[i])
+	current_data += curve[i] - old_data
+	old_data = curve[i]
+	to_add_data = current_data * (len_curve - i) / len_curve + curve[i] * i / len_curve
+	current_data = to_add_data
+	curve_data = EMSPowerCurveData(curve_base_timstamps[i] + 2 * DAY_DURATION, current_data)
 	data_to_post_to_database.append(curve_data.get_create_or_update_in_table_str(CURVE_DATA_TABLE))
 execute_queries(db_credentials["EMS"], data_to_post_to_database)
 print(current_timestamp)

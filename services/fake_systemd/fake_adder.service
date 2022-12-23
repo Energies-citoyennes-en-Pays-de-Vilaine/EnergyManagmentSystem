@@ -1,0 +1,11 @@
+[Unit]
+Description="fake_adder service"
+Wants=fake_adder.timer
+
+[Service]
+Type=oneshot
+Environment=BASHRCPATH= EMSFOLDER=
+ExecStart=/usr/bin/bash -c 'source "$BASHRCPATH"; cd "$EMSFOLDER"; conda activate milp; python -m services.fake_adder'
+
+[Install]
+WantedBy=multi-user.target                         

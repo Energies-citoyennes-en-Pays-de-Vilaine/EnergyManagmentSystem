@@ -99,6 +99,18 @@ class Problem():
             consumption += consumer.get_consumption_curve(self.calculationParams, self.result[i: i+consumer.get_minimizing_variables_count(self.calculationParams)])
             i += consumer.get_minimizing_variables_count(self.calculationParams)
         return consumption
+    def get_decisions(self) -> List:
+        decisions = []
+        i = self.calculationParams.get_simulation_size()
+        for consumer in self.consumers:
+            decisions.append(
+                {
+                    "id"         : consumer.id,
+                    "reocurring" :  consumer.is_reocurring,
+                    "decisions"  : consumer.get_decisions(self.calculationParams, self.result[i: i+consumer.get_minimizing_variables_count(self.calculationParams)]).tolist()
+                })
+            i += consumer.get_minimizing_variables_count(self.calculationParams)
+        return decisions
         """
         constraint_matrix        : np.ndarray
         constraint_bound_low     : List[float]

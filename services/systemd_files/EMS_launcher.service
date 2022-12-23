@@ -1,0 +1,11 @@
+[Unit]
+Description="EMS calculation service"
+Wants=EMS_launcher.timer
+
+[Service]
+Type=oneshot
+Environment=BASHRCPATH= EMSFOLDER=
+ExecStart=/usr/bin/bash -c 'source "$BASHRCPATH"; cd "$EMSFOLDER"; conda activate milp; python -m services.EMS_launcher'
+
+[Install]
+WantedBy=multi-user.target                         

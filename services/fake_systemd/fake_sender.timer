@@ -1,0 +1,10 @@
+[Unit]
+Description="timer for the fake sender service"
+Requires=fake_sender.service
+[Timer]
+Unit=fake_sender.service
+OnCalendar=*-*-* *:1/15:30
+AccuracySec=20s
+
+[Install]
+WantedBy=timers.target

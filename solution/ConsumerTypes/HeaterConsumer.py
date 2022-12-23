@@ -28,6 +28,7 @@ class HeaterConsumer(Consumer_interface):
         self.P_rad         = P_rad
         self.has_base_consumption = False
         self.id = id   
+        self.is_reocurring = True
 
     def simulate_next_step(self, calculationParams : CalculationParams, current_temp, T_ext, next_T_ext, P_th) -> float:
         #TODO use this in stead once calculation is validated

@@ -1,0 +1,10 @@
+[Unit]
+Description="timer for the fake adder service"
+Requires=fake_adder.service
+[Timer]
+Unit=fake_adder.service
+OnCalendar=*-*-* *:4/30:30
+AccuracySec=50s
+
+[Install]
+WantedBy=timers.target

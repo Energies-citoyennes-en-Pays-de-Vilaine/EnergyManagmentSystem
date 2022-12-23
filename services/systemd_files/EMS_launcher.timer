@@ -1,0 +1,10 @@
+[Unit]
+Description="timer for the EMS calculation service"
+Requires=EMS_launcher.service
+[Timer]
+Unit=EMS_launcher.service
+OnCalendar=*-*-* *:14/15:30
+AccuracySec=20s
+
+[Install]
+WantedBy=timers.target
