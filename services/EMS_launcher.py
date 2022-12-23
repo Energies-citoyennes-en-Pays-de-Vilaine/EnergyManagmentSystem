@@ -17,7 +17,7 @@ if __name__ == "__main__":
 	consumers = get_machines(timestamp)
 	problem = Problem(consumers, sim_params)
 	problem.prepare()
-	problem.solve(20)
+	problem.solve(10*60)
 	decisions = problem.get_decisions()
 	results = []
 	for decision in decisions:
