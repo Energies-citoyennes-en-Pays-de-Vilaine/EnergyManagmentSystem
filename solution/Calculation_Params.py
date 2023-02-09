@@ -5,7 +5,7 @@ class CalculationParams():
 	end                           : int
 	step_size                     : int
 	time_delta                    : int #time between two steps in seconds
-	base_minimization_constraints : List[List[float]]
+	base_minimization_constraints : List[List[float]] #Sum of nonflexible consommation - prod
 	def __init__(self, begin, end, step_size, time_delta, base_minimization_constraints : List[List[float]]) -> None:
 		self.base_minimization_constraints = base_minimization_constraints
 		self.begin = begin

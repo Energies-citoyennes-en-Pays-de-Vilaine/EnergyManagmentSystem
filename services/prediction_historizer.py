@@ -1,4 +1,5 @@
-from learning.database.EMS_db_types import EMSPowerCurveData
+from learning.database.history_db_types import history_Prediction
+from learning.database.history_db_creator import history_database_names, history_model_dictionnary, history_curve_dictionnary
 from learning.database.EMS_db_creator import execute_queries
 from learning.zabbix_reader import ZabbixReader
 from credentials.db_credentials import db_credentials
@@ -8,10 +9,15 @@ from learning.curve import get_full_curve_snapped
 from learning.persistance import persistance_prediction
 import matplotlib.pyplot as plt
 
+
+
+#TODO refactor this method to avoid code duplication and limit this file's size
+#persistance prediction for P_C based on EPV's server
 CURVE_KEY        = "Equilibre General P=C bis"
 CURVE_PERIOD     = 15 * 60
 DAY_DURATION     = 24 * 60 * 60
 CURVE_DATA_TABLE = "prediction"
+
 zr = ZabbixReader("http://mqtt.projet-elfe.fr/api_jsonrpc.php", zabbix_credentials["username"], zabbix_credentials["password"])
 zr.get_token()
 
@@ -26,10 +32,13 @@ curve_base_timstamps = [base_timestamp + i * CURVE_PERIOD for i in range(len(cur
 prediction = persistance_prediction(curve)
 data_to_post_to_database = []
 for i in range(len(prediction)):
-	curve_data = EMSPowerCurveData(curve_base_timstamps[i] + DAY_DURATION, prediction[i])
-	data_to_post_to_database.append(curve_data.get_create_or_update_in_table_str(CURVE_DATA_TABLE))
+	curve_data = history_Prediction(0, history_model_dictionnary["persistance"], history_curve_dictionnary["general_P_C"], current_timestamp, curve_base_timstamps[i] + 1 * DAY_DURATION, prediction[i])
+	data_to_post_to_database.append(curve_data.get_append_in_table_str(history_database_names["history_Prediction"]))
 for i in range(len(prediction)):
-	curve_data = EMSPowerCurveData(curve_base_timstamps[i] + 2 * DAY_DURATION, prediction[i])
-	data_to_post_to_database.append(curve_data.get_create_or_update_in_table_str(CURVE_DATA_TABLE))
+	curve_data = history_Prediction(0, history_model_dictionnary["persistance"], history_curve_dictionnary["general_P_C"], current_timestamp, curve_base_timstamps[i] + 2 * DAY_DURATION, prediction[i])
+	data_to_post_to_database.append(curve_data.get_append_in_table_str(history_database_names["history_Prediction"]))
+
 execute_queries(db_credentials["EMS"], data_to_post_to_database)
 print(current_timestamp)
+
+#penser !! Roman => mardi yves
