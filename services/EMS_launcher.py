@@ -26,5 +26,7 @@ if __name__ == "__main__":
 		results.append(result)
 	queries = [result.get_append_in_table_str("result") for result in results]
 	execute_queries(db_credentials["EMS"], queries)
+	if ("EMS_SORTIE" in db_credentials):
+		execute_queries(db_credentials["EMS_SORTIE"], queries)
 
 	
