@@ -52,33 +52,30 @@ def get_full_curve(times: List[int], data: List[int], period : int, base_index :
 
 def get_full_curve_snapped(times: List[int], data: List[int], period : int, base_time : int):
 	#we assume the list is ordered by time ascending
-	current_list = []
-	current_time_list = []
-	current_curve = []
-	for i in range(len(times)):
-		if int((times[i] - base_time) / period) > len(current_curve):
-			toAdd = 0.0
-			toAddDelta = 0.0
-			for j in range(len(current_list) - 1):
-				toAdd += current_list[j] * (current_time_list[j + 1] - current_time_list[j])
-				toAddDelta += (current_time_list[j + 1] - current_time_list[j])
-			if (toAddDelta != 0):
-				toAdd /= toAddDelta
-				current_curve.append(toAdd)
-			current_list = []
-			current_time_list = []
-		current_list.append(data[i])
-		current_time_list.append(times[i])
-	if (len(current_list) != 0):
-		toAdd = 0.0
-		toAddDelta = 0.0
-		for j in range(len(current_list) - 1):
-			toAdd += current_list[j] * (current_time_list[j + 1] - current_time_list[j])
-			toAddDelta += current_time_list[j + 1] - current_time_list[j]
-		if toAddDelta != 0:
-			toAdd /= toAddDelta
-			current_curve.append(toAdd)
-	return np.array(current_curve, dtype = np.float64)
+	last_known_value = data[0]
+	values = []
+	i = 0
+	while(times[i] < base_time):
+		i += 1
+		last_known_value = data[i]
+	next_period = base_time + period
+	last_time = base_time
+	current_value = 0
+	while (i < len(times)):
+		if (times[i] < next_period):
+			current_value += last_known_value * (times[i] - last_time)
+			last_known_value = data[i]
+			last_time = times[i]
+		else:
+			current_value += last_known_value * (next_period - last_time)
+			values.append(current_value / period)
+			last_time = next_period
+			next_period += period
+			current_value = last_known_value * (times[i] - last_time)
+			last_known_value = data[i]
+			last_time = times[i]
+		i += 1
+	return np.array(values)
 	
 def get_curve_starting_at(index, times : List[int], data : List[float], threshold_end : float, period: int, required_low_period_count : int = 0) -> Union[Curve, None] : 
 	curve = get_full_curve(times, data, period, index)
