@@ -1,4 +1,4 @@
-from learning.database.EMS_db_types import DBAnnotation, serializableThroughDatabase, PrimaryAutoInt
+from database.annotations import DBAnnotation, serializableThroughDatabase, PrimaryAutoInt
 from dataclasses import dataclass
 
 @serializableThroughDatabase

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+
 import typing
 from typing import Union, List
 
@@ -249,79 +249,3 @@ def serializableThroughDatabase(clas):
 	clas.get_create_or_update_in_table_str = get_create_or_update_in_table_str
 	clas.create_from_select_output = create_from_select_output
 	return clas
-@serializableThroughDatabase
-@dataclass(init=True, repr=True)
-class EMSMachineData():
-	Id_machine      : PrimaryAutoInt
-	Id_machine_elfe : int
-	threshold_begin : int
-	threshold_end   : int
-	period          : int
-	period_count    : int
-	Id_type         : int
-
-@serializableThroughDatabase
-@dataclass(init=True, repr=True)
-class EMSCycle():
-	Id_cycle      : PrimaryAutoInt
-	Id_machine    : int
-	Id_cycle_data : int
-	name          : str
-
-@serializableThroughDatabase
-@dataclass(init=True, repr=True)
-class EMSCycleData():
-	Id_cycle_data   : PrimaryAutoInt
-	start_time      : int
-	csv             : str
-	duree           : int
-	moved_timestamp : int
-
-
-@serializableThroughDatabase
-@dataclass(init=True, repr=True)
-class InitialWheatherForecast():
-	wheather_timestamp : Union[int, create_DB_Annotation(is_primary=True)]
-	temperature        : int
-	wind_speed         : int
-	gust_speed         : int
-	wind_direction     : int
-	sun_hours          : Union[int, create_DB_Annotation(is_nullable=True), None] = None
-	def get_clone_at_timestamp(self, timestamp : int):
-		return InitialWheatherForecast(timestamp, self.temperature, self.wind_speed, self.gust_speed, self.wind_direction, self.sun_hours)
-
-@serializableThroughDatabase
-@dataclass(init=True, repr=True)
-class HistoricalInitialWheatherForecast():
-	Id_forecast_data   : PrimaryAutoInt
-	forecast_timestamp : int
-	wheather_timestamp : int
-	temperature        : int
-	wind_speed         : int
-	gust_speed         : int
-	wind_direction     : int
-	sun_hours          : Union[int, create_DB_Annotation(is_nullable=True), None] = None
-
-@serializableThroughDatabase
-@dataclass(init=True, repr=True)
-class EMSDeviceTemperatureData():
-	Id_elfe                    : Union[int, create_DB_Annotation(is_primary=True)]
-	data_timestamp             : int
-	temperature                : int 
-
-@serializableThroughDatabase
-@dataclass(init=True, repr=True)
-class EMSPowerCurveData():
-	data_timestamp             : Union[int, create_DB_Annotation(is_primary=True)]
-	power                      : int 
-
-@serializableThroughDatabase
-@dataclass(init=True, repr=True)
-class EMSResult():
-	Id                        : PrimaryAutoInt
-	first_valid_timestamp     : int
-	machine_id                : int
-	result_type               : int
-	machine_type              : int
-	decisions                 : Union[int, create_DB_Annotation(is_db_list=True, db_element_count=96), List[int]]
-	 

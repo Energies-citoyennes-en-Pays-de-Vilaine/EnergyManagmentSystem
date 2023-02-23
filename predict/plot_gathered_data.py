@@ -1,5 +1,5 @@
-from learning.database.EMS_db_types import InitialWheatherForecast, HistoricalInitialWheatherForecast
-from learning.database.EMS_db_creator import fetch, execute_queries
+from database.EMS_db_types import InitialWheatherForecast, HistoricalInitialWheatherForecast
+from database.query import fetch, execute_queries
 import matplotlib.pyplot as plt
 from credentials.db_credentials import db_credentials
 from datetime import datetime

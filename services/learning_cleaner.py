@@ -1,7 +1,7 @@
 import shutil
 import os
 from datetime import datetime
-from learning.database.EMS_db_creator import fetch
+from database.query import fetch
 from credentials.db_credentials import db_credentials
 TIME_KEEP=3600
 FOLDER = "data/in_use"

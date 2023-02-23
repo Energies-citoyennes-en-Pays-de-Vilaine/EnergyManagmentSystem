@@ -1,6 +1,6 @@
 from credentials.db_credentials import db_credentials
-from learning.database.EMS_db_creator import execute_queries
-from learning.database.ELFE_db_types import ELFE_BallonECS, ELFE_BallonECSHeuresCreuses, ELFE_ChauffageAsservi, ELFE_ChauffageNonAsservi ,ELFE_ChauffageAsserviModeleThermique, ELFE_EquipementPilote, ELFE_MachineGenerique, ELFE_MachineGeneriqueCycle, ELFE_VehiculeElectriqueGenerique
+from database.EMS_db_creator import execute_queries
+from database.ELFE_db_types import ELFE_BallonECS, ELFE_BallonECSHeuresCreuses, ELFE_ChauffageAsservi, ELFE_ChauffageNonAsservi ,ELFE_ChauffageAsserviModeleThermique, ELFE_EquipementPilote, ELFE_MachineGenerique, ELFE_MachineGeneriqueCycle, ELFE_VehiculeElectriqueGenerique
 
 ELFE_database_names = {
 	"ELFE_BallonECS"                       : "equipement_pilote_ballon_ecs",

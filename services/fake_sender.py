@@ -1,6 +1,6 @@
-from learning.database.ELFE_db_types import ELFE_MachineGenerique, ELFE_MachineGeneriqueCycle, ELFE_EquipementPilote
-from learning.database.ELFE_db_creator import ELFE_database_names
-from learning.database.EMS_db_creator import execute_queries, fetch
+from database.ELFE_db_types import ELFE_MachineGenerique, ELFE_MachineGeneriqueCycle, ELFE_EquipementPilote
+from database.ELFE_db_creator import ELFE_database_names
+from database.query import execute_queries, fetch
 from credentials.db_credentials import db_credentials
 from datetime import datetime
 

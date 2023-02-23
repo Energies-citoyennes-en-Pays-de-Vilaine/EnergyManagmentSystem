@@ -1,6 +1,6 @@
-from learning.database.history_db_types import history_Prediction
-from learning.database.history_db_creator import history_database_names, history_model_dictionnary, history_curve_dictionnary
-from learning.database.EMS_db_creator import execute_queries
+from database.history_db_types import history_Prediction
+from database.history_db_creator import history_database_names, history_model_dictionnary, history_curve_dictionnary
+from database.query import execute_queries
 from learning.zabbix_reader import ZabbixReader
 from credentials.db_credentials import db_credentials
 from credentials.zabbix_credentials import zabbix_credentials

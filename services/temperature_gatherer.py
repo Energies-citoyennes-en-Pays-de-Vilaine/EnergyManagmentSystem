@@ -1,6 +1,6 @@
 from learning.zabbix_reader import ZabbixReader
-from learning.database.EMS_db_types import EMSDeviceTemperatureData
-from learning.database.EMS_db_creator import execute_queries
+from database.EMS_db_types import EMSDeviceTemperatureData
+from database.query import execute_queries
 from credentials.zabbix_credentials import zabbix_credentials
 from credentials.db_credentials import db_credentials
 CENTI_CELSIUS_TO_CENTI_KELVIN = 27315

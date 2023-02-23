@@ -1,8 +1,8 @@
 #this is a program designed to run at fixed time to gather meteo data from the api of Meteo concept <https://api.meteo-concept.com>
 #this program should add/update the database accordingly
 import requests
-from learning.database.EMS_db_types import InitialWheatherForecast, HistoricalInitialWheatherForecast
-from learning.database.EMS_db_creator import fetch, execute_queries
+from database.EMS_db_types import InitialWheatherForecast, HistoricalInitialWheatherForecast
+from database.query import fetch, execute_queries
 from credentials.meteo_concept_credentials import meteo_concept_key
 from credentials.db_credentials import db_credentials
 from datetime import datetime, timedelta

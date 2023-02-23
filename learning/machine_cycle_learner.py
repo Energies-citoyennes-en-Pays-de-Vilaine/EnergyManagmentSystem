@@ -2,8 +2,8 @@
 from learning.zabbix_reader import ZabbixReader
 from credentials.zabbix_credentials import zabbix_credentials
 from credentials.db_credentials import db_credentials
-from learning.database.EMS_db_types import EMSCycle, EMSCycleData, EMSMachineData
-from learning.database.EMS_db_creator import fetch, execute_queries
+from database.EMS_db_types import EMSCycle, EMSCycleData, EMSMachineData
+from database.query import fetch, execute_queries
 from learning.curve import Curve, make_curves
 from datetime import datetime
 import shutil

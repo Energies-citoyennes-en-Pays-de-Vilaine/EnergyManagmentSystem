@@ -1,5 +1,5 @@
-from learning.database.EMS_db_types import EMSPowerCurveData
-from learning.database.EMS_db_creator import execute_queries
+from database.EMS_db_types import EMSPowerCurveData
+from database.query import execute_queries
 from learning.zabbix_reader import ZabbixReader
 from credentials.db_credentials import db_credentials
 from credentials.zabbix_credentials import zabbix_credentials

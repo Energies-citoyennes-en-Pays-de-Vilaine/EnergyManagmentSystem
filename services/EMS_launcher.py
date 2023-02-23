@@ -1,6 +1,6 @@
 from elfe_interfaces.ELFE_data_gatherer import get_machines
-from learning.database.EMS_db_types import EMSPowerCurveData, EMSResult
-from learning.database.EMS_db_creator import fetch, execute_queries
+from database.EMS_db_types import EMSPowerCurveData, EMSResult
+from database.query import fetch, execute_queries
 from credentials.db_credentials import db_credentials
 from solution.Calculation_Params import CalculationParams
 from solution.Problem import Problem

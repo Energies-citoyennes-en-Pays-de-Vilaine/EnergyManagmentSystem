@@ -1,6 +1,6 @@
 from credentials.db_credentials import db_credentials
-from learning.database.EMS_db_creator import execute_queries
-from learning.database.history_db_types import history_Model, history_Curve, history_Prediction
+from database.query import execute_queries
+from database.history_db_types import history_Model, history_Curve, history_Prediction
 
 history_database_names = {
 	"history_Model"      : "history_model",

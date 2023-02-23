@@ -1,7 +1,7 @@
-from learning.database.ELFE_db_types import ELFE_BallonECS, ELFE_BallonECSHeuresCreuses, ELFE_ChauffageAsservi, ELFE_ChauffageAsserviModeleThermique, ELFE_ChauffageNonAsservi, ELFE_EquipementPilote, ELFE_MachineGenerique, ELFE_MachineGeneriqueCycle, ELFE_VehiculeElectriqueGenerique
-from learning.database.ELFE_db_creator import ELFE_database_names
-from learning.database.EMS_db_creator import execute_queries, fetch
-from learning.database.EMS_db_types import EMSCycle,EMSCycleData, EMSDeviceTemperatureData, EMSMachineData, EMSPowerCurveData, InitialWheatherForecast, HistoricalInitialWheatherForecast
+from database.ELFE_db_types import ELFE_BallonECS, ELFE_BallonECSHeuresCreuses, ELFE_ChauffageAsservi, ELFE_ChauffageAsserviModeleThermique, ELFE_ChauffageNonAsservi, ELFE_EquipementPilote, ELFE_MachineGenerique, ELFE_MachineGeneriqueCycle, ELFE_VehiculeElectriqueGenerique
+from database.ELFE_db_creator import ELFE_database_names
+from database.query import execute_queries, fetch
+from database.EMS_db_types import EMSCycle,EMSCycleData, EMSDeviceTemperatureData, EMSMachineData, EMSPowerCurveData, InitialWheatherForecast, HistoricalInitialWheatherForecast
 from credentials.db_credentials import db_credentials
 from typing import List, Tuple, Dict, Union
 from dataclasses import dataclass
@@ -29,7 +29,7 @@ class StudyCase():
 		execute_queries(credentials, [self.machines[id][0].get_update_in_table_str(ELFE_database_names["ELFE_EquipementPilote"])])
 
 def drop_and_recreate(credentials):
-	from learning.database.ELFE_db_creator import create_tables
+	from database.ELFE_db_creator import create_tables
 	queries = [ f"DROP TABLE IF EXISTS {ELFE_database_names[table_id]};" for table_id in ELFE_database_names]
 	execute_queries(credentials, queries)
 	create_tables(credentials)
