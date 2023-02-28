@@ -17,7 +17,7 @@ if __name__ == "__main__":
 	timestamp = round(int(datetime.now().timestamp()) / DELTA_TIME_SIMULATION) * DELTA_TIME_SIMULATION
 	not_scheduled = []
 	for machine in sc.machines:
-		if sc.machines[machine][0].equipement_pilote_ou_mesure_mode != MODE_PILOTE:
+		if sc.machines[machine][0].equipement_pilote_ou_mesure_mode_id != MODE_PILOTE:
 			not_scheduled.append(machine)
 	queries = []
 	for i in range(randint(1, TO_SCHEDULE_POTENTIAL)):
@@ -25,7 +25,7 @@ if __name__ == "__main__":
 		machine_last_end = timestamp + randint(TO_SCHEDULE_TIME_FROM_NOW[0], TO_SCHEDULE_TIME_FROM_NOW[1])
 		machine_delta    = randint(TO_SCHEDULE_DELTA_TIME[0], TO_SCHEDULE_DELTA_TIME[1]) 
 		machine_index = not_scheduled[machine]
-		sc.machines[machine_index][0].equipement_pilote_ou_mesure_mode = MODE_PILOTE
+		sc.machines[machine_index][0].equipement_pilote_ou_mesure_mode_id = MODE_PILOTE
 		sc.machines[machine_index][1].delai_attente_maximale_apres_fin = machine_delta
 		sc.machines[machine_index][1].timestamp_de_fin_souhaite = machine_last_end
 		print(f"scheduling machine {machine_index} for timestamp {machine_last_end}")

@@ -7,13 +7,14 @@ class ELFE_EquipementPilote():
 	Id                                  : PrimaryAutoInt
 	equipement_pilote_specifique_id     : int
 	equipement_pilote_ou_mesure_type_id : int
-	equipement_pilote_ou_mesure_mode    : int
-	etat_controle                       : int
-	etat_commande                       : int
-	nom                                 : str
+	equipement_pilote_ou_mesure_mode_id : int
+	etat_controle_id                    : int
+	etat_commande_id                    : int
+	nom_humain                          : str
 	description                         : str
-	typologie_installation_domotique    : int
+	typologie_installation_domotique_id : int
 	ems_consigne_marche                 : bool
+	timestamp_derniere_mise_en_marche   : int
 
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
@@ -67,7 +68,7 @@ class ELFE_ChauffageNonAsservi():
 	puissance_moyenne_eco                      : int
 	puissance_moyenne_confort                  : int
 	pourcentage_eco_force                      : int
-	mesures_puissance_elec                     : int
+	mesures_puissance_elec_id                  : int
 
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
@@ -90,7 +91,7 @@ class ELFE_VehiculeElectriqueGenerique():
 	timestamp_dispo_souhaitee                    : int
 	puissance_de_charge                          : int
 	capacite_de_batterie                         : int
-	mesures_puissance_elec                       : int
+	mesures_puissance_elec_id                    : int
 
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
@@ -100,6 +101,7 @@ class ELFE_MachineGeneriqueCycle():
 	duree_cycle                            : int
 	nom                                    : str
 	description                            : str
+	timestamp_dernier_declenchement        : int
 
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
@@ -120,3 +122,27 @@ class ELFE_BallonECSHeuresCreuses():
 	actif                           : bool
 	debut                           : int
 	fin                             : int
+
+@serializableThroughDatabase
+@dataclass(init=True, repr=True)
+class ELFE_EquipementType:
+	Id : PrimaryAutoInt
+	nom : str
+	nom_humain : str
+	description : str
+
+@serializableThroughDatabase
+@dataclass(init=True, repr=True)
+class ELFE_EtatControleType:
+	Id : PrimaryAutoInt
+	nom : str
+	nom_humain : str
+	description : str
+
+@serializableThroughDatabase
+@dataclass(init=True, repr=True)
+class ELFE_EtatCommandeType:
+	Id : PrimaryAutoInt
+	nom : str
+	nom_humain : str
+	description : str

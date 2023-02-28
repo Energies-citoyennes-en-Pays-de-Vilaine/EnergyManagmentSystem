@@ -40,7 +40,7 @@ def populate_params_with(params, key, value):
 
 def register_equipement_pilote(credentials, params) -> ELFE_EquipementPilote: 
 	# not to use as a single function
-	equipment = ELFE_EquipementPilote(0, params["spec_equip_id"], 0, 0, 0, 0, params["eq_name"], params["eq_description"], 0, False)
+	equipment = ELFE_EquipementPilote(0, params["spec_equip_id"], 0, 0, 0, 0, params["eq_name"], params["eq_description"], 0, False, 0)
 	equipment.Id = fetch(credentials, equipment.get_append_in_table_str(ELFE_database_names["ELFE_EquipementPilote"]))[0][0]
 	return equipment
 
@@ -48,7 +48,7 @@ def register_machine_cycle(credentials, params) -> ELFE_MachineGeneriqueCycle:
 	populate_params_with(params, "duree_cycle", 3600)
 	populate_params_with(params, "cy_name", "aucun")
 	populate_params_with(params, "cy_description", f"cycle '{params['cy_name'] if params['cy_name'] != 'aucun' else 'default'}' for machine {params['machine_id']}'")
-	cycle = ELFE_MachineGeneriqueCycle(0, params["machine_id"], params["duree_cycle"], params["cy_name"], params["cy_description"])
+	cycle = ELFE_MachineGeneriqueCycle(0, params["machine_id"], params["duree_cycle"], params["cy_name"], params["cy_description"], 0)
 	cycle.Id = fetch(credentials, cycle.get_append_in_table_str(ELFE_database_names["ELFE_MachineGeneriqueCycle"]))[0][0]
 	return cycle
 
