@@ -30,9 +30,9 @@ if __name__ == "__main__":
 	if ("EMS_SORTIE" in db_credentials):
 		execute_queries(db_credentials["EMS_SORTIE"], queries)
 		import numpy as np
-		consumption = problem.get_consumption() - np.array(simulation_datas)[:,1]
+		consumption = -problem.get_consumption() + np.array(simulation_datas)[:,1]
 		times = sim_params.get_time_array()
 		for i in range(len(times)):
 			queries.append(EMSPowerCurveData(times[i], consumption[i]).get_create_or_update_in_table_str("p_c_with_flexible_consumption"))
-			queries.append(EMSPowerCurveData(times[i], -int(np.array(simulation_datas)[i,1])).get_create_or_update_in_table_str("p_c_without_flexible_consumption"))
+			queries.append(EMSPowerCurveData(times[i], int(np.array(simulation_datas)[i,1])).get_create_or_update_in_table_str("p_c_without_flexible_consumption"))
 		execute_queries(db_credentials["EMS_SORTIE"], queries)
