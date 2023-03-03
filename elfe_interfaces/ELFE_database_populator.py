@@ -17,6 +17,7 @@ class StudyCase():
 	undrived_heater  : Dict[int, Tuple[ELFE_EquipementPilote, ELFE_ChauffageNonAsservi]]
 	electric_vehicle : Dict[int, 	Tuple[ELFE_EquipementPilote, ELFE_VehiculeElectriqueGenerique]]
 	thermic_models   : Dict[int, ELFE_ChauffageAsserviModeleThermique]
+	ecs              : Dict[int, Tuple[ELFE_EquipementPilote, ELFE_BallonECS, List[ELFE_BallonECSHeuresCreuses]]]
 	def save_to_loadable_py_file(self, varname, py_file_name: str):
 		with open(py_file_name, "w") as outp:
 			print("from elfe_interfaces.ELFE_database_populator import *", file=outp)
@@ -173,9 +174,37 @@ def register_modele_thermique(credentials, params) -> ELFE_ChauffageAsserviModel
 	thermic_model.Id = fetch(credentials, thermic_model.get_append_in_table_str(ELFE_database_names["ELFE_ChauffageAsserviModeleThermique"]))[0][0]
 	return thermic_model
 	
+def register_ballon_ECS_heures_creuses(credentials, params) -> ELFE_BallonECSHeuresCreuses:
+	HCid = params["heures_creuses_id"]
+	populate_params_with(params["heures_creuses"][HCid], "ECS_HC_nom", f"HC_{params['spec_equip_id']}_{HCid + 1}")
+	populate_params_with(params["heures_creuses"][HCid], "ECS_HC_description", f"heure creuse numero {HCid + 1} pour le chauffe eau {params['spec_equip_id']}")
+	populate_params_with(params["heures_creuses"][HCid], "ECS_HC_actif", False)
+	heures_creuses = ELFE_BallonECSHeuresCreuses(0, params["spec_equip_id"], params["heures_creuses"][HCid]["ECS_HC_nom"], params["heures_creuses"][HCid]["ECS_HC_description"], params["heures_creuses"][HCid]["ECS_HC_actif"], params["heures_creuses"][HCid]["ECS_HC_start"], params["heures_creuses"][HCid]["ECS_HC_end"])	
+	heures_creuses.Id = fetch(credentials, heures_creuses.get_append_in_table_str(ELFE_database_names["ELFE_BallonECSHeuresCreuses"]))[0][0]
+	return heures_creuses
+
+def register_ballon_ECS(credentials, params) -> Tuple[ELFE_EquipementPilote, ELFE_BallonECS, List[ELFE_BallonECSHeuresCreuses]]:
+	populate_params_with(params, "ECS_volume", 200)
+	populate_params_with(params, "ECS_power", 2000)
+	ballon_ecs = ELFE_BallonECS(0, 0, params["ECS_volume"], params["ECS_power"], params["ECS_mesures"])
+	ballon_ecs.Id = fetch(credentials, ballon_ecs.get_append_in_table_str(ELFE_database_names["ELFE_BallonECS"]))[0][0]
+	params["spec_equip_id"] = ballon_ecs.Id
+	populate_params_with(params, "eq_name", f"ballon_ecs_{ballon_ecs.Id}")
+	populate_params_with(params, "eq_description", f"equipement pilote pour le ballon ecs {ballon_ecs.Id}")
+	equipment = register_equipement_pilote(credentials, params)
+
+	ballon_ecs.equipement_pilote_ou_mesure_id = equipment.Id
+	execute_queries(credentials, [ballon_ecs.get_update_in_table_str(ELFE_database_names["ELFE_BallonECS"])])
+	ballon_ecs_heures_creuses = []
+	for i in range(len(params["heures_creuses"])):
+		params["heures_creuses_id"] = i
+		ballon_ecs_heure_creuse = register_ballon_ECS_heures_creuses(credentials, params)
+		ballon_ecs_heures_creuses.append(ballon_ecs_heure_creuse)
+	return (equipment, ballon_ecs, ballon_ecs_heures_creuses)
+
 def make_study_case(credentials, csvPath: str) -> StudyCase:
 	drop_and_recreate(credentials)
-	to_return = StudyCase({}, {}, {}, {}, {})
+	to_return = StudyCase({}, {}, {}, {}, {}, {})
 	with open(csvPath, "r") as inp:
 		for line in inp:
 			splitted_line = line.strip().replace(" ", "").split(",")
@@ -198,4 +227,23 @@ def make_study_case(credentials, csvPath: str) -> StudyCase:
 				}
 				new_drived_heater = register_drived_heater(credentials, params)
 				to_return.drived_heater[new_drived_heater[1].Id] = new_drived_heater
+			elif (object_type == "ECS"):
+				params = {
+					"ECS_volume" : int(splitted_line[1]),
+					"ECS_power" : int(splitted_line[2]),
+					"ECS_mesures" : int(splitted_line[3]),# TODO finish me
+					"ECS_HC_count" : int(splitted_line[4]),
+					"heures_creuses" : [],
+				}
+				splitted_offset = 4
+				for i in range(params["ECS_HC_count"]):
+					params_heure_creuses = {
+						"ECS_HC_actif" : eval(splitted_line[splitted_offset + 1]),
+						"ECS_HC_start" : int(splitted_line[splitted_offset + 2]),
+						"ECS_HC_end" : int(splitted_line[splitted_offset + 3]),
+					}
+					splitted_offset += 3
+					params["heures_creuses"].append(params_heure_creuses)
+				new_ecs = register_ballon_ECS(credentials, params)
+				to_return.ecs[new_ecs[1].Id] = new_ecs
 	return to_return

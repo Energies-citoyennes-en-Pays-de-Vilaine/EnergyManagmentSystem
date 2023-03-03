@@ -1,6 +1,7 @@
 
 from solution.Consumer_interface import Consumer_interface
 from solution.Calculation_Params import CalculationParams
+from solution.ConsumerTypes.ECSConsumer import ECSConsumer
 from solution.Exceptions.SpecifiedListTypeException import SpecifiedListTypeException, check_for_specified_list_type_exception
 from typing import *
 import scipy.optimize as opt
@@ -107,6 +108,7 @@ class Problem():
                 {
                     "id"         : consumer.id,
                     "reocurring" :  consumer.is_reocurring,
+                    "is_ECS"     : type(consumer) == ECSConsumer,
                     "decisions"  : consumer.get_decisions(self.calculationParams, self.result[i: i+consumer.get_minimizing_variables_count(self.calculationParams)]).tolist()
                 })
             i += consumer.get_minimizing_variables_count(self.calculationParams)

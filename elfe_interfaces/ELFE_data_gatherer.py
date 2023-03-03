@@ -47,6 +47,18 @@ def get_machines(timestamp) -> List[MachineConsumer]:
 		start_time = machine[MAX_END_TIMESTAMP_INDEX]- machine[MAX_END_DELTA_INDEX] - cycle_duration
 		to_return.append(MachineConsumer(machine[MACHINE_ID_INDEX], cycle_data, start_time, end_time))
 	return to_return
+ 
+def get_ECS(timestamp) -> List[MachineConsumer]:
+	from datetime import datetime, timezone, timedelta
+	ecs_not_to_schedule = fetch(db_credentials["EMS"], "SELECT * from machine_ecs WHERE ")
+	date = datetime.fromtimestamp(timestamp, timezone.utc)
+	possible_times = [
+		int(timedelta(0, date.second + date.hour * 3600 + date.minute * 60).total_seconds()), 
+		int(timedelta(1, date.second + date.hour * 3600 + date.minute * 60).total_seconds())
+		]
+	print(date, possible_times)
+	return []
+
 if __name__ == "__main__":
 	from datetime import datetime
 	print(get_machines(int(datetime.now().timestamp())))

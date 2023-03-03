@@ -14,7 +14,8 @@ def create_tables(credentials):
 		HistoricalInitialWheatherForecast.get_create_table_str("historyinitialweather"),
 		EMSDeviceTemperatureData.get_create_table_str("devicetemperaturedata"),
 		EMSPowerCurveData.get_create_table_str("prediction"),
-		EMSResult.get_create_table_str("result")
+		EMSResult.get_create_table_str("result"),
+		EMSResult.get_create_table_str("result_ecs")
 	]
 	execute_queries(credentials, tables_queries)
 

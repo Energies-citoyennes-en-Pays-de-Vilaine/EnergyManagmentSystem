@@ -117,8 +117,8 @@ class ELFE_BallonECS():
 class ELFE_BallonECSHeuresCreuses():
 	Id                              : PrimaryAutoInt
 	equipement_pilote_ballon_ecs_id : int
-	nom                             : int
-	description                     : int
+	nom                             : str
+	description                     : str
 	actif                           : bool
 	debut                           : int
 	fin                             : int
