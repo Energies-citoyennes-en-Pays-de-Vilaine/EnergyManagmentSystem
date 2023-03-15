@@ -23,6 +23,7 @@ if __name__ == "__main__":
 	results_ECS = []
 	for decision in decisions:
 		result_type = 0 if decision["reocurring"] == False else 1
+		print(decision)
 		result = EMSResult(0, round_start_timestamp, decision["id"], result_type, result_type, decision["decisions"] )
 		if result.is_ECS == False:
 			results.append(result)
