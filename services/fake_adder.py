@@ -21,16 +21,17 @@ if __name__ == "__main__":
 			not_scheduled.append(machine)
 	queries = []
 	for i in range(randint(1, TO_SCHEDULE_POTENTIAL)):
-		machine = randrange(0, len(not_scheduled))
-		machine_last_end = timestamp + randint(TO_SCHEDULE_TIME_FROM_NOW[0], TO_SCHEDULE_TIME_FROM_NOW[1])
-		machine_delta    = randint(TO_SCHEDULE_DELTA_TIME[0], TO_SCHEDULE_DELTA_TIME[1]) 
-		machine_index = not_scheduled[machine]
-		sc.machines[machine_index][0].equipement_pilote_ou_mesure_mode_id = MODE_PILOTE
-		sc.machines[machine_index][1].delai_attente_maximale_apres_fin = machine_delta
-		sc.machines[machine_index][1].timestamp_de_fin_souhaite = machine_last_end
-		print(f"scheduling machine {machine_index} for timestamp {machine_last_end}")
-		queries.append(sc.machines[machine_index][0].get_update_in_table_str(ELFE_database_names["ELFE_EquipementPilote"]))
-		queries.append(sc.machines[machine_index][1].get_update_in_table_str(ELFE_database_names["ELFE_MachineGenerique"]))
-		not_scheduled.remove(machine_index)
+		if (len(not_scheduled) > 0):
+			machine = randrange(0, len(not_scheduled))
+			machine_last_end = timestamp + randint(TO_SCHEDULE_TIME_FROM_NOW[0], TO_SCHEDULE_TIME_FROM_NOW[1])
+			machine_delta    = randint(TO_SCHEDULE_DELTA_TIME[0], TO_SCHEDULE_DELTA_TIME[1]) 
+			machine_index = not_scheduled[machine]
+			sc.machines[machine_index][0].equipement_pilote_ou_mesure_mode_id = MODE_PILOTE
+			sc.machines[machine_index][1].delai_attente_maximale_apres_fin = machine_delta
+			sc.machines[machine_index][1].timestamp_de_fin_souhaite = machine_last_end
+			print(f"scheduling machine {machine_index} for timestamp {machine_last_end}")
+			queries.append(sc.machines[machine_index][0].get_update_in_table_str(ELFE_database_names["ELFE_EquipementPilote"]))
+			queries.append(sc.machines[machine_index][1].get_update_in_table_str(ELFE_database_names["ELFE_MachineGenerique"]))
+			not_scheduled.remove(machine_index)
 	execute_queries(db_credentials["ELFE"], queries)
 	sc.save_to_loadable_py_file("sc", "data/temp/generated_study_case.py")
