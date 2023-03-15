@@ -14,7 +14,7 @@ if __name__ == "__main__":
 	expected_power = sorted(expected_power, key=lambda x : int(x[0]))
 	simulation_datas = expected_power[:STEP_COUNT]
 	sim_params = CalculationParams(round_start_timestamp, timestamp + STEP_COUNT * DELTA_TIME_SIMULATION, DELTA_TIME_SIMULATION, DELTA_TIME_SIMULATION, [[-int(simulation_datas[i][1]) for i in range(STEP_COUNT)]])
-	consumers = get_machines(timestamp) + get_ECS(timestamp)
+	consumers = get_machines(timestamp) #+ get_ECS(timestamp)
 	problem = Problem(consumers, sim_params)
 	problem.prepare()
 	problem.solve(10*60)
