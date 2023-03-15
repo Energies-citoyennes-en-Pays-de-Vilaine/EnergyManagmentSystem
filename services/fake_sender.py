@@ -19,12 +19,12 @@ if __name__ == "__main__":
 			if(int(sc.machines[machine][0].Id) == scheduled_machine):
 				machine_index = machine
 				break
-		sc.machines[machine_index][0].equipement_pilote_ou_mesure_mode = 0
+		sc.machines[machine_index][0].equipement_pilote_ou_mesure_mode_id = 0
 		queries.append(sc.machines[machine_index][0].get_update_in_table_str(ELFE_database_names["ELFE_EquipementPilote"]))
 		print(timestamp, "sending info to machine", scheduled_machine )
 	for machine in sc.machines:
-			if(sc.machines[machine][0].equipement_pilote_ou_mesure_mode == MODE_PILOTE and sc.machines[machine][1].timestamp_de_fin_souhaite < timestamp):
-				sc.machines[machine][0].equipement_pilote_ou_mesure_mode = 0
+			if(sc.machines[machine][0].equipement_pilote_ou_mesure_mode_id == MODE_PILOTE and sc.machines[machine][1].timestamp_de_fin_souhaite < timestamp):
+				sc.machines[machine][0].equipement_pilote_ou_mesure_mode_id = 0
 				queries.append(sc.machines[machine][0].get_update_in_table_str(ELFE_database_names["ELFE_EquipementPilote"]))
 				print(timestamp, "machine", sc.machines[machine][0].Id, "was never scheduled" )
 	execute_queries(db_credentials["ELFE"], queries)
