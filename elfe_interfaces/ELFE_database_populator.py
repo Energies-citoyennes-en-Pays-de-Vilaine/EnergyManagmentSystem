@@ -17,7 +17,7 @@ class StudyCase():
 	undrived_heater  : Dict[int, Tuple[ELFE_EquipementPilote, ELFE_ChauffageNonAsservi]]
 	electric_vehicle : Dict[int, 	Tuple[ELFE_EquipementPilote, ELFE_VehiculeElectriqueGenerique]]
 	thermic_models   : Dict[int, ELFE_ChauffageAsserviModeleThermique]
-	ecs              : Dict[int, Tuple[ELFE_EquipementPilote, ELFE_BallonECS, List[ELFE_BallonECSHeuresCreuses]]] = field(default_factory=Dict)
+	ecs              : Dict[int, Tuple[ELFE_EquipementPilote, ELFE_BallonECS, List[ELFE_BallonECSHeuresCreuses]]] = field(default_factory=dict)
 	def save_to_loadable_py_file(self, varname, py_file_name: str):
 		with open(py_file_name, "w") as outp:
 			print("from elfe_interfaces.ELFE_database_populator import *", file=outp)
