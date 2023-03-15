@@ -4,7 +4,7 @@ from database.query import execute_queries, fetch
 from database.EMS_db_types import EMSCycle,EMSCycleData, EMSDeviceTemperatureData, EMSMachineData, EMSPowerCurveData, InitialWheatherForecast, HistoricalInitialWheatherForecast
 from credentials.db_credentials import db_credentials
 from typing import List, Tuple, Dict, Union
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 #chauffage = ELFE_ChauffageAsserviModeleThermique(0,"modle","thermique")
 #print(fetch(db_credentials["ELFE"], chauffage.get_append_in_table_str("chauffage_asservi_modele_thermique")))
 
@@ -17,7 +17,7 @@ class StudyCase():
 	undrived_heater  : Dict[int, Tuple[ELFE_EquipementPilote, ELFE_ChauffageNonAsservi]]
 	electric_vehicle : Dict[int, 	Tuple[ELFE_EquipementPilote, ELFE_VehiculeElectriqueGenerique]]
 	thermic_models   : Dict[int, ELFE_ChauffageAsserviModeleThermique]
-	ecs              : Dict[int, Tuple[ELFE_EquipementPilote, ELFE_BallonECS, List[ELFE_BallonECSHeuresCreuses]]] = {}
+	ecs              : Dict[int, Tuple[ELFE_EquipementPilote, ELFE_BallonECS, List[ELFE_BallonECSHeuresCreuses]]] = field(default_factory=Dict)
 	def save_to_loadable_py_file(self, varname, py_file_name: str):
 		with open(py_file_name, "w") as outp:
 			print("from elfe_interfaces.ELFE_database_populator import *", file=outp)
