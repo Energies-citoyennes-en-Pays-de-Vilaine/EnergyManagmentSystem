@@ -77,3 +77,9 @@ class EMSResult():
 	machine_type              : int
 	decisions                 : Union[int, create_DB_Annotation(is_db_list=True, db_element_count=96), List[int]]
 	 
+@serializableThroughDatabase
+@dataclass(init=True, repr=True)
+class EMS_ECS():
+	Id         : PrimaryAutoInt
+	elfe_zabbix_id    : int# carefull this is the zabbix ID
+	last_power : int#last day's consumption, will be acquired through machine_learner
