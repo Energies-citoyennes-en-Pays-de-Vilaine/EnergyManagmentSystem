@@ -50,14 +50,32 @@ def get_machines(timestamp) -> List[MachineConsumer]:
  
 def get_ECS(timestamp) -> List[MachineConsumer]:
 	from datetime import datetime, timezone, timedelta
-	ecs_not_to_schedule = fetch(db_credentials["EMS"], "SELECT * from machine_ecs WHERE ")
 	date = datetime.fromtimestamp(timestamp, timezone.utc)
 	possible_times = [
 		int(timedelta(0, date.second + date.hour * 3600 + date.minute * 60).total_seconds()), 
 		int(timedelta(1, date.second + date.hour * 3600 + date.minute * 60).total_seconds())
 		]
 	print(date, possible_times)
-	return []
+	query = (f"SELECT epm.id, ecs.volume_ballon, ecs.puissance_chauffe, hc.actif, hc.debut, hc.fin\
+		FROM {ELFE_database_names['ELFE_EquipementPilote']} AS epm\
+		INNER JOIN {ELFE_database_names['ELFE_BallonECS']} AS ecs ON epm.id = ecs.equipement_pilote_ou_mesure_id\
+		INNER JOIN {ELFE_database_names['ELFE_BallonECSHeuresCreuses']} AS hc ON ecs.id = hc.equipement_pilote_ballon_ecs_id\
+		WHERE hc.actif=true and epm.equipement_pilote_ou_mesure_mode_id=30 AND epm.timestamp_derniere_mise_en_marche + 12 * 3600 <= %s", [timestamp])
+	query_results = fetch(db_credentials["ELFE"], query)
+	ECS_ELFE_in_piloted_mode = {}
+	for result in query_results:
+		(epmid, volume, puissance, actif, debut, fin) = result
+		if epmid not in ECS_ELFE_in_piloted_mode:
+			ECS_ELFE_in_piloted_mode[epmid] = {
+				"epmid"     : epmid,
+				"volume"    : volume,
+				"puissance" : puissance,
+				"actif"     : actif,
+				"debut"     : debut,
+				"fin"       : fin
+				}
+
+	return (query, ECS_ELFE_in_piloted_mode)
 
 if __name__ == "__main__":
 	from datetime import datetime
