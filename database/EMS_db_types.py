@@ -80,6 +80,5 @@ class EMSResult():
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
 class EMS_ECS():
-	Id         : PrimaryAutoInt
-	elfe_zabbix_id    : int# carefull this is the zabbix ID
-	last_power : int#last day's consumption, will be acquired through machine_learner
+	elfe_zabbix_id : Union[int, create_DB_Annotation(is_primary=True)]# carefull this is the zabbix ID
+	last_energy    : int#last day's consumption, will be acquired through ECS_acquisition every day

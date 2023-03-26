@@ -51,7 +51,11 @@ class ZabbixReader(DataReaderInterface):
 			if (re.search("[ADF]{1}\\d{1,3}", d["name"][:4]) != None or re.search("Equi", d["name"][:4]) != None ):
 				items[d["name"]] = int(d["itemid"])
 		return items
-
+	
+	def get_unit(self, itemId : int) -> str:
+		data = self.send_request("item.get", {"itemids" : [itemId]}, True)["result"]
+		return data[0]["units"]
+	
 	def get_items_by_tag(self, tag):
 		data = self.send_request("item.get", {"tags": [{"tag" : "appareil", "value": tag}]}, True)["result"]
 		items = {}
