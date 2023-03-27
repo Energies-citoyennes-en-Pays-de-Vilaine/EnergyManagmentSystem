@@ -7,6 +7,8 @@ from typing import List, Union
 from solution.ConsumerTypes.HeaterConsumer import HeaterConsumer
 from solution.ConsumerTypes.SumConsumer import SumConsumer
 from solution.ConsumerTypes.MachineConsumer import MachineConsumer
+from solution.ConsumerTypes.ECSConsumer import ECSConsumer
+from math import ceil
 MODE_PILOTE = 30
 DELTA_SIMULATION = 15*60 #TODO this will have to be reloacted
 
@@ -48,15 +50,15 @@ def get_machines(timestamp) -> List[MachineConsumer]:
 		to_return.append(MachineConsumer(machine[MACHINE_ID_INDEX], cycle_data, start_time, end_time))
 	return to_return
  
-def get_ECS(timestamp) -> List[MachineConsumer]:
+def get_ECS(timestamp) -> List[ECSConsumer]:
+	#ECS means "Eau Chaude Sanitaire" which is the hot water tank
 	from datetime import datetime, timezone, timedelta
 	date = datetime.fromtimestamp(timestamp, timezone.utc)
-	possible_times = [
-		int(timedelta(0, date.second + date.hour * 3600 + date.minute * 60).total_seconds()), 
-		int(timedelta(1, date.second + date.hour * 3600 + date.minute * 60).total_seconds())
-		]
-	print(date, possible_times)
-	query = (f"SELECT epm.id, ecs.volume_ballon, ecs.puissance_chauffe, hc.actif, hc.debut, hc.fin\
+	midnight = date - timedelta(0, date.second + date.hour * 3600 + date.minute * 60)
+	midnight_timestamp = midnight.timestamp()
+	print(date, midnight, midnight_timestamp)
+	ECS_not_to_schedule = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result_ecs WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
+	query = (f"SELECT epm.id, ecs.mesures_puissance_elec_id ,ecs.volume_ballon, ecs.puissance_chauffe, hc.actif, hc.debut, hc.fin\
 		FROM {ELFE_database_names['ELFE_EquipementPilote']} AS epm\
 		INNER JOIN {ELFE_database_names['ELFE_BallonECS']} AS ecs ON epm.id = ecs.equipement_pilote_ou_mesure_id\
 		INNER JOIN {ELFE_database_names['ELFE_BallonECSHeuresCreuses']} AS hc ON ecs.id = hc.equipement_pilote_ballon_ecs_id\
@@ -64,18 +66,60 @@ def get_ECS(timestamp) -> List[MachineConsumer]:
 	query_results = fetch(db_credentials["ELFE"], query)
 	ECS_ELFE_in_piloted_mode = {}
 	for result in query_results:
-		(epmid, volume, puissance, actif, debut, fin) = result
+		(epmid, zabbixid, volume, power, actif, start, end) = result
+		if epmid in ECS_not_to_schedule:
+			continue
 		if epmid not in ECS_ELFE_in_piloted_mode:
 			ECS_ELFE_in_piloted_mode[epmid] = {
 				"epmid"     : epmid,
+				"zabbixid"  : zabbixid,
 				"volume"    : volume,
-				"puissance" : puissance,
+				"power"     : power,
 				"actif"     : actif,
-				"debut"     : debut,
-				"fin"       : fin
+				"start"     : start,
+				"end"       : end
 				}
-
-	return (query, ECS_ELFE_in_piloted_mode)
+		elif (end - start > ECS_ELFE_in_piloted_mode[epmid]["end"] - ECS_ELFE_in_piloted_mode[epmid]["start"]):
+			ECS_ELFE_in_piloted_mode[epmid] = {
+				"epmid"     : epmid,
+				"zabbixid"  : zabbixid,
+				"volume"    : volume,
+				"power"     : power,
+				"actif"     : actif,
+				"start"     : start,
+				"end"       : end
+				}
+	ecs_consumers = []
+	for ecs_id in ECS_ELFE_in_piloted_mode:
+		ecs = ECS_ELFE_in_piloted_mode[ecs_id]
+		last_consumption = fetch(db_credentials["EMS"], ("SELECT last_energy FROM ems_ecs WHERE elfe_zabbix_id=%s", [ecs["zabbixid"]]))
+		if (len(last_consumption) == 0):
+			last_consumption = 0
+			print("no last consumption known")
+		else: 
+			last_consumption = last_consumption[0][0]
+		duration_hour = last_consumption / ecs["power"] + 2#add two hours to be safe, to be put in a config file
+		duration_step = duration_hour * 4 #WARNING, quick and dirty, couples the code to 15min simulation step. To be reworked
+		duration_step = ceil(duration_step)
+		ecs_curve = []
+		for i in range(duration_step):
+			ecs_curve.append(ecs["power"])
+		possible_starts = [
+			midnight_timestamp + ecs["start"] - 24 * 3600,
+			midnight_timestamp + ecs["start"]
+		]
+		possible_ends = [
+			midnight_timestamp + ecs["end"] - 24 * 3600,
+			midnight_timestamp + ecs["end"]
+		]
+		consumer : ECSConsumer
+		print(timestamp - possible_starts[0], timestamp - possible_ends[0])
+		if (timestamp > possible_starts[0] and timestamp < possible_ends[0]):
+			consumer = ECSConsumer(ecs["epmid"], ecs_curve, possible_starts[0], possible_ends[0], ecs["power"], ecs["volume"])
+		else: 
+			consumer = ECSConsumer(ecs["epmid"], ecs_curve, possible_starts[1], possible_ends[1], ecs["power"], ecs["volume"])
+		ecs_consumers.append(consumer)
+	return (ecs_consumers)
 
 if __name__ == "__main__":
 	from datetime import datetime

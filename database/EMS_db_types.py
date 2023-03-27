@@ -76,7 +76,18 @@ class EMSResult():
 	result_type               : int
 	machine_type              : int
 	decisions                 : Union[int, create_DB_Annotation(is_db_list=True, db_element_count=96), List[int]]
-	 
+
+@serializableThroughDatabase
+@dataclass(init=True, repr=True)
+class EMSResultEcs():
+	Id                        : PrimaryAutoInt
+	first_valid_timestamp     : int
+	machine_id                : int
+	result_type               : int
+	machine_type              : int
+	duration                  : int
+	decisions                 : Union[int, create_DB_Annotation(is_db_list=True, db_element_count=96), List[int]]
+
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
 class EMS_ECS():
