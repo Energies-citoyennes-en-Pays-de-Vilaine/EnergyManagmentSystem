@@ -2,7 +2,9 @@ import psycopg2
 def execute_queries(credentials, queries):
 	cred = credentials
 	try:
-		connection = psycopg2.connect(host = cred["host"], database = cred["database"], user = cred["user"], password = cred["password"])
+		if "options" not in cred:
+			cred["options"] = ""
+		connection = psycopg2.connect(host = cred["host"], database = cred["database"], user = cred["user"], password = cred["password"], options=cred["options"])
 		cursor = connection.cursor()
 		# create table one by one
 		for query in queries:
@@ -23,7 +25,9 @@ def fetch(credentials, query):
 	cred = credentials
 	result = None
 	try:
-		connection = psycopg2.connect(host = cred["host"], database = cred["database"], user = cred["user"], password = cred["password"])
+		if "options" not in cred:
+			cred["options"] = ""
+		connection = psycopg2.connect(host = cred["host"], database = cred["database"], user = cred["user"], password = cred["password"], options=cred["options"])
 		cursor = connection.cursor()
 		if (isinstance(query, str)):
 			cursor.execute(query)
