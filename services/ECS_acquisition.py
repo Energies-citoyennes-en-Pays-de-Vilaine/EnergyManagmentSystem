@@ -31,5 +31,7 @@ for i in items_puissance:
         energie_conso =  allData[-1] - allData[0]
         if zr.get_unit(items[f"{i} energie"]).upper().startswith("KWH"):
             energie_conso *= 1000
+        if (energie_conso < 0):
+            energie_conso *= -1
         queries.append(EMS_ECS(items[f"{i} puissance"], energie_conso).get_create_or_update_in_table_str("ems_ecs"))
 execute_queries(db_credentials["EMS"], queries)
