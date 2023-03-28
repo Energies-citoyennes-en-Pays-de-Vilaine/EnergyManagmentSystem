@@ -58,6 +58,7 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 	midnight_timestamp = midnight.timestamp()
 	print(date, midnight, midnight_timestamp)
 	ECS_not_to_schedule = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result_ecs WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
+	ECS_not_to_schedule = [i[0] for i in ECS_not_to_schedule]
 	query = (f"SELECT epm.id, ecs.mesures_puissance_elec_id ,ecs.volume_ballon, ecs.puissance_chauffe, hc.actif, hc.debut, hc.fin\
 		FROM {ELFE_database_names['ELFE_EquipementPilote']} AS epm\
 		INNER JOIN {ELFE_database_names['ELFE_BallonECS']} AS ecs ON epm.id = ecs.equipement_pilote_ou_mesure_id\
