@@ -6,9 +6,9 @@ from math import ceil
 SIM_STEP = 15*60 #TODO use simParams
 def get_ecs_results_to_transmit(first_valid_timestamp) -> List[EMSResult]:
 	query = "SELECT result.* FROM result_ecs AS result\
-		INNER JOIN (SELECT MAX(res.first_valid_timestamp) AS timestamp, res.machine_id FROM result_ecs AS res\
+		INNER JOIN (SELECT MAX(res.id) AS id, res.machine_id FROM result_ecs AS res\
 		GROUP BY res.machine_id) AS res\
-		ON res.timestamp=result.first_valid_timestamp AND res.machine_id = result.machine_id"
+		ON res.id=result.id AND res.machine_id = result.machine_id"
 	query_result = fetch(db_credentials["EMS"], query)
 	results = []
 	for line in query_result:
@@ -21,13 +21,14 @@ def get_ecs_results_to_transmit(first_valid_timestamp) -> List[EMSResult]:
 			if dec == 1:
 				index_start = i
 		time_start = result_ecs.first_valid_timestamp + index_start * SIM_STEP
+		print(result_ecs.duration / SIM_STEP)
 		time_end   = time_start + ceil(result_ecs.duration / SIM_STEP) * SIM_STEP 
 		current_time = first_valid_timestamp
 		for i in range(len(result.decisions)):
 			if (current_time < time_start):
 				current_time += SIM_STEP
 				continue
-			if (current_time > time_end):
+			if (current_time >= time_end):
 				break
 			result.decisions[i] = 1
 			current_time += SIM_STEP
