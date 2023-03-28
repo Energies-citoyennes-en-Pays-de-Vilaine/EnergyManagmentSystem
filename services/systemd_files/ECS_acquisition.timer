@@ -1,0 +1,10 @@
+[Unit]
+Description="timer for the ECS acquisition service"
+Requires=ECS_acquisition.service
+[Timer]
+Unit=ECS_acquisition.service
+OnCalendar=*-*-* 16:00:30
+AccuracySec=20s
+
+[Install]
+WantedBy=timers.target
