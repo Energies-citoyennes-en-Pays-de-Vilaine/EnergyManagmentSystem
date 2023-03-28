@@ -39,9 +39,9 @@ class MachineConsumer(Consumer_interface):
         self._make_machine_possible(calculationParams)
         return [[self.machine_count], [self.machine_count]]
     def _make_machine_possible(self, calculationParams: CalculationParams):
-        if ((self.start_time + len(self.profile)) * calculationParams.time_delta  > self.end_time ):
+        if (self.start_time + len(self.profile) * calculationParams.time_delta  > self.end_time ):
             print(f"warning, machine {self.id} impossible because user constraints doesn't allow it to fit, rescheduling end constraint")
-            self.end_time = (self.start_time + len(self.profile)) * calculationParams.time_delta
+            self.end_time = self.start_time + len(self.profile) * calculationParams.time_delta
         if (self.start_time + len(self.profile) * calculationParams.time_delta > calculationParams.end):
             print(f"warning, machine {self.id} impossible because it doesn't fit before the end of simulation. making it earlier so it fits, will be rescheduled later")
             self.start_time = calculationParams.end - len(self.profile) * calculationParams.time_delta
