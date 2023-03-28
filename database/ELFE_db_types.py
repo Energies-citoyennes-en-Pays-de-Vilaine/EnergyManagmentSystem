@@ -112,8 +112,6 @@ class ELFE_BallonECS():
 	equipement_pilote_ou_mesure_id    : int
 	volume_ballon                     : int
 	puissance_chauffe                 : int
-	horraire_utilisation_eau_chaude_1 : int
-	horraire_utilisation_eau_chaude_2 : int
 	mesures_puissance_elec_id         : int
 
 @serializableThroughDatabase
