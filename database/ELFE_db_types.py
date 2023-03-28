@@ -15,6 +15,8 @@ class ELFE_EquipementPilote():
 	typologie_installation_domotique_id : int
 	ems_consigne_marche                 : bool
 	timestamp_derniere_mise_en_marche   : int
+	timestamp_derniere_programmation    : int
+	utilisateur                         : str
 
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
@@ -106,11 +108,13 @@ class ELFE_MachineGeneriqueCycle():
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
 class ELFE_BallonECS():
-	Id                             : PrimaryAutoInt
-	equipement_pilote_ou_mesure_id : int
-	volume_ballon                  : int
-	puissance_chauffe              : int
-	mesures_puissance_elec_id      : int
+	Id                                : PrimaryAutoInt
+	equipement_pilote_ou_mesure_id    : int
+	volume_ballon                     : int
+	puissance_chauffe                 : int
+	horraire_utilisation_eau_chaude_1 : int
+	horraire_utilisation_eau_chaude_2 : int
+	mesures_puissance_elec_id         : int
 
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
