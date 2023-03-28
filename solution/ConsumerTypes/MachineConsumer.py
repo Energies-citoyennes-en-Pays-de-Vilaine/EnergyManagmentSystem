@@ -57,7 +57,7 @@ class MachineConsumer(Consumer_interface):
         steps_count -= len(self.profile)
         steps_count = round(steps_count)
         if steps_count < 0:
-            print(steps_count)
+            print(steps_count, start_time, end_time)
         return steps_count + 1
 
     def _get_constraints_size(self, calculationParams : CalculationParams) -> int:
