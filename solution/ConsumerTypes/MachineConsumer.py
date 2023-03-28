@@ -39,10 +39,12 @@ class MachineConsumer(Consumer_interface):
         self._make_machine_possible(calculationParams)
         return [[self.machine_count], [self.machine_count]]
     def _make_machine_possible(self, calculationParams: CalculationParams):
-        if (self.start_time + len(self.profile) * calculationParams.time_delta  > self.end_time ):
+        start_time = maxi(self.start_time, calculationParams.begin)
+        end_time = mini(self.end_time, calculationParams.end + calculationParams.step_size)
+        if (start_time + len(self.profile) * calculationParams.time_delta  > end_time ):
             print(f"warning, machine {self.id} impossible because user constraints doesn't allow it to fit, rescheduling end constraint")
             self.end_time = self.start_time + len(self.profile) * calculationParams.time_delta
-        if (self.start_time + len(self.profile) * calculationParams.time_delta > calculationParams.end):
+        if (start_time + len(self.profile) * calculationParams.time_delta > calculationParams.end):
             print(f"warning, machine {self.id} impossible because it doesn't fit before the end of simulation. making it earlier so it fits, will be rescheduled later")
             self.start_time = calculationParams.end - len(self.profile) * calculationParams.time_delta
         if (self.end_time <= calculationParams.begin):
@@ -57,7 +59,7 @@ class MachineConsumer(Consumer_interface):
         steps_count -= len(self.profile)
         steps_count = round(steps_count)
         if steps_count < 0:
-            print(steps_count, start_time, end_time, calculationParams.step_size, calculationParams.time_delta)
+            print(steps_count, start_time, end_time, calculationParams.step_size)
         return steps_count + 1
 
     def _get_constraints_size(self, calculationParams : CalculationParams) -> int:
