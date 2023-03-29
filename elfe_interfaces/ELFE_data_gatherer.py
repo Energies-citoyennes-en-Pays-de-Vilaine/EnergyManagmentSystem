@@ -42,6 +42,7 @@ def get_machines(timestamp) -> List[MachineConsumer]:
 				)[0]
 			except IndexError:
 				EMS_database_machine = ["default.csv"]
+				print("not found in database", machine[MESURE_ELEC_INDEX])
 			cycle_data = []
 			with open(f"data/in_use/{EMS_database_machine[0]}") as inp:
 				for line in inp:
