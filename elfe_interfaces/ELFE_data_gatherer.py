@@ -26,7 +26,6 @@ def get_machines(timestamp) -> List[MachineConsumer]:
 	                                                   + f" INNER JOIN {ELFE_database_names['ELFE_MachineGeneriqueCycle']} AS cycle ON cycle.equipement_pilote_machine_generique_id = machine.id " 
 													   + f" INNER JOIN {ELFE_database_names['ELFE_EquipementPilote']} AS equipement ON machine.equipement_pilote_ou_mesure_id = equipement.id "
 													   + f" WHERE equipement.equipement_pilote_ou_mesure_mode_id = {MODE_PILOTE};")
-	print(machines_to_schedule)
 	for machine in machines_to_schedule:
 		if int(machine[MACHINE_ID_INDEX]) in machines_not_to_schedule:
 			print(f"not to schedule {machine[MACHINE_ID_INDEX]}")
@@ -36,8 +35,8 @@ def get_machines(timestamp) -> List[MachineConsumer]:
 			EMS_database_machine = fetch(db_credentials["EMS"], (f" SELECT cd.csv FROM machine AS m"
 			                                                   + f" INNER JOIN cycle AS c ON c.id_machine = m.id_machine"
 															   + f" INNER JOIN cycledata AS cd ON cd.id_cycle_data = c.id_cycle_data "
-															   + f" WHERE m.id_machine_elfe=%s",
-															   [machine[MESURE_ELEC_INDEX]]
+															   + f" WHERE m.id_machine_elfe=%s AND c.name=%s",
+															   [machine[MESURE_ELEC_INDEX], f"default_cycle_for_machine({machine[MESURE_ELEC_INDEX]})"]
 					)
 				)
 			try: 
