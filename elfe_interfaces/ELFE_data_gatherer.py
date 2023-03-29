@@ -32,13 +32,16 @@ def get_machines(timestamp) -> List[MachineConsumer]:
 			continue
 		#if machine[CYCLE_NAME_INDEX] == "aucun"
 		if (True):
-			EMS_database_machine = fetch(db_credentials["EMS"], (f" SELECT cd.csv FROM machine AS m"
+			try:
+				EMS_database_machine = fetch(db_credentials["EMS"], (f" SELECT cd.csv FROM machine AS m"
 			                                                   + f" INNER JOIN cycle AS c ON c.id_machine = m.id_machine"
 															   + f" INNER JOIN cycledata AS cd ON cd.id_cycle_data = c.id_cycle_data "
 															   + f" WHERE m.id_machine_elfe=%s AND c.name=%s",
 															   [machine[MESURE_ELEC_INDEX], f"default_cycle_for_machine({machine[MESURE_ELEC_INDEX]})"]
-				)
-			)[0]
+					)
+				)[0]
+			except IndexError:
+				EMS_database_machine = ["default.csv"]
 			cycle_data = []
 			with open(f"data/in_use/{EMS_database_machine[0]}") as inp:
 				for line in inp:
