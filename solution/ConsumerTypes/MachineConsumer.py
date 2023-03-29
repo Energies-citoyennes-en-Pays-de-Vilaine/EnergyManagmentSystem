@@ -1,5 +1,3 @@
-import math
-from tracemalloc import start
 import numpy as np
 from typing import *
 from solution.Consumer_interface import Consumer_interface
