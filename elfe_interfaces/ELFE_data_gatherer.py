@@ -42,7 +42,9 @@ def get_machines(timestamp) -> List[MachineConsumer]:
 			try: 
 				EMS_database_machine = EMS_database_machine[0]
 			except IndexError:
-				print(EMS_database_machine)
+				print(fetch(db_credentials["EMS"], (f" SELECT m.* FROM machine AS m"
+															   + f" WHERE m.id_machine_elfe=%s",
+															   [machine[MESURE_ELEC_INDEX]])), machine[MESURE_ELEC_INDEX])
 				EMS_database_machine = ["default.csv"]
 				print("not found in database", machine[MESURE_ELEC_INDEX])
 			cycle_data = []
