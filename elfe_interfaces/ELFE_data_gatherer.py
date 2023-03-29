@@ -39,6 +39,7 @@ def get_machines(timestamp) -> List[MachineConsumer]:
 															   [machine[MESURE_ELEC_INDEX], f"default_cycle_for_machine({machine[MESURE_ELEC_INDEX]})"]
 					)
 				)
+			print(EMS_database_machine)
 			try: 
 				EMS_database_machine = EMS_database_machine[0]
 			except IndexError:
