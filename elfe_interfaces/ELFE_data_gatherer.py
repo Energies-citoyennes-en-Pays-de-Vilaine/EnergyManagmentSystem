@@ -26,6 +26,7 @@ def get_machines(timestamp) -> List[MachineConsumer]:
 	                                                   + f" INNER JOIN {ELFE_database_names['ELFE_MachineGeneriqueCycle']} AS cycle ON cycle.equipement_pilote_machine_generique_id = machine.id " 
 													   + f" INNER JOIN {ELFE_database_names['ELFE_EquipementPilote']} AS equipement ON machine.equipement_pilote_ou_mesure_id = equipement.id "
 													   + f" WHERE equipement.equipement_pilote_ou_mesure_mode_id = {MODE_PILOTE};")
+	print(machines_to_schedule)
 	for machine in machines_to_schedule:
 		if int(machine[MACHINE_ID_INDEX]) in machines_not_to_schedule:
 			print(f"not to schedule {machine[MACHINE_ID_INDEX]}")
