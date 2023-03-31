@@ -130,7 +130,7 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 	return (ecs_consumers)
 
 def get_electric_vehicle(timestamp) -> List[VehicleConsumer]:
-	vehicle_to_schedule_query = f"SELECT m.id, ve.pourcentage_charge_restant, ve.pourcentage_charge_minimale_souhaitee, ve.timestamp_dispo_souhaitee, ve.puissance_de_charge, ve.capacite_de_batterie\
+	vehicle_to_schedule_query = f"SELECT m.id, ve.pourcentage_charge_restant, ve.pourcentage_charge_finale_minimale_souhaitee, ve.timestamp_dispo_souhaitee, ve.puissance_de_charge, ve.capacite_de_batterie\
 		FROM {ELFE_database_names['ELFE_EquipementPilote']} AS m\
 		INNER JOIN {ELFE_database_names['ELFE_VehiculeElectriqueGenerique']} AS ve ON ve.equipement_pilote_ou_mesure_id = m.id\
 		WHERE m.equipement_pilote_ou_mesure_mode_id={MODE_PILOTE}"
@@ -138,10 +138,11 @@ def get_electric_vehicle(timestamp) -> List[VehicleConsumer]:
 	vehicle_not_to_schedule = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
 	vehicle_not_to_schedule = [int(vehicle_not_to_schedule[0]) for vehicle_not_to_schedule in vehicle_not_to_schedule]
 	vehicles : List[VehicleConsumer] = []
-	for vehicle in vehicle_to_schedule_query_result:
-		(Id, current_charge_pourc, target_charge_pourc, end_timestamp, power_watt, capacity_watt_hour) = vehicle
-		if Id not in vehicle_not_to_schedule:
-			vehicles.append(VehicleConsumer(Id, power_watt, capacity_watt_hour, current_charge_pourc, target_charge_pourc, timestamp, end_timestamp))
+	if vehicle_to_schedule_query_result != None:
+		for vehicle in vehicle_to_schedule_query_result:
+			(Id, current_charge_pourc, target_charge_pourc, end_timestamp, power_watt, capacity_watt_hour) = vehicle
+			if Id not in vehicle_not_to_schedule:
+				vehicles.append(VehicleConsumer(Id, power_watt, capacity_watt_hour, current_charge_pourc, target_charge_pourc, timestamp, end_timestamp))
 	return vehicles
 
 if __name__ == "__main__":
