@@ -107,7 +107,6 @@ class VehicleConsumer(Consumer_interface):
 		residue = self.power_watt * (nb_pourcent - pourcent_par_pas * nb_pas)/pourcent_par_pas
 		if (residue >= 0.1):
 			P += [ - self.power_watt * (nb_pourcent - pourcent_par_pas * nb_pas)/pourcent_par_pas]
-		print(P)
 		return(P)
 
 	def _fill_minimizing_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpars: List[int], ypars: List[int]):
@@ -124,9 +123,6 @@ class VehicleConsumer(Consumer_interface):
 			for j in range(tp["max_charge_time"] // calculationParams.step_size):
 				if (start_step + i + j < sim_size and start_step + i + j < end_step ):
 					tofill[start_step + ypar + i + j, xpar + i] = power_curve[j]
-					print(i + j + start_step,i,j, start_step, end_step, power_curve[j])
-				else:
-					print(i,j)
 
 	def _fill_functionnal_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpar: int, ypar: int):
 		self._make_machine_possible(calculationParams)
