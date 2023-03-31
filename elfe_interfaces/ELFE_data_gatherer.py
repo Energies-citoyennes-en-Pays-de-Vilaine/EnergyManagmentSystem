@@ -143,6 +143,8 @@ def get_electric_vehicle(timestamp) -> List[VehicleConsumer]:
 			(Id, current_charge_pourc, target_charge_pourc, end_timestamp, power_watt, capacity_watt_hour) = vehicle
 			if Id not in vehicle_not_to_schedule:
 				vehicles.append(VehicleConsumer(Id, power_watt, capacity_watt_hour, current_charge_pourc, target_charge_pourc, timestamp, end_timestamp))
+			else:
+				print("electic vehicle not to schedule", Id)
 	return vehicles
 
 if __name__ == "__main__":
