@@ -1,9 +1,11 @@
-from elfe_interfaces.ELFE_data_gatherer import get_machines, get_ECS
+from elfe_interfaces.ELFE_data_gatherer import get_machines, get_ECS, get_electric_vehicle
 from database.EMS_db_types import EMSPowerCurveData, EMSResult, EMSResultEcs
 from database.query import fetch, execute_queries
 from credentials.db_credentials import db_credentials
 from solution.Calculation_Params import CalculationParams
 from solution.Problem import Problem
+from solution.Consumer_interface import Consumer_interface
+from typing import List
 from datetime import datetime
 from solution.ConsumerTypes.ECSConsumer import ECSConsumer
 from bodge.ECS_transmitter import get_ecs_results_to_transmit
@@ -16,7 +18,7 @@ if __name__ == "__main__":
 	expected_power = sorted(expected_power, key=lambda x : int(x[0]))
 	simulation_datas = expected_power[:STEP_COUNT]
 	sim_params = CalculationParams(round_start_timestamp, timestamp + STEP_COUNT * DELTA_TIME_SIMULATION, DELTA_TIME_SIMULATION, DELTA_TIME_SIMULATION, [[-int(simulation_datas[i][1]) for i in range(STEP_COUNT)]])
-	consumers = get_machines(timestamp) + get_ECS(timestamp)
+	consumers : List[Consumer_interface]= get_machines(timestamp) + get_ECS(timestamp) + get_electric_vehicle(timestamp)
 	problem = Problem(consumers, sim_params)
 	problem.prepare()
 	problem.solve(10*60)

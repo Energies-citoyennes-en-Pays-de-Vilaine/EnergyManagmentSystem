@@ -8,6 +8,7 @@ from solution.ConsumerTypes.HeaterConsumer import HeaterConsumer
 from solution.ConsumerTypes.SumConsumer import SumConsumer
 from solution.ConsumerTypes.MachineConsumer import MachineConsumer
 from solution.ConsumerTypes.ECSConsumer import ECSConsumer
+from solution.ConsumerTypes.VehicleConsumer import VehicleConsumer
 from math import ceil
 MODE_PILOTE = 30
 DELTA_SIMULATION = 15*60 #TODO this will have to be reloacted
@@ -69,7 +70,7 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 		FROM {ELFE_database_names['ELFE_EquipementPilote']} AS epm\
 		INNER JOIN {ELFE_database_names['ELFE_BallonECS']} AS ecs ON epm.id = ecs.equipement_pilote_ou_mesure_id\
 		INNER JOIN {ELFE_database_names['ELFE_BallonECSHeuresCreuses']} AS hc ON ecs.id = hc.equipement_pilote_ballon_ecs_id\
-		WHERE hc.actif=true and epm.equipement_pilote_ou_mesure_mode_id=30 AND epm.timestamp_derniere_mise_en_marche + 12 * 3600 <= %s", [timestamp])
+		WHERE hc.actif=true and epm.equipement_pilote_ou_mesure_mode_id={MODE_PILOTE} AND epm.timestamp_derniere_mise_en_marche + 12 * 3600 <= %s", [timestamp])
 	query_results = fetch(db_credentials["ELFE"], query)
 	ECS_ELFE_in_piloted_mode = {}
 	for result in query_results:
@@ -127,6 +128,21 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 			consumer = ECSConsumer(ecs["epmid"], ecs_curve, possible_starts[1], possible_ends[1], ecs["power"], ecs["volume"])
 		ecs_consumers.append(consumer)
 	return (ecs_consumers)
+
+def get_electric_vehicle(timestamp) -> List[VehicleConsumer]:
+	vehicle_to_schedule_query = f"SELECT m.id, ve.pourcentage_charge_restant, ve.pourcentage_charge_minimale_souhaitee, ve.timestamp_dispo_souhaitee, ve.puissance_de_charge, ve.capacite_de_batterie\
+		FROM {ELFE_database_names['ELFE_EquipementPilote']} AS m\
+		INNER JOIN {ELFE_database_names['ELFE_VehiculeElectriqueGenerique']} AS ve ON ve.equipement_pilote_ou_mesure_id = m.id\
+		WHERE m.equipement_pilote_ou_mesure_mode_id={MODE_PILOTE}"
+	vehicle_to_schedule_query_result = fetch(db_credentials["ELFE"], vehicle_to_schedule_query)
+	vehicle_not_to_schedule = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
+	vehicle_not_to_schedule = [int(vehicle_not_to_schedule[0]) for vehicle_not_to_schedule in vehicle_not_to_schedule]
+	vehicles : List[VehicleConsumer] = []
+	for vehicle in vehicle_to_schedule_query_result:
+		(Id, current_charge_pourc, target_charge_pourc, end_timestamp, power_watt, capacity_watt_hour) = vehicle
+		if Id not in vehicle_not_to_schedule:
+			vehicles.append(VehicleConsumer(Id, power_watt, capacity_watt_hour, current_charge_pourc, target_charge_pourc, timestamp, end_timestamp))
+	return vehicles
 
 if __name__ == "__main__":
 	from datetime import datetime
