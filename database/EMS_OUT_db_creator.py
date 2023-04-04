@@ -5,11 +5,13 @@ import typing
 from typing import Union
 from database.query import execute_queries, fetch
 from database.EMS_db_types import  EMSResult, EMSPowerCurveData
+from database.EMS_OUT_db_types import EMSRunInfo
 def create_tables(credentials):
 	tables_queries = [
 		EMSResult.get_create_table_str("result"),
 		EMSPowerCurveData.get_create_table_str("p_c_with_flexible_consumption"),
-		EMSPowerCurveData.get_create_table_str("p_c_without_flexible_consumption")
+		EMSPowerCurveData.get_create_table_str("p_c_without_flexible_consumption"),
+		EMSRunInfo.get_create_table_str("ems_run_info")
 	]
 	execute_queries(credentials, tables_queries)
 
