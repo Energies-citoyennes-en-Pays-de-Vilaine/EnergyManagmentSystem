@@ -6,7 +6,6 @@ def execute_queries(credentials, queries):
 			cred["options"] = ""
 		connection = psycopg2.connect(host = cred["host"], database = cred["database"], user = cred["user"], password = cred["password"], options=cred["options"])
 		cursor = connection.cursor()
-		# create table one by one
 		for query in queries:
 			if (isinstance(query, str)):
 				cursor.execute(query)
@@ -21,6 +20,7 @@ def execute_queries(credentials, queries):
 	finally:
 		if connection is not None:
 			connection.close()
+			
 def fetch(credentials, query):
 	cred = credentials
 	result = None
