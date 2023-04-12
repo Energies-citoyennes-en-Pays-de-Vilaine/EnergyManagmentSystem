@@ -7,6 +7,7 @@ import numpy as np
 class Consumer_interface():
 	has_base_consumption : bool
 	is_reocurring: bool
+	consumer_machine_type : int # must be set up by the get in database
 
 	def get_f_contrib(self, calculationParams : CalculationParams) -> List[float]:
 		checkFunctionExist(self, "_get_f_contrib")

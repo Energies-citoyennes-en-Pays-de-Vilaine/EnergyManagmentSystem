@@ -35,12 +35,13 @@ if __name__ == "__main__":
 	results_ECS = []
 	for decision in decisions:
 		result_type = 0 if decision["reocurring"] == False else 1
+		consumer : Consumer_interface = decision["consumer"]
 		if decision["is_ECS"] == False:
-			result = EMSResult(0, round_start_timestamp, decision["id"], result_type, result_type, decision["decisions"] )
+			result = EMSResult(0, round_start_timestamp, decision["id"], result_type, consumer.consumer_machine_type, decision["decisions"] )
 			results.append(result)
 		else:
 			ecs_consumer : ECSConsumer = decision["consumer"]
-			result = EMSResultEcs(0, round_start_timestamp, decision["id"], result_type, result_type, ecs_consumer.get_total_duration(),decision["decisions"])
+			result = EMSResultEcs(0, round_start_timestamp, decision["id"], result_type, consumer.consumer_machine_type, ecs_consumer.get_total_duration(),decision["decisions"])
 			results_ECS.append(result)
 	
 	queries_ECS = [result.get_append_in_table_str("result_ecs") for result in results_ECS]

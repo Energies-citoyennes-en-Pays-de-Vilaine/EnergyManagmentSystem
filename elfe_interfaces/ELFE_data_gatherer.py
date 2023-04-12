@@ -19,10 +19,11 @@ def get_machines(timestamp) -> List[MachineConsumer]:
 	MESURE_ELEC_INDEX = 2
 	MAX_END_TIMESTAMP_INDEX = 3
 	MAX_END_DELTA_INDEX = 4
+	MACHINE_TYPE_INDEX  = 5
 	to_return : List[MachineConsumer]= []
 	machines_not_to_schedule = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
 	machines_not_to_schedule = [int(machine_not_to_schedule[0]) for machine_not_to_schedule in machines_not_to_schedule]
-	machines_to_schedule = fetch(db_credentials["ELFE"], f" SELECT machine.equipement_pilote_ou_mesure_id, cycle.nom, machine.mesures_puissance_elec_id, machine.timestamp_de_fin_souhaite, machine.delai_attente_maximale_apres_fin   "
+	machines_to_schedule = fetch(db_credentials["ELFE"], f" SELECT machine.equipement_pilote_ou_mesure_id, cycle.nom, machine.mesures_puissance_elec_id, machine.timestamp_de_fin_souhaite, machine.delai_attente_maximale_apres_fin, equipement.equipement_pilote_ou_mesure_type_id   "
 													   + f" FROM {ELFE_database_names['ELFE_MachineGenerique']} AS machine" 
 	                                                   + f" INNER JOIN {ELFE_database_names['ELFE_MachineGeneriqueCycle']} AS cycle ON cycle.id = machine.cycle_equipement_pilote_machine_generique_id " 
 													   + f" INNER JOIN {ELFE_database_names['ELFE_EquipementPilote']} AS equipement ON machine.equipement_pilote_ou_mesure_id = equipement.id "
@@ -54,7 +55,9 @@ def get_machines(timestamp) -> List[MachineConsumer]:
 		cycle_duration = DELTA_SIMULATION * len(cycle_data)
 		end_time = max( DELTA_SIMULATION + cycle_duration + timestamp, machine[MAX_END_TIMESTAMP_INDEX])
 		start_time = machine[MAX_END_TIMESTAMP_INDEX]- machine[MAX_END_DELTA_INDEX] - cycle_duration
-		to_return.append(MachineConsumer(machine[MACHINE_ID_INDEX], cycle_data, start_time, end_time))
+		machine_consumer = MachineConsumer(machine[MACHINE_ID_INDEX], cycle_data, start_time, end_time)
+		machine_consumer.consumer_machine_type = machine[MACHINE_TYPE_INDEX]
+		to_return.append(machine_consumer)
 	return to_return
  
 def get_ECS(timestamp) -> List[ECSConsumer]:
@@ -66,7 +69,7 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 	print(date, midnight, midnight_timestamp)
 	ECS_not_to_schedule = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result_ecs WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
 	ECS_not_to_schedule = [i[0] for i in ECS_not_to_schedule]
-	query = (f"SELECT epm.id, ecs.mesures_puissance_elec_id ,ecs.volume_ballon, ecs.puissance_chauffe, hc.actif, hc.debut, hc.fin\
+	query = (f"SELECT epm.id, ecs.mesures_puissance_elec_id ,ecs.volume_ballon, ecs.puissance_chauffe, hc.actif, hc.debut, hc.fin, epm.equipement_pilote_ou_mesure_type_id\
 		FROM {ELFE_database_names['ELFE_EquipementPilote']} AS epm\
 		INNER JOIN {ELFE_database_names['ELFE_BallonECS']} AS ecs ON epm.id = ecs.equipement_pilote_ou_mesure_id\
 		INNER JOIN {ELFE_database_names['ELFE_BallonECSHeuresCreuses']} AS hc ON ecs.id = hc.equipement_pilote_ballon_ecs_id\
@@ -74,7 +77,7 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 	query_results = fetch(db_credentials["ELFE"], query)
 	ECS_ELFE_in_piloted_mode = {}
 	for result in query_results:
-		(epmid, zabbixid, volume, power, actif, start, end) = result
+		(epmid, zabbixid, volume, power, actif, start, end, epmtype) = result
 		if epmid in ECS_not_to_schedule:
 			continue
 		if epmid not in ECS_ELFE_in_piloted_mode:
@@ -85,7 +88,8 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 				"power"     : power,
 				"actif"     : actif,
 				"start"     : start,
-				"end"       : end
+				"end"       : end,
+				"epmtype"   : epmtype,
 				}
 		elif (end - start > ECS_ELFE_in_piloted_mode[epmid]["end"] - ECS_ELFE_in_piloted_mode[epmid]["start"]):
 			ECS_ELFE_in_piloted_mode[epmid] = {
@@ -95,7 +99,8 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 				"power"     : power,
 				"actif"     : actif,
 				"start"     : start,
-				"end"       : end
+				"end"       : end,
+				"epmtype"   : epmtype,
 				}
 	ecs_consumers = []
 	for ecs_id in ECS_ELFE_in_piloted_mode:
@@ -126,11 +131,12 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 			consumer = ECSConsumer(ecs["epmid"], ecs_curve, possible_starts[0], possible_ends[0], ecs["power"], ecs["volume"])
 		else: 
 			consumer = ECSConsumer(ecs["epmid"], ecs_curve, possible_starts[1], possible_ends[1], ecs["power"], ecs["volume"])
+		consumer.consumer_machine_type = ecs["epmtype"]
 		ecs_consumers.append(consumer)
 	return (ecs_consumers)
 
 def get_electric_vehicle(timestamp) -> List[VehicleConsumer]:
-	vehicle_to_schedule_query = f"SELECT m.id, ve.pourcentage_charge_restant, ve.pourcentage_charge_finale_minimale_souhaitee, ve.timestamp_dispo_souhaitee, ve.puissance_de_charge, ve.capacite_de_batterie\
+	vehicle_to_schedule_query = f"SELECT m.id, ve.pourcentage_charge_restant, ve.pourcentage_charge_finale_minimale_souhaitee, ve.timestamp_dispo_souhaitee, ve.puissance_de_charge, ve.capacite_de_batterie, m.equipement_pilote_ou_mesure_type_id\
 		FROM {ELFE_database_names['ELFE_EquipementPilote']} AS m\
 		INNER JOIN {ELFE_database_names['ELFE_VehiculeElectriqueGenerique']} AS ve ON ve.equipement_pilote_ou_mesure_id = m.id\
 		WHERE m.equipement_pilote_ou_mesure_mode_id={MODE_PILOTE}"
@@ -140,9 +146,11 @@ def get_electric_vehicle(timestamp) -> List[VehicleConsumer]:
 	vehicles : List[VehicleConsumer] = []
 	if vehicle_to_schedule_query_result != None:
 		for vehicle in vehicle_to_schedule_query_result:
-			(Id, current_charge_pourc, target_charge_pourc, end_timestamp, power_watt, capacity_watt_hour) = vehicle
+			(Id, current_charge_pourc, target_charge_pourc, end_timestamp, power_watt, capacity_watt_hour, epmtype) = vehicle
 			if Id not in vehicle_not_to_schedule:
-				vehicles.append(VehicleConsumer(Id, power_watt, capacity_watt_hour, current_charge_pourc, target_charge_pourc, timestamp, end_timestamp))
+				vehicle_consumer : VehicleConsumer = VehicleConsumer(Id, power_watt, capacity_watt_hour, current_charge_pourc, target_charge_pourc, timestamp, end_timestamp)
+				vehicle_consumer.consumer_machine_type = epmtype
+				vehicles.append(vehicle_consumer)
 			else:
 				print("electic vehicle not to schedule", Id)
 	return vehicles
