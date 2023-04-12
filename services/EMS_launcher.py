@@ -29,7 +29,7 @@ if __name__ == "__main__":
 	t1 = time()
 	problem.solve(10*60)
 	t2 = time()
-	run_time_ms = int(100 * (t2 - t1))
+	run_time_ms = int(1000 * (t2 - t1))
 	decisions = problem.get_decisions()
 	results = []
 	results_ECS = []
