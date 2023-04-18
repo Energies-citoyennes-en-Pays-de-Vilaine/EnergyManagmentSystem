@@ -162,7 +162,7 @@ def get_sum_consumer(timestamp) -> List[SumConsumer]:
 	elfe_heater_query = f"SELECT heater.* \
 		FROM {ELFE_database_names['ELFE_ChauffageNonAsservi']} AS heater\
 		INNER JOIN {ELFE_database_names['ELFE_EquipementPilote']} AS epm ON epm.equipement_pilote_specifique_id = heater.id\
-		WHERE epm.equipement_mesure_ou_pilote_mode_id = {MODE_PILOTE}"
+		WHERE epm.equipement_pilote_ou_mesure_mode_id = {MODE_PILOTE}"
 	
 	elfe_heater_result = fetch(db_credentials["ELFE"], elfe_heater_query)
 	elfe_heater = [ELFE_ChauffageNonAsservi.create_from_select_output(result) for result in elfe_heater_result]
