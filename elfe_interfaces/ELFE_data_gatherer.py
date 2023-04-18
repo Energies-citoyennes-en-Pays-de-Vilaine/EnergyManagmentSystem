@@ -54,6 +54,7 @@ def get_merged_periods_and_has_changed(periods : List[Period]) -> Tuple[List[Per
 				has_changed = True
 		if has_been_merged == False:
 			periods_to_return.append(period_1)
+	print((periods_to_return, has_changed))
 	return (periods_to_return, has_changed)
 
 def get_machines(timestamp) -> List[MachineConsumer]:
