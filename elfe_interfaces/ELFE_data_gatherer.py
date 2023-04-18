@@ -155,6 +155,22 @@ def get_electric_vehicle(timestamp) -> List[VehicleConsumer]:
 				print("electic vehicle not to schedule", Id)
 	return vehicles
 
+def get_sum_consumer(timestamp) -> List[SumConsumer]:
+	"""
+	Sum consumers currently are only made of heaters on which we don't have access to the room's heat
+	"""
+	elfe_heater_query = f"SELECT heater.* \
+		FROM {ELFE_database_names['ELFE_ChauffageNonAsservi']} AS heater\
+		INNER JOIN {ELFE_database_names['ELFE_EquipementPilote']} AS epm ON epm.equipement_pilote_ou_mesure_specifique_id = heater.id\
+		WHERE epm.equipement_mesure_ou_pilote_mode_id = {MODE_PILOTE}"
+	
+	elfe_heater_result = fetch(db_credentials["ELFE"], elfe_heater_query)
+	elfe_heater = [ELFE_ChauffageNonAsservi.create_from_select_output(result) for result in elfe_heater_result]
+	print(elfe_heater_result, elfe_heater)
+	#TODO reste
+	#heater_last_schedules = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
+	return []
+
 if __name__ == "__main__":
 	from datetime import datetime
 	print(get_machines(int(datetime.now().timestamp())))
