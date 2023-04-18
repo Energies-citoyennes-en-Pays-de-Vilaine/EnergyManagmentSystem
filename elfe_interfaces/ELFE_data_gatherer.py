@@ -182,9 +182,9 @@ def get_sum_consumer(timestamp) -> List[SumConsumer]:
 	elfe_heater_result = fetch(db_credentials["ELFE"], elfe_heater_query)
 	elfe_heater : List[ELFE_ChauffageNonAsservi] = [ELFE_ChauffageNonAsservi.create_from_select_output(result) for result in elfe_heater_result]
 	starting_periods : List[datetime] = [get_midnight_date(timestamp - DAY_TIME_SECONDS), get_midnight_date(timestamp), get_midnight_date(timestamp + DAY_TIME_SECONDS)]
-	for start in starting_periods:
-		for heater in elfe_heater:
-			periods : List[Period] = []
+	for heater in elfe_heater:
+		periods : List[Period] = []
+		for start in starting_periods:
 			if start.weekday() >= 5:
 				if heater.prog_weekend_periode_1_confort_actif == True:
 					periods.append(Period(int(start.timestamp()) + heater.prog_weekend_periode_1_confort_heure_debut, int(start.timestamp()) + heater.prog_weekend_periode_1_confort_heure_fin))
@@ -195,7 +195,7 @@ def get_sum_consumer(timestamp) -> List[SumConsumer]:
 					periods.append(Period(int(start.timestamp()) + heater.prog_semaine_periode_1_confort_heure_debut, int(start.timestamp()) + heater.prog_semaine_periode_1_confort_heure_fin))
 				if heater.prog_semaine_periode_2_confort_actif == True:
 					periods.append(Period(int(start.timestamp()) + heater.prog_semaine_periode_2_confort_heure_debut, int(start.timestamp()) + heater.prog_semaine_periode_2_confort_heure_fin))
-	print(periods, elfe_heater)
+		print(periods, elfe_heater)
 	#TODO reste
 	#heater_last_schedules = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
 	return []
