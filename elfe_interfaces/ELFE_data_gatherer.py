@@ -11,6 +11,7 @@ from solution.ConsumerTypes.ECSConsumer import ECSConsumer
 from solution.ConsumerTypes.VehicleConsumer import VehicleConsumer
 from math import ceil
 from datetime import datetime, timezone, timedelta
+from dataclasses import dataclass
 MODE_PILOTE = 30
 DAY_TIME_SECONDS = 24 * 60 * 60
 DELTA_SIMULATION = 15*60 #TODO this will have to be reloacted
@@ -25,6 +26,11 @@ def get_midnight_timestamp(timestamp : int) -> datetime:
 	date : datetime = datetime.fromtimestamp(timestamp, timezone.utc)
 	midnight : datetime = date - timedelta(0, date.second + date.hour * 3600 + date.minute * 60)
 	return int(midnight.timestamp())
+
+@dataclass(init=True, repr=True)
+class Period():
+	start : int
+	end : int
 
 def get_machines(timestamp) -> List[MachineConsumer]:
 	MACHINE_ID_INDEX  = 0
@@ -174,10 +180,22 @@ def get_sum_consumer(timestamp) -> List[SumConsumer]:
 		INNER JOIN {ELFE_database_names['ELFE_EquipementPilote']} AS epm ON epm.equipement_pilote_specifique_id = heater.id\
 		WHERE epm.equipement_pilote_ou_mesure_mode_id = {MODE_PILOTE}"	
 	elfe_heater_result = fetch(db_credentials["ELFE"], elfe_heater_query)
-	elfe_heater = [ELFE_ChauffageNonAsservi.create_from_select_output(result) for result in elfe_heater_result]
+	elfe_heater : List[ELFE_ChauffageNonAsservi] = [ELFE_ChauffageNonAsservi.create_from_select_output(result) for result in elfe_heater_result]
 	starting_periods : List[datetime] = [get_midnight_date(timestamp - DAY_TIME_SECONDS), get_midnight_date(timestamp), get_midnight_date(timestamp + DAY_TIME_SECONDS)]
 	for start in starting_periods:
-		print(start, start.isoweekday())
+		for heater in elfe_heater:
+			periods : List[Period] = []
+			if start.weekday >= 5:
+				if heater.prog_weekend_periode_1_confort_actif == True:
+					periods.append(Period(int(start.timestamp()) + heater.prog_weekend_periode_1_confort_heure_debut, int(start.timestamp()) + heater.prog_weekend_periode_1_confort_heure_fin))
+				if heater.prog_weekend_periode_2_confort_actif == True:
+					periods.append(Period(int(start.timestamp()) + heater.prog_weekend_periode_2_confort_heure_debut, int(start.timestamp()) + heater.prog_weekend_periode_2_confort_heure_fin))
+			else:
+				if heater.prog_semaine_periode_1_confort_actif == True:
+					periods.append(Period(int(start.timestamp()) + heater.prog_semaine_periode_1_confort_heure_debut, int(start.timestamp()) + heater.prog_semaine_periode_1_confort_heure_fin))
+				if heater.prog_semaine_periode_2_confort_actif == True:
+					periods.append(Period(int(start.timestamp()) + heater.prog_semaine_periode_2_confort_heure_debut, int(start.timestamp()) + heater.prog_semaine_periode_2_confort_heure_fin))
+	print(periods, elfe_heater)
 	#TODO reste
 	#heater_last_schedules = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
 	return []
