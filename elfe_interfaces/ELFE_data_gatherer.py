@@ -34,25 +34,32 @@ class Period():
 	def __sub__(self, value : Union[int, float]):
 		if (type(value) in [int, float]):
 			value = int(value)
-			self.start = self.start - value
-			self.end = self.end - value
+			start = self.start - value
+			end = self.end - value
+			return Period(start, end )
 		else:
 			raise TypeError(f"can't substract {type(value)} to Period")
 
 def get_merged_periods_and_has_changed(periods : List[Period]) -> Tuple[List[Period], bool]:
 	periods_to_return : List[Period] = []
 	has_changed : bool = False
+	periods_to_include = [True for p in periods]
 	for (i, period_1) in enumerate(periods):
-		has_been_merged = False
+		if periods_to_include[i] == False:
+			continue
 		for j in range(i + 1, len(periods)):
+			if periods_to_include[j] == False:
+				continue
 			period_2 = periods[j]	
-			if period_2.start >= period_1.start and period_2.start <= period_2.end and not has_been_merged:
+			if period_2.start >= period_1.start and period_2.start <= period_2.end:
 				start = period_1.start
-				end = max(period_1.start, period_2.start)
+				end = max(period_1.end, period_2.end)
 				periods_to_return.append(Period(start, end))
-				has_been_merged = True
+				periods_to_include[i] = False
+				periods_to_include[j] = False
 				has_changed = True
-		if has_been_merged == False:
+				break
+		if periods_to_include[i] == True:
 			periods_to_return.append(period_1)
 	print((periods_to_return, has_changed))
 	return (periods_to_return, has_changed)
