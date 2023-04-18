@@ -34,6 +34,8 @@ def fetch(credentials, query):
 		else:
 			cursor.execute(query[0], query[1])
 		result = cursor.fetchall()
+		if (result == None):
+			result = []
 		cursor.close()
 		# commit the changes
 		connection.commit()
