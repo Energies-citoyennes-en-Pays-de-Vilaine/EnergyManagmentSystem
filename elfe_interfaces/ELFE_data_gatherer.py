@@ -46,7 +46,7 @@ def get_merged_periods_and_has_changed(periods : List[Period]) -> Tuple[List[Per
 		has_been_merged = False
 		for j in range(i + 1, len(periods)):
 			period_2 = periods[j]	
-			if period_2.start >= period_1.start and period_2.start <= period_2.end:
+			if period_2.start >= period_1.start and period_2.start <= period_2.end and not has_been_merged:
 				start = period_1.start
 				end = max(period_1.start, period_2.start)
 				periods_to_return.append(Period(start, end))
