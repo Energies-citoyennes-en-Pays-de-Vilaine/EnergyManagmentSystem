@@ -10,8 +10,21 @@ from solution.ConsumerTypes.MachineConsumer import MachineConsumer
 from solution.ConsumerTypes.ECSConsumer import ECSConsumer
 from solution.ConsumerTypes.VehicleConsumer import VehicleConsumer
 from math import ceil
+from datetime import datetime, timezone, timedelta
 MODE_PILOTE = 30
+DAY_TIME_SECONDS = 24 * 60 * 60
 DELTA_SIMULATION = 15*60 #TODO this will have to be reloacted
+
+def get_midnight_date(timestamp : int) -> datetime:
+	#TODO this have to be relocated in a specific time module
+	date : datetime = datetime.fromtimestamp(timestamp, timezone.utc)
+	midnight : datetime = date - timedelta(0, date.second + date.hour * 3600 + date.minute * 60)
+	return midnight
+
+def get_midnight_timestamp(timestamp : int) -> datetime:
+	date : datetime = datetime.fromtimestamp(timestamp, timezone.utc)
+	midnight : datetime = date - timedelta(0, date.second + date.hour * 3600 + date.minute * 60)
+	return int(midnight.timestamp())
 
 def get_machines(timestamp) -> List[MachineConsumer]:
 	MACHINE_ID_INDEX  = 0
@@ -62,11 +75,8 @@ def get_machines(timestamp) -> List[MachineConsumer]:
  
 def get_ECS(timestamp) -> List[ECSConsumer]:
 	#ECS means "Eau Chaude Sanitaire" which is the hot water tank
-	from datetime import datetime, timezone, timedelta
-	date = datetime.fromtimestamp(timestamp, timezone.utc)
-	midnight = date - timedelta(0, date.second + date.hour * 3600 + date.minute * 60)
+	midnight = get_midnight_date(timestamp)
 	midnight_timestamp = midnight.timestamp()
-	print(date, midnight, midnight_timestamp)
 	ECS_not_to_schedule = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result_ecs WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
 	ECS_not_to_schedule = [i[0] for i in ECS_not_to_schedule]
 	query = (f"SELECT epm.id, ecs.mesures_puissance_elec_id ,ecs.volume_ballon, ecs.puissance_chauffe, hc.actif, hc.debut, hc.fin, epm.equipement_pilote_ou_mesure_type_id\
@@ -162,11 +172,12 @@ def get_sum_consumer(timestamp) -> List[SumConsumer]:
 	elfe_heater_query = f"SELECT heater.* \
 		FROM {ELFE_database_names['ELFE_ChauffageNonAsservi']} AS heater\
 		INNER JOIN {ELFE_database_names['ELFE_EquipementPilote']} AS epm ON epm.equipement_pilote_specifique_id = heater.id\
-		WHERE epm.equipement_pilote_ou_mesure_mode_id = {MODE_PILOTE}"
-	
+		WHERE epm.equipement_pilote_ou_mesure_mode_id = {MODE_PILOTE}"	
 	elfe_heater_result = fetch(db_credentials["ELFE"], elfe_heater_query)
 	elfe_heater = [ELFE_ChauffageNonAsservi.create_from_select_output(result) for result in elfe_heater_result]
-	print(elfe_heater_result, elfe_heater)
+	starting_periods : List[datetime] = [get_midnight_date(timestamp - DAY_TIME_SECONDS), get_midnight_date(timestamp), get_midnight_date(timestamp + 3600)]
+	for start in starting_periods:
+		print(start, start.isoweekday())
 	#TODO reste
 	#heater_last_schedules = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
 	return []
