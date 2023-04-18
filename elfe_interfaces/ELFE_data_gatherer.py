@@ -3,7 +3,7 @@ from database.ELFE_db_creator import ELFE_database_names
 from database.EMS_db_types import EMSCycle, EMSCycleData, EMSDeviceTemperatureData, EMSMachineData, EMSPowerCurveData, InitialWheatherForecast
 from database.query import execute_queries, fetch
 from credentials.db_credentials import db_credentials
-from typing import List, Union
+from typing import List, Union, Tuple
 from solution.ConsumerTypes.HeaterConsumer import HeaterConsumer
 from solution.ConsumerTypes.SumConsumer import SumConsumer
 from solution.ConsumerTypes.MachineConsumer import MachineConsumer
@@ -31,6 +31,30 @@ def get_midnight_timestamp(timestamp : int) -> datetime:
 class Period():
 	start : int
 	end : int
+	def __sub__(self, value : Union[int, float]):
+		if (type(value) in [int, float]):
+			value = int(value)
+			self.start = self.start - value
+			self.end = self.end - value
+		else:
+			raise TypeError(f"can't substract {type(value)} to Period")
+
+def get_merged_periods_and_has_changed(periods : List[Period]) -> Tuple[List[Period], bool]:
+	periods_to_return : List[Period] = []
+	has_changed : bool = False
+	for (i, period_1) in enumerate(periods):
+		has_been_merged = False
+		for j in range(i + 1, len(periods)):
+			period_2 = periods[j]	
+			if period_2.start >= period_1.start and period_2.start <= period_2.end:
+				start = period_1.start
+				end = max(period_1.start, period_2.start)
+				periods_to_return.append(Period(start, end))
+				has_been_merged = True
+				has_changed = True
+		if has_been_merged == False:
+			periods_to_return.append(period_1)
+	return (periods_to_return, has_changed)
 
 def get_machines(timestamp) -> List[MachineConsumer]:
 	MACHINE_ID_INDEX  = 0
@@ -195,7 +219,12 @@ def get_sum_consumer(timestamp) -> List[SumConsumer]:
 					periods.append(Period(int(start.timestamp()) + heater.prog_semaine_periode_1_confort_heure_debut, int(start.timestamp()) + heater.prog_semaine_periode_1_confort_heure_fin))
 				if heater.prog_semaine_periode_2_confort_actif == True:
 					periods.append(Period(int(start.timestamp()) + heater.prog_semaine_periode_2_confort_heure_debut, int(start.timestamp()) + heater.prog_semaine_periode_2_confort_heure_fin))
-		print(periods, elfe_heater)
+		periods = sorted(periods, key=lambda x : x.start)
+		has_changed = True
+		while (has_changed == True):
+			periods, has_changed = get_merged_periods_and_has_changed(periods)
+		periods_from_timestamp = [p - timestamp for p in periods]
+		print(periods, periods_from_timestamp, elfe_heater)
 	#TODO reste
 	#heater_last_schedules = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
 	return []
