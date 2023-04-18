@@ -175,7 +175,7 @@ def get_sum_consumer(timestamp) -> List[SumConsumer]:
 		WHERE epm.equipement_pilote_ou_mesure_mode_id = {MODE_PILOTE}"	
 	elfe_heater_result = fetch(db_credentials["ELFE"], elfe_heater_query)
 	elfe_heater = [ELFE_ChauffageNonAsservi.create_from_select_output(result) for result in elfe_heater_result]
-	starting_periods : List[datetime] = [get_midnight_date(timestamp - DAY_TIME_SECONDS), get_midnight_date(timestamp), get_midnight_date(timestamp + 3600)]
+	starting_periods : List[datetime] = [get_midnight_date(timestamp - DAY_TIME_SECONDS), get_midnight_date(timestamp), get_midnight_date(timestamp + DAY_TIME_SECONDS)]
 	for start in starting_periods:
 		print(start, start.isoweekday())
 	#TODO reste
