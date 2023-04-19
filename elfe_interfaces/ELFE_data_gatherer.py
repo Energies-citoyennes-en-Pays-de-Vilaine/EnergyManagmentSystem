@@ -230,7 +230,7 @@ def get_sum_consumer(timestamp : int) -> List[SumConsumer]:
 		has_changed = True
 		while (has_changed == True):
 			periods, has_changed = get_merged_periods_and_has_changed(periods)
-		periods : List[Period] = list(filter(periods, lambda x : not((x - timestamp).start >= 0 and (x - timestamp).end)))
+		periods : List[Period] = list(filter(lambda x : not((x - timestamp).start >= 0 and (x - timestamp).end), periods))
 		periods_from_timestamp = [p - timestamp for p in periods]
 
 		print(periods, periods_from_timestamp, elfe_heater)
