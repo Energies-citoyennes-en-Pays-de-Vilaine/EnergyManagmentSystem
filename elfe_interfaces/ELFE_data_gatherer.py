@@ -3,7 +3,7 @@ from database.ELFE_db_creator import ELFE_database_names
 from database.EMS_db_types import EMSCycle, EMSCycleData, EMSDeviceTemperatureData, EMSMachineData, EMSPowerCurveData, InitialWheatherForecast
 from database.query import execute_queries, fetch
 from credentials.db_credentials import db_credentials
-from typing import List, Union, Tuple, Self
+from typing import List, Union, Tuple
 from solution.ConsumerTypes.HeaterConsumer import HeaterConsumer
 from solution.ConsumerTypes.SumConsumer import SumConsumer
 from solution.ConsumerTypes.MachineConsumer import MachineConsumer
@@ -31,7 +31,7 @@ def get_midnight_timestamp(timestamp : int) -> datetime:
 class Period():
 	start : int
 	end : int
-	def __sub__(self, value : Union[int, float]) -> Self:
+	def __sub__(self, value : Union[int, float]):
 		if (type(value) in [int, float]):
 			value = int(value)
 			start = self.start - value
