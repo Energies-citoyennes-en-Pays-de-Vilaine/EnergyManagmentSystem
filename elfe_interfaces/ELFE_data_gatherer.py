@@ -3,7 +3,7 @@ from database.ELFE_db_creator import ELFE_database_names
 from database.EMS_db_types import EMSCycle, EMSCycleData, EMSDeviceTemperatureData, EMSMachineData, EMSPowerCurveData, InitialWheatherForecast
 from database.query import execute_queries, fetch
 from credentials.db_credentials import db_credentials
-from typing import List, Union, Tuple
+from typing import List, Union, Tuple, Self
 from solution.ConsumerTypes.HeaterConsumer import HeaterConsumer
 from solution.ConsumerTypes.SumConsumer import SumConsumer
 from solution.ConsumerTypes.MachineConsumer import MachineConsumer
@@ -31,7 +31,7 @@ def get_midnight_timestamp(timestamp : int) -> datetime:
 class Period():
 	start : int
 	end : int
-	def __sub__(self, value : Union[int, float]):
+	def __sub__(self, value : Union[int, float]) -> Self:
 		if (type(value) in [int, float]):
 			value = int(value)
 			start = self.start - value
@@ -61,7 +61,6 @@ def get_merged_periods_and_has_changed(periods : List[Period]) -> Tuple[List[Per
 				break
 		if periods_to_include[i] == True:
 			periods_to_return.append(period_1)
-	print((periods_to_return, has_changed))
 	return (periods_to_return, has_changed)
 
 def get_machines(timestamp) -> List[MachineConsumer]:
@@ -203,7 +202,7 @@ def get_electric_vehicle(timestamp) -> List[VehicleConsumer]:
 				print("electic vehicle not to schedule", Id)
 	return vehicles
 
-def get_sum_consumer(timestamp) -> List[SumConsumer]:
+def get_sum_consumer(timestamp : int) -> List[SumConsumer]:
 	"""
 	Sum consumers currently are only made of heaters on which we don't have access to the room's heat
 	"""
@@ -231,7 +230,9 @@ def get_sum_consumer(timestamp) -> List[SumConsumer]:
 		has_changed = True
 		while (has_changed == True):
 			periods, has_changed = get_merged_periods_and_has_changed(periods)
+		periods : List[Period] = list(filter(periods, lambda x : (x - timestamp).start <= 0 and (x - timestamp).end))
 		periods_from_timestamp = [p - timestamp for p in periods]
+
 		print(periods, periods_from_timestamp, elfe_heater)
 	#TODO reste
 	#heater_last_schedules = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
