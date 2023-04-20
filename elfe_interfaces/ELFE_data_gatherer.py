@@ -230,9 +230,17 @@ def get_sum_consumer(timestamp : int) -> List[SumConsumer]:
 		has_changed = True
 		while (has_changed == True):
 			periods, has_changed = get_merged_periods_and_has_changed(periods)
-		periods : List[Period] = list(filter(lambda x : not((x - timestamp).start >= 0 and (x - timestamp).end), periods))
+		periods : List[Period] = list(filter(lambda x : not((x - timestamp).start > 0 and (x - timestamp).end > 0), periods))
 		periods_from_timestamp = [p - timestamp for p in periods]
-
+		if len(periods) == 0:
+			print(f"no periods to schedule for heater {heater.equipement_pilote_ou_mesure_id}")
+			continue
+		heater_history_query = ("SELECT first_valid_timestamp, decisions_0 FROM result WHERE\
+			   first_valid_timestamp > %s AND machine_id = %s",
+			   [periods[0].start, heater.equipement_pilote_ou_mesure_id]
+			   )
+		heater_history_result = fetch(db_credentials["EMS"], heater_history_query)
+		heater_history_result = sorted(heater_history_result, key= lambda x:x[0])
 		print(periods, periods_from_timestamp, elfe_heater)
 	#TODO reste
 	#heater_last_schedules = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
