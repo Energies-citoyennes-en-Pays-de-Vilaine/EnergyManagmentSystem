@@ -52,6 +52,7 @@ def get_merged_periods_and_has_changed(periods : List[Period]) -> Tuple[List[Per
 				continue
 			period_2 = periods[j]	
 			if period_2.start >= period_1.start and period_2.start < period_2.end:
+				print("merging", period_1, "and",period_2)
 				start = period_1.start
 				end = max(period_1.end, period_2.end)
 				periods_to_return.append(Period(start, end))
