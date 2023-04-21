@@ -227,6 +227,8 @@ def get_sum_consumer(timestamp : int) -> List[SumConsumer]:
 				if heater.prog_semaine_periode_2_confort_actif == True:
 					periods.append(Period(int(start.timestamp()) + heater.prog_semaine_periode_2_confort_heure_debut, int(start.timestamp()) + heater.prog_semaine_periode_2_confort_heure_fin))
 		periods = sorted(periods, key=lambda x : x.start)
+		print(periods)
+		print([p - timestamp for p in periods])
 		has_changed = True
 		while (has_changed == True):
 			periods, has_changed = get_merged_periods_and_has_changed(periods)
