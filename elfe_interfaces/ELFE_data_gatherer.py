@@ -232,7 +232,7 @@ def get_sum_consumer(timestamp : int) -> List[SumConsumer]:
 		has_changed = True
 		while (has_changed == True):
 			periods, has_changed = get_merged_periods_and_has_changed(periods)
-		periods : List[Period] = list(filter(lambda x : not((x - timestamp).start > 0 and (x - timestamp).end > 0), periods))
+		periods : List[Period] = list(filter(lambda x : (x - timestamp).start > 0 and (x - timestamp).end > 0, periods))
 		periods_from_timestamp = [p - timestamp for p in periods]
 		if len(periods) == 0:
 			print(f"no periods to schedule for heater {heater.equipement_pilote_ou_mesure_id}")
