@@ -1,5 +1,7 @@
+from typing import Union
 class SumPeriod():
-    def __init__(self, beginning: int, end: int, expected_sum: int):
-        self.beginning = beginning
-        self.end = end
-        self.expected_sum = expected_sum
+    def __init__(self, beginning: int, end: int, expected_sum_min: int, expected_sum_max : Union[int, None] = None):
+        self.beginning        : int = beginning
+        self.end              : int = end
+        self.expected_sum_min : int = expected_sum_min
+        self.expected_sum_max : int = expected_sum_max if (expected_sum_max != None) else expected_sum_min
