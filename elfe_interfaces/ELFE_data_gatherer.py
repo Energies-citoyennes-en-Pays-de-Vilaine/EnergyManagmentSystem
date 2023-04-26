@@ -170,18 +170,22 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 			ecs_curve.append(ecs["power"])
 		possible_starts = [
 			midnight_timestamp + ecs["start"] - 24 * 3600,
-			midnight_timestamp + ecs["start"]
+			midnight_timestamp + ecs["start"],
+			midnight_timestamp + ecs["start"] + 24 * 3600,
 		]
 		possible_ends = [
 			midnight_timestamp + ecs["end"] - 24 * 3600,
-			midnight_timestamp + ecs["end"]
+			midnight_timestamp + ecs["end"],
+			midnight_timestamp + ecs["end"] + 24 * 3600
 		]
 		consumer : ECSConsumer
 		print(timestamp - possible_starts[0], timestamp - possible_ends[0])
 		if (timestamp > possible_starts[0] and timestamp < possible_ends[0]):
 			consumer = ECSConsumer(ecs["epmid"], ecs_curve, possible_starts[0], possible_ends[0], ecs["power"], ecs["volume"])
-		else: 
+		elif (timestamp > possible_starts[1] and timestamp < possible_ends[1]): 
 			consumer = ECSConsumer(ecs["epmid"], ecs_curve, possible_starts[1], possible_ends[1], ecs["power"], ecs["volume"])
+		else:
+			consumer = ECSConsumer(ecs["epmid"], ecs_curve, possible_starts[2], possible_ends[2], ecs["power"], ecs["volume"])
 		consumer.consumer_machine_type = ecs["epmtype"]
 		ecs_consumers.append(consumer)
 	return (ecs_consumers)
