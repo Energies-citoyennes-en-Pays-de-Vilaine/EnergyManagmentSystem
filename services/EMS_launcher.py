@@ -24,7 +24,7 @@ if __name__ == "__main__":
 	expected_power = fetch(db_credentials["EMS"], ("SELECT * FROM prediction WHERE data_timestamp >= %s ;", [round_start_timestamp]))
 	expected_power = sorted(expected_power, key=lambda x : int(x[0]))
 	simulation_datas = expected_power[:STEP_COUNT]
-	sim_params = CalculationParams(round_start_timestamp, timestamp + STEP_COUNT * DELTA_TIME_SIMULATION, DELTA_TIME_SIMULATION, DELTA_TIME_SIMULATION, [[-int(simulation_datas[i][1]) for i in range(STEP_COUNT)]])
+	sim_params = CalculationParams(round_start_timestamp, round_start_timestamp + STEP_COUNT * DELTA_TIME_SIMULATION, DELTA_TIME_SIMULATION, DELTA_TIME_SIMULATION, [[-int(simulation_datas[i][1]) for i in range(STEP_COUNT)]])
 	consumers : List[Consumer_interface]= get_machines(timestamp) + get_ECS(timestamp) + get_electric_vehicle(timestamp)
 	problem = Problem(consumers, sim_params)
 
