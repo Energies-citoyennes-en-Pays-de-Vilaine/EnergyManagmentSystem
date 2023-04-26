@@ -66,7 +66,8 @@ class MachineConsumer(Consumer_interface):
 
         if (start_time + len(self.profile) * calculationParams.time_delta  > end_time ):
             print(f"warning, {self._get_constraints_repr(calculationParams)} impossible because user constraints doesn't allow it to fit, rescheduling end constraint")
-            self.end_time = self.start_time + len(self.profile) * calculationParams.time_delta
+            self.end_time = start_time + len(self.profile) * calculationParams.time_delta
+            self.start_time = start_time
             tp = self._get_calculated_time_parameters(calculationParams)
             start_time = tp["start_time"]
             end_time   = tp["end_time"]
