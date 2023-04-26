@@ -46,7 +46,7 @@ class MachineConsumer(Consumer_interface):
 
     def _get_constraints_repr(self, calculationParams : CalculationParams) -> str:
         tp = self._get_calculated_time_parameters(calculationParams)
-        return f"Machine {self.id} (start={tp['start_time']}, end={tp['end_time']}, steps={tp['steps_count']})"
+        return f"Machine {self.id} (start={tp['start_time']}, end={tp['end_time']}, steps={tp['steps_count']}), {self.start_time} : {calculationParams.begin}, {self.end_time} : {calculationParams.end} : {calculationParams.step_size} "
     
     def _get_calculated_time_parameters(self, calculationParams: CalculationParams) -> _CalculatedTimeParametersMachine:
         start_time = maxi(self.start_time, calculationParams.begin)
@@ -63,7 +63,7 @@ class MachineConsumer(Consumer_interface):
         tp = self._get_calculated_time_parameters(calculationParams)
         start_time = tp["start_time"]
         end_time   = tp["end_time"]
-        
+
         if (start_time + len(self.profile) * calculationParams.time_delta  > end_time ):
             print(f"warning, {self._get_constraints_repr(calculationParams)} impossible because user constraints doesn't allow it to fit, rescheduling end constraint")
             self.end_time = self.start_time + len(self.profile) * calculationParams.time_delta
