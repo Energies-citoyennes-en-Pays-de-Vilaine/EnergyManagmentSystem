@@ -182,7 +182,7 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 		print(timestamp - possible_starts[0], timestamp - possible_ends[0])
 		if (timestamp > possible_starts[0] and timestamp < possible_ends[0]):
 			consumer = ECSConsumer(ecs["epmid"], ecs_curve, possible_starts[0], possible_ends[0], ecs["power"], ecs["volume"])
-		elif (timestamp > possible_starts[1] and timestamp < possible_ends[1]): 
+		elif (timestamp <= possible_starts[0] or (timestamp > possible_starts[1] and timestamp < possible_ends[1])): 
 			consumer = ECSConsumer(ecs["epmid"], ecs_curve, possible_starts[1], possible_ends[1], ecs["power"], ecs["volume"])
 		else:
 			consumer = ECSConsumer(ecs["epmid"], ecs_curve, possible_starts[2], possible_ends[2], ecs["power"], ecs["volume"])
