@@ -9,7 +9,8 @@ from solution.ConsumerTypes.SumConsumer import SumConsumer
 from solution.ConsumerTypes.MachineConsumer import MachineConsumer
 from solution.ConsumerTypes.ECSConsumer import ECSConsumer
 from solution.ConsumerTypes.VehicleConsumer import VehicleConsumer
-from math import ceil
+from solution.Calculation_Params import CalculationParams
+from math import ceil, floor
 from datetime import datetime, timezone, timedelta
 from dataclasses import dataclass
 MODE_PILOTE = 30
@@ -39,6 +40,9 @@ class Period():
 			return Period(start, end )
 		else:
 			raise TypeError(f"can't substract {type(value)} to Period")
+	def snap_to(self, time_division : int, offset : int = 0):
+		self.start = floor((self.start - offset)/ time_division) * time_division + offset
+		self.end   = ceil((self.end - offset) / time_division) * time_division + offset
 
 def get_merged_periods_and_has_changed(periods : List[Period]) -> Tuple[List[Period], bool]:
 	periods_to_return : List[Period] = []
@@ -202,13 +206,13 @@ def get_electric_vehicle(timestamp) -> List[VehicleConsumer]:
 				print("electic vehicle not to schedule", Id)
 	return vehicles
 
-def get_sum_consumer(timestamp : int) -> List[SumConsumer]:
+def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> List[SumConsumer]:
 	"""
 	Sum consumers currently are only made of heaters on which we don't have access to the room's heat
 	"""
 	elfe_heater_query = f"SELECT heater.* \
 		FROM {ELFE_database_names['ELFE_ChauffageNonAsservi']} AS heater\
-		INNER JOIN {ELFE_database_names['ELFE_EquipementPilote']} AS epm ON epm.equipement_pilote_specifique_id = heater.id\
+		INNER JOIN {ELFE_database_names['ELFE_EquipementPilote']} AS epm ON epm.id = heater.equipement_pilote_ou_mesure_id\
 		WHERE epm.equipement_pilote_ou_mesure_mode_id = {MODE_PILOTE}"	
 	elfe_heater_result = fetch(db_credentials["ELFE"], elfe_heater_query)
 	elfe_heater : List[ELFE_ChauffageNonAsservi] = [ELFE_ChauffageNonAsservi.create_from_select_output(result) for result in elfe_heater_result]
@@ -226,6 +230,9 @@ def get_sum_consumer(timestamp : int) -> List[SumConsumer]:
 					periods.append(Period(int(start.timestamp()) + heater.prog_semaine_periode_1_confort_heure_debut, int(start.timestamp()) + heater.prog_semaine_periode_1_confort_heure_fin))
 				if heater.prog_semaine_periode_2_confort_actif == True:
 					periods.append(Period(int(start.timestamp()) + heater.prog_semaine_periode_2_confort_heure_debut, int(start.timestamp()) + heater.prog_semaine_periode_2_confort_heure_fin))
+		for p in periods:
+			p.snap_to(calculationParams.time_delta) #snaps period to the current time delta
+		
 		periods = sorted(periods, key=lambda x : x.start)
 		print(periods)
 		print([p - timestamp for p in periods])

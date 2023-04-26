@@ -12,8 +12,11 @@ from datetime import timezone
 from solution.ConsumerTypes.ECSConsumer import ECSConsumer
 from bodge.ECS_transmitter import get_ecs_results_to_transmit
 from time import time
-DELTA_TIME_SIMULATION = 15*60
-STEP_COUNT = 96
+from config.config import Config, get_config
+
+conf : Config = get_config()
+DELTA_TIME_SIMULATION = conf.delta_time_simulation_s
+STEP_COUNT = conf.step_count
 ONE_HOUR_SEC = 3600
 if __name__ == "__main__":
 	timestamp = round(datetime.now().timestamp() / DELTA_TIME_SIMULATION) * DELTA_TIME_SIMULATION
@@ -27,7 +30,7 @@ if __name__ == "__main__":
 
 	problem.prepare()
 	t1 = time()
-	problem.solve(10*60)
+	problem.solve(conf.max_time_to_solve_s)
 	t2 = time()
 	run_time_ms = int(1000 * (t2 - t1))
 	decisions = problem.get_decisions()

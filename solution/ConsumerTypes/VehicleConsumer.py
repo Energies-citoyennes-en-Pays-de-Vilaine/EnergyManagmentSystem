@@ -4,7 +4,7 @@ from typing import *
 from solution.Consumer_interface import Consumer_interface
 from solution.Calculation_Params import CalculationParams
 from solution.Utils.utils import maxi, mini
-from math import ceil
+from math import ceil, floor
 from typing import TypedDict
 class _CalculatedTimeParameters(TypedDict):
 	start_time          : int
@@ -52,11 +52,14 @@ class VehicleConsumer(Consumer_interface):
 		step_size         = calculationParams.step_size
 		start_time        = maxi(self.start_time, calculationParams.begin)
 		end_time          = mini(self.end_time, calculationParams.end)
-		min_charge_time   = step_size * ceil(3600.0 * self.capacity_watt_hour * (self.end_charge_pourc - self.initial_charge_pourc) / (100.0 * self.power_watt) / step_size)
-		max_charge_time   = step_size * ceil(3600.0 * self.capacity_watt_hour * (100 - self.initial_charge_pourc) / (100.0 * self.power_watt) / step_size)
+		capacity_watt_seconds = 3600.0 * self.capacity_watt_hour
+		min_charge_proportion = max(0,(self.end_charge_pourc - self.initial_charge_pourc) / 100.0)
+		max_charge_proportion = (100.0 - self.initial_charge_pourc) / 100.0
+		min_charge_time   = step_size * ceil(capacity_watt_seconds * min_charge_proportion / (self.power_watt * step_size))
+		max_charge_time   = step_size * ceil(capacity_watt_seconds * max_charge_proportion / (self.power_watt * step_size))
 		end_time_min_charge = start_time + min_charge_time
 		end_time_max_charge = start_time + max_charge_time
-		steps_count         =  ceil((end_time - start_time - min_charge_time) / calculationParams.step_size)
+		steps_count         =  floor((end_time - start_time - min_charge_time) / calculationParams.step_size)
 		return {
 			"start_time" : start_time,
 			"end_time": end_time,
@@ -66,24 +69,36 @@ class VehicleConsumer(Consumer_interface):
 			"min_charge_time" : min_charge_time,
 			"steps_count"     : steps_count
 			}
+	def _get_constraint_repr(self, calculationParams) -> str:
+		tp = self._get_calculated_time_parameters(calculationParams)
+		start_time = tp["start_time"]
+		end_time = tp["end_time"]
+		return f"ElectricVehicle {self.id}(start = {start_time}, end={end_time}, charge_time = {tp['min_charge_time']})"
 	def _make_machine_possible(self, calculationParams: CalculationParams):
 		tp = self._get_calculated_time_parameters(calculationParams)
 		start_time = tp["start_time"]
 		end_time = tp["end_time"]
 		if (start_time + tp["min_charge_time"]  > end_time ):
-			print(f"warning, electric vehicle {self.id} is impossible because user constraints doesn't allow it to fit, rescheduling end constraint")
+			print(f"warning, {self._get_constraint_repr(calculationParams)} is impossible because user constraints doesn't allow it to fit, rescheduling end constraint")
 			self.start_time = tp["start_time"]
 			self.end_time   = self.start_time + tp["min_charge_time"]
 			tp              = self._get_calculated_time_parameters(calculationParams)
+			start_time = tp["start_time"]
+			end_time = tp["end_time"]
+			print(f"result is {self._get_constraint_repr(calculationParams)}")
 		if (start_time + tp["min_charge_time"] > calculationParams.end):
-			print(f"warning, electric vehicle {self.id} is impossible because it doesn't fit before the end of simulation. making it earlier so it fits, will be rescheduled later")
+			print(f"warning, {self._get_constraint_repr(calculationParams)} is impossible because it doesn't fit before the end of simulation. making it earlier so it fits, will be rescheduled later")
 			self.end_time   = tp["end_time"]
 			self.start_time = self.end_time - tp["min_charge_time"]
 			tp              = self._get_calculated_time_parameters(calculationParams)
+			start_time = tp["start_time"]
+			end_time = tp["end_time"]
+			print(f"result is {self._get_constraint_repr(calculationParams)}")
 		if (end_time <= calculationParams.begin):
-			print(f"warning, electric vehicle {self.id} is impossible because it's supposed to end before the start of simulation. scheduling it for next step")
+			print(f"warning, {self._get_constraint_repr(calculationParams)} is impossible because it's supposed to end before the start of simulation. scheduling it for next step")
 			self.start_time = calculationParams.begin
 			self.end_time   = self.start_time + tp["end_time_min_charge"]
+			print(f"result is {self._get_constraint_repr(calculationParams)}")
 
 	def _get_minimizing_variables_count(self, calculationParams : CalculationParams) -> int:
 		self._make_machine_possible(calculationParams)
