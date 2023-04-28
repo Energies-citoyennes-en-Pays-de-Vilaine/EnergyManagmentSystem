@@ -3,69 +3,24 @@ from database.ELFE_db_creator import ELFE_database_names
 from database.EMS_db_types import EMSCycle, EMSCycleData, EMSDeviceTemperatureData, EMSMachineData, EMSPowerCurveData, InitialWheatherForecast
 from database.query import execute_queries, fetch
 from credentials.db_credentials import db_credentials
-from typing import List, Union, Tuple
+from typing import List
 from solution.ConsumerTypes.HeaterConsumer import HeaterConsumer
 from solution.ConsumerTypes.SumConsumer import SumConsumer
 from solution.ConsumerTypes.MachineConsumer import MachineConsumer
 from solution.ConsumerTypes.ECSConsumer import ECSConsumer
 from solution.ConsumerTypes.VehicleConsumer import VehicleConsumer
 from solution.Calculation_Params import CalculationParams
-from math import ceil, floor
-from datetime import datetime, timezone, timedelta
-from dataclasses import dataclass
+from utils.time.period import Period, get_merged_periods
+from utils.time.midnight import get_midnight_date, get_midnight_timestamp
+from math import ceil
+from datetime import datetime
+
+from config.config import Config, get_config
+
+config : Config = get_config()
 MODE_PILOTE = 30
 DAY_TIME_SECONDS = 24 * 60 * 60
-DELTA_SIMULATION = 15*60 #TODO this will have to be reloacted
-
-def get_midnight_date(timestamp : int) -> datetime:
-	#TODO this have to be relocated in a specific time module
-	date : datetime = datetime.fromtimestamp(timestamp, timezone.utc)
-	midnight : datetime = date - timedelta(0, date.second + date.hour * 3600 + date.minute * 60)
-	return midnight
-
-def get_midnight_timestamp(timestamp : int) -> datetime:
-	date : datetime = datetime.fromtimestamp(timestamp, timezone.utc)
-	midnight : datetime = date - timedelta(0, date.second + date.hour * 3600 + date.minute * 60)
-	return int(midnight.timestamp())
-
-@dataclass(init=True, repr=True)
-class Period():
-	start : int
-	end : int
-	def __sub__(self, value : Union[int, float]):
-		if (type(value) in [int, float]):
-			value = int(value)
-			start = self.start - value
-			end = self.end - value
-			return Period(start, end )
-		else:
-			raise TypeError(f"can't substract {type(value)} to Period")
-	def snap_to(self, time_division : int, offset : int = 0):
-		self.start = floor((self.start - offset)/ time_division) * time_division + offset
-		self.end   = ceil((self.end - offset) / time_division) * time_division + offset
-
-def get_merged_periods_and_has_changed(periods : List[Period]) -> Tuple[List[Period], bool]:
-	periods_to_return : List[Period] = []
-	has_changed : bool = False
-	periods_to_include = [True for p in periods]
-	for (i, period_1) in enumerate(periods):
-		if periods_to_include[i] == False:
-			continue
-		for j in range(i + 1, len(periods)):
-			if periods_to_include[j] == False:
-				continue
-			period_2 = periods[j]	
-			if period_2.start >= period_1.start and period_2.start < period_1.end:
-				start = period_1.start
-				end = max(period_1.end, period_2.end)
-				periods_to_return.append(Period(start, end))
-				periods_to_include[i] = False
-				periods_to_include[j] = False
-				has_changed = True
-				break
-		if periods_to_include[i] == True:
-			periods_to_return.append(period_1)
-	return (periods_to_return, has_changed)
+DELTA_SIMULATION = config.delta_time_simulation_s
 
 def get_machines(timestamp) -> List[MachineConsumer]:
 	MACHINE_ID_INDEX  = 0
@@ -238,22 +193,25 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 			p.snap_to(calculationParams.time_delta) #snaps period to the current time delta
 		
 		periods = sorted(periods, key=lambda x : x.start)
-		print(periods)
-		print([p - timestamp for p in periods])
 		has_changed = True
-		while (has_changed == True):
-			periods, has_changed = get_merged_periods_and_has_changed(periods)
+		periods = get_merged_periods(periods)
 		periods : List[Period] = list(filter(lambda x : (x - timestamp).start > 0 and (x - timestamp).end > 0, periods))
 		periods_from_timestamp = [p - timestamp for p in periods]
 		if len(periods) == 0:
 			print(f"no periods to schedule for heater {heater.equipement_pilote_ou_mesure_id}")
 			continue
-		heater_history_query = ("SELECT first_valid_timestamp, decisions_0 FROM result WHERE\
-			   first_valid_timestamp > %s AND machine_id = %s",
+		heater_history_query = ("SELECT COUNT(*) as c, SUM(decisions[0]) as s FROM result WHERE\
+			   first_valid_timestamp > %s AND machine_id = %s GROUP BY machine_id",
 			   [periods[0].start, heater.equipement_pilote_ou_mesure_id]
 			   )
 		heater_history_result = fetch(db_credentials["EMS"], heater_history_query)
-		heater_history_result = sorted(heater_history_result, key= lambda x:x[0])
+		count = heater_history_result[0][0]
+		summ  = heater_history_result[0][1]
+		for p in periods:
+			p.cut(calculationParams.begin , calculationParams.end)
+		
+		print(periods)
+		print([p - timestamp for p in periods])
 		print(periods, periods_from_timestamp, elfe_heater)
 	#TODO reste
 	#heater_last_schedules = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
