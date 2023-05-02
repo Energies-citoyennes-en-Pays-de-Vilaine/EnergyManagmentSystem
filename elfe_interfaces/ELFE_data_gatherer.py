@@ -5,7 +5,7 @@ from database.query import execute_queries, fetch
 from credentials.db_credentials import db_credentials
 from typing import List
 from solution.ConsumerTypes.HeaterConsumer import HeaterConsumer
-from solution.ConsumerTypes.SumConsumer import SumConsumer
+from solution.ConsumerTypes.SumConsumer import SumConsumer, SumPeriod
 from solution.ConsumerTypes.MachineConsumer import MachineConsumer
 from solution.ConsumerTypes.ECSConsumer import ECSConsumer
 from solution.ConsumerTypes.VehicleConsumer import VehicleConsumer
@@ -176,6 +176,7 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 	elfe_heater_result = fetch(db_credentials["ELFE"], elfe_heater_query)
 	elfe_heater : List[ELFE_ChauffageNonAsservi] = [ELFE_ChauffageNonAsservi.create_from_select_output(result) for result in elfe_heater_result]
 	starting_periods : List[datetime] = [get_midnight_date(timestamp - DAY_TIME_SECONDS), get_midnight_date(timestamp), get_midnight_date(timestamp + DAY_TIME_SECONDS)]
+	sum_consumers : List[SumConsumer] = []
 	for heater in elfe_heater:
 		periods : List[Period] = []
 		for start in starting_periods:
@@ -191,31 +192,58 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 					periods.append(Period(int(start.timestamp()) + heater.prog_semaine_periode_2_confort_heure_debut, int(start.timestamp()) + heater.prog_semaine_periode_2_confort_heure_fin))
 		for p in periods:
 			p.snap_to(calculationParams.time_delta) #snaps period to the current time delta
-		
-		periods = sorted(periods, key=lambda x : x.start)
-		has_changed = True
 		periods = get_merged_periods(periods)
-		periods : List[Period] = list(filter(lambda x : (x - timestamp).start > 0 and (x - timestamp).end > 0, periods))
-		periods_from_timestamp = [p - timestamp for p in periods]
+		periods = list(filter(lambda x : (x - timestamp).end > 0, periods))
+		periods = sorted(periods, key=lambda x : x.start)
 		if len(periods) == 0:
 			print(f"no periods to schedule for heater {heater.equipement_pilote_ou_mesure_id}")
 			continue
-		heater_history_query = ("SELECT COUNT(*) as c, SUM(decisions[0]) as s FROM result WHERE\
-			   first_valid_timestamp > %s AND machine_id = %s GROUP BY machine_id",
-			   [periods[0].start, heater.equipement_pilote_ou_mesure_id]
-			   )
-		heater_history_result = fetch(db_credentials["EMS"], heater_history_query)
-		count = heater_history_result[0][0]
-		summ  = heater_history_result[0][1]
+		first_period : Period = periods[0].deep_copy()
+		first_period_cutted : Period = first_period.deep_copy()
+		first_period_cutted.cut(calculationParams.begin, calculationParams.end)
 		for p in periods:
 			p.cut(calculationParams.begin , calculationParams.end)
-		
+		period_filtered : List[Period] = list(filter(lambda x : x.end - x.start > 0), periods)
+		if len(periods) == 0:
+			print(f"no periods left to schedule for heater {heater.equipement_pilote_ou_mesure_id} after cutting on the simulation params")
+			continue
+		count : int = 0
+		summ : int = 0
+		if (first_period_cutted in period_filtered):
+			heater_history_query = ("SELECT COUNT(*) as c, SUM(decisions[0]) as s FROM result WHERE\
+			   first_valid_timestamp > %s AND machine_id = %s GROUP BY machine_id",
+			   [first_period.start, heater.equipement_pilote_ou_mesure_id]
+			   )
+			heater_history_result = fetch(db_credentials["EMS"], heater_history_query)
+			count = heater_history_result[0][0]
+			summ  = heater_history_result[0][1]
+		sum_periods : List[SumPeriod] = []
+		for p in periods:
+			expected_sum : int = round((100.0 - heater.pourcentage_eco_force) / 100.0 * (count + (p.end - p .start) / calculationParams.step_size))
+			expected_sum_left : int = expected_sum - summ
+			steps_left : int = round((p.end - p .start) / calculationParams.step_size)
+			if (expected_sum_left > steps_left):
+				print(f"something went wrong with heater {heater.equipement_pilote_ou_mesure_id} period({p}), reducing expected sum left")
+				expected_sum_left = steps_left
+			sliding_period_steps : int = round(config.heater_eco_sliding_period_s / calculationParams.step_size)
+			sliding_period_count : int = steps_left // sliding_period_steps
+			sliding_period_consumption_denied : int = ceil(sliding_period_steps * config.heater_eco_sliding_percentage / 100.0)
+			sliding_period_min : int = max(0, sliding_period_steps - sliding_period_consumption_denied)
+			sliding_period_max : int = sliding_period_steps
+			for i in range(sliding_period_count):
+				start_time : int = i * calculationParams.step_size
+				sum_period : SumPeriod = SumPeriod(p.start + start_time, p.end + start_time, sliding_period_min, sliding_period_max)
+				sum_periods.append(sum_period)
+			
+			sum_periods.append(SumPeriod(p.start, p.end, expected_sum_left, steps_left))
+			count = 0
+			summ = 0
+		sum_consumer : SumConsumer = SumConsumer(heater.equipement_pilote_ou_mesure_id, heater.puissance_moyenne_eco, heater.puissance_moyenne_confort, sum_periods)
+		sum_consumers.append(sum_consumer)
 		print(periods)
 		print([p - timestamp for p in periods])
-		print(periods, periods_from_timestamp, elfe_heater)
-	#TODO reste
-	#heater_last_schedules = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
-	return []
+		print(elfe_heater)
+	return sum_consumers
 
 if __name__ == "__main__":
 	from datetime import datetime

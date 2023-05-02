@@ -20,5 +20,4 @@ def get_config() -> Config:
 		heater_eco_sliding_percentage = 25,
 		heater_eco_sliding_period_s   = HOUR_TIMESTAMP,
 		heater_forced_eco_active      = True,
-		heater_forced_eco_percentage  = 10,
 	)

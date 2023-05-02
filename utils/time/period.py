@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Union, List
 from math import floor, ceil
 
-@dataclass(init=True, repr=True)
+@dataclass(init=True, repr=True, eq=True)
 class Period():
 	start : int
 	end : int
@@ -13,15 +13,15 @@ class Period():
 			end = self.end - value
 			return Period(start, end )
 		else:
-			raise TypeError(f"can't substract {type(value)} to Period")
-		
+			raise TypeError(f"can't substract {type(value)} to Period")	
 	def snap_to(self, time_division : int, offset : int = 0):
 		self.start = floor((self.start - offset)/ time_division) * time_division + offset
 		self.end   = ceil((self.end - offset) / time_division) * time_division + offset
-
 	def cut(self, start : int, end : int):
 		self.start = max([self.start, start])
 		self.end = min([self.end, end])
+	def deep_copy(self):
+		return Period(self.start, self.end)
 
 def get_merged_periods(periods : List[Period]) -> List[Period]:
 	periods_to_return : List[Period] = []
