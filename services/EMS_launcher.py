@@ -1,4 +1,6 @@
 from elfe_interfaces.ELFE_data_gatherer import get_machines, get_ECS, get_electric_vehicle
+from elfe_interfaces.ELFE_data_gatherer import get_calculation_params, get_simulation_datas
+from utils.time.timestamp import get_round_timestamp, get_timestamp
 from database.EMS_db_types import EMSPowerCurveData, EMSResult, EMSResultEcs
 from database.EMS_OUT_db_types import EMSRunInfo
 from database.query import fetch, execute_queries
@@ -19,12 +21,10 @@ DELTA_TIME_SIMULATION = conf.delta_time_simulation_s
 STEP_COUNT = conf.step_count
 ONE_HOUR_SEC = 3600
 if __name__ == "__main__":
-	timestamp = round(datetime.now().timestamp() / DELTA_TIME_SIMULATION) * DELTA_TIME_SIMULATION
-	round_start_timestamp = timestamp + DELTA_TIME_SIMULATION
-	expected_power = fetch(db_credentials["EMS"], ("SELECT * FROM prediction WHERE data_timestamp >= %s ;", [round_start_timestamp]))
-	expected_power = sorted(expected_power, key=lambda x : int(x[0]))
-	simulation_datas = expected_power[:STEP_COUNT]
-	sim_params = CalculationParams(round_start_timestamp, timestamp + STEP_COUNT * DELTA_TIME_SIMULATION, DELTA_TIME_SIMULATION, DELTA_TIME_SIMULATION, [[-int(simulation_datas[i][1]) for i in range(STEP_COUNT)]])
+	timestamp = get_timestamp()
+	round_start_timestamp = get_round_timestamp()
+	simulation_datas = get_simulation_datas()
+	sim_params : CalculationParams = get_calculation_params(simulation_datas)
 	consumers : List[Consumer_interface]= get_machines(timestamp) + get_ECS(timestamp) + get_electric_vehicle(timestamp)
 	problem = Problem(consumers, sim_params)
 

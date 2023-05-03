@@ -93,3 +93,10 @@ class EMSResultEcs():
 class EMS_ECS():
 	elfe_zabbix_id : Union[int, create_DB_Annotation(is_primary=True)]# carefull this is the zabbix ID
 	last_energy    : int#last day's consumption, will be acquired through ECS_acquisition every day
+
+@serializableThroughDatabase
+@dataclass(init=True, repr=True)
+class EMS_Modele_Thermique():
+	Id : PrimaryAutoInt
+	R_th : int
+	C_th : int

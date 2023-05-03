@@ -1,6 +1,8 @@
 from database.annotations import DBAnnotation, serializableThroughDatabase, PrimaryAutoInt
 from dataclasses import dataclass
-
+from utils.time.period import Period
+from typing import List
+from datetime import datetime
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
 class ELFE_EquipementPilote():
@@ -25,11 +27,35 @@ class ELFE_ChauffageAsserviModeleThermique():
 	nom         : str
 	description : str
 
-@serializableThroughDatabase
+
 @dataclass(init=True, repr=True)
-class ELFE_ChauffageAsservi():
-	Id                                         : PrimaryAutoInt
-	equipement_pilote_ou_mesure_id             : int
+class ELFE_Chauffage():
+	prog_semaine_periode_1_confort_actif       : bool
+	prog_semaine_periode_1_confort_heure_debut : int
+	prog_semaine_periode_1_confort_heure_fin   : int
+	prog_semaine_periode_2_confort_actif       : bool
+	prog_semaine_periode_2_confort_heure_debut : int
+	prog_semaine_periode_2_confort_heure_fin   : int
+	prog_weekend_periode_1_confort_actif       : bool
+	prog_weekend_periode_1_confort_heure_debut : int
+	prog_weekend_periode_1_confort_heure_fin   : int
+	prog_weekend_periode_2_confort_actif       : bool
+	prog_weekend_periode_2_confort_heure_debut : int
+	prog_weekend_periode_2_confort_heure_fin   : int
+	def get_periods (self, midnight_date : datetime) -> List[Period]:
+		periods : List[Period] = []
+		if midnight_date.weekday() >= 5:
+			if self.prog_weekend_periode_1_confort_actif == True:
+				periods.append(Period(int(midnight_date.timestamp()) + self.prog_weekend_periode_1_confort_heure_debut, int(midnight_date.timestamp()) + self.prog_weekend_periode_1_confort_heure_fin))
+			if self.prog_weekend_periode_2_confort_actif == True:
+				periods.append(Period(int(midnight_date.timestamp()) + self.prog_weekend_periode_2_confort_heure_debut, int(midnight_date.timestamp()) + self.prog_weekend_periode_2_confort_heure_fin))
+		else:
+			if self.prog_semaine_periode_1_confort_actif == True:
+				periods.append(Period(int(midnight_date.timestamp()) + self.prog_semaine_periode_1_confort_heure_debut, int(midnight_date.timestamp()) + self.prog_semaine_periode_1_confort_heure_fin))
+			if self.prog_semaine_periode_2_confort_actif == True:
+				periods.append(Period(int(midnight_date.timestamp()) + self.prog_semaine_periode_2_confort_heure_debut, int(midnight_date.timestamp()) + self.prog_semaine_periode_2_confort_heure_fin))
+		return periods
+class ELFE_ChauffageAsservi(ELFE_Chauffage):
 	temperature_eco                            : int
 	temperature_confort                        : int
 	prog_semaine_periode_1_confort_actif       : bool
@@ -52,7 +78,7 @@ class ELFE_ChauffageAsservi():
 
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
-class ELFE_ChauffageNonAsservi():
+class ELFE_ChauffageNonAsservi(ELFE_Chauffage):
 	Id                                         : PrimaryAutoInt
 	equipement_pilote_ou_mesure_id             : int
 	prog_semaine_periode_1_confort_actif       : bool
