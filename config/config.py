@@ -10,7 +10,6 @@ class Config():
 	heater_eco_sliding_percentage : int
 	heater_eco_sliding_period_s   : int
 	heater_forced_eco_active      : bool
-	heater_forced_eco_percentage  : int
 
 def get_config() -> Config:
 	return Config(
