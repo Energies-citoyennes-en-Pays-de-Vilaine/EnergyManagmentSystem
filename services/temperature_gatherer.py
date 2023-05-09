@@ -10,8 +10,13 @@ zr.get_token()
 items = zr.get_items()
 filtered_items = {}
 for key in items:
-	if key.split(" ")[1] == "temp":
-		filtered_items[key] = items[key]
+	try:
+		key = key.replace("_", " ")
+		if key.split(" ")[1] == "temp":
+			filtered_items[key] = items[key]
+	except IndexError as err:
+		print (err, key)
+
 items_ids = [filtered_items[key] for key in filtered_items]
 
 data = zr.get_last_data_for_items(items_ids)

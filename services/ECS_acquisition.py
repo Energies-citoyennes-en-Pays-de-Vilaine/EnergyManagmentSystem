@@ -15,6 +15,7 @@ items_energie = []
 items_puissance = []
 for item in items:
     try:
+        item = item.replace("_", " ")
         if item.split(" ")[1] == "energie":
             items_energie.append(item.split(" ")[0])
         elif item.split(" ")[1] == "puissance":
