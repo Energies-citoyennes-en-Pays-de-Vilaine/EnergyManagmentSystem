@@ -4,7 +4,7 @@ Wants=learning_cleaner.timer
 
 [Service]
 Type=oneshot
-Environment=BASHRCPATH= EMSFOLDER=
+EnvironmentFile=/etc/ems/EMS_systemd_config.txt
 ExecStart=/usr/bin/bash -c 'source "$BASHRCPATH"; cd "$EMSFOLDER"; conda activate milp; python -m services.learning_cleaner'
 
 [Install]

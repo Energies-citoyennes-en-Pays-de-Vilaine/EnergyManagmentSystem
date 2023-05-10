@@ -1,16 +1,16 @@
 db_credentials = {
 	"EMS" : {
-		"host"     : "mySuperHost",
-		"database" : "mySuperDatabase",
-		"user"     : "mySuperUser",
-		"password" : "mySuperPassword",
-        "options"  : "mySuperOptions",
+		"host"     : "myEMSSuperHost",
+		"database" : "myEMSSuperDatabase",
+		"user"     : "myEMSSuperUser",
+		"password" : "myEMSSuperPassword",
 	},
 	"ELFE" : {
-		"host"     : "mySuperHost",
-		"database" : "mySuperDatabase",
-		"user"     : "mySuperUser",
-		"password" : "mySuperPassword",
+		"host"     : "myELFESuperHost",
+		"database" : "myELFESuperDatabase",
+		"user"     : "myELFESuperUser",
+		"password" : "myELFESuperPassword",
+        "options"  : "myELFESuperOptions",
 	},
 	"EMS_HISTO" : {
     	"host"     : "mySuperHost",
@@ -19,9 +19,9 @@ db_credentials = {
 		"password" : "mySuperPassword",
 	},
 	"EMS_SORTIE" : {
-		"host"     : "mySuperHost",
-		"database" : "mySuperDatabase",
-		"user"     : "mySuperUser",
-		"password" : "mySuperPassword",
+		"host"     : "myOutSuperHost",
+		"database" : "myOutSuperDatabase",
+		"user"     : "myOutSuperUser",
+		"password" : "myOutSuperPassword",
 	},
 }
