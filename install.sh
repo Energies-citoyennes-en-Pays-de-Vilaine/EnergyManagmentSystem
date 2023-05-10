@@ -41,7 +41,7 @@ if [ "$HAS_TO_INSTALL_ANACONDA" -ne 0 ]
 	echo "installing the necessary packets for anaconda"
 	apt-get install -y libgl1-mesa-glx libegl1-mesa libxrandr2 libxrandr2 libxss1 libxcursor1 libxcomposite1 libasound2 libxi6 libxtst6
 	echo "downloading anaconda installation script in /tmp"
-	#wget "https://repo.anaconda.com/archive/Anaconda3-2023.03-1-Linux-x86_64.sh" -O /tmp/anaconda_installer.sh
+	wget "https://repo.anaconda.com/archive/Anaconda3-2023.03-1-Linux-x86_64.sh" -O /tmp/anaconda_installer.sh
 	chmod +x /tmp/anaconda_installer.sh
 	/tmp/anaconda_installer.sh -b
 	eval "$(~/anaconda3/bin/conda shell.bash hook)"
@@ -138,4 +138,6 @@ if [ "$HAS_TO_CREATE_SERVICES" -ne 0 ]
 	systemctl enable power_prediction.timer
 	echo "installing user temp service"
 	systemctl enable user_temp.timer
+	echo "installing meteo concept service"
+	systemctl enable Meteo_concept.timer
 fi

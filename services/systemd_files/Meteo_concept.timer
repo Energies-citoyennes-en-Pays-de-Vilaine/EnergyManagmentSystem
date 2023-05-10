@@ -1,0 +1,10 @@
+[Unit]
+Description="timer for meteo concept gatherer service"
+Requires=Meteo_concept.service
+[Timer]
+Unit=Meteo_concept.service
+OnCalendar=*-*-* *:58:00
+AccuracySec=20s
+
+[Install]
+WantedBy=timers.target
