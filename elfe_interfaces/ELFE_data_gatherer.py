@@ -56,8 +56,8 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 	ecs_to_schedule = get_ECS_to_schedule(db_credentials["elfe"], ECS_not_to_schedule)
 	
 	ecs_consumers = []
-	for ecs_id in ECS_ELFE_in_piloted_mode:
-		ecs : ECSToScheduleType = ECS_ELFE_in_piloted_mode[ecs_id]
+	for ecs_id in ecs_to_schedule:
+		ecs : ECSToScheduleType = ecs_to_schedule[ecs_id]
 		last_consumption = fetch(db_credentials["EMS"], ("SELECT last_energy FROM ems_ecs WHERE elfe_zabbix_id=%s", [ecs.zabbix_id]))
 		if (len(last_consumption) == 0):
 			last_consumption = 0
