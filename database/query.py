@@ -33,8 +33,6 @@ def fetch(credentials, query):
 		if (isinstance(query, str) or isinstance(query, sql.Composed)):
 			cursor.execute(query)
 		else:
-			if (isinstance(query[0], sql.Composed)):
-				print(query[0].as_string(cursor))
 			cursor.execute(query[0], query[1])
 		result = cursor.fetchall()
 		if (result == None):
