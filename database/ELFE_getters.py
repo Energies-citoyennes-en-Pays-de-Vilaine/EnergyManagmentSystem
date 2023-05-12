@@ -45,7 +45,7 @@ def get_ECS_to_schedule(credentials, ECS_not_to_schedule: Union[List[int], None]
 			+ f" WHERE equipement.equipement_pilote_ou_mesure_mode_id = %s;").format(
 				sql.Identifier(ELFE_database_names['ELFE_MachineGenerique']),
 				sql.Identifier(ELFE_database_names['ELFE_MachineGeneriqueCycle']),
-				sql.Identifier(ELFE_database_names['ELFE_EquipementPilote']),
+				sql.Identifier(ELFE_database_names['ELFE_EquipementPilote'])
 			), 
 			[MODE_PILOTE])
 	result = fetch(credentials, query)

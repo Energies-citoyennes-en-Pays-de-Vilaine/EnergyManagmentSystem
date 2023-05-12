@@ -1,5 +1,8 @@
 from numpy import floor
 from typing import *
+from dataclasses import dataclass
+
+@dataclass(init=False, repr=True)
 class CalculationParams():
 	begin                         : int
 	end                           : int
