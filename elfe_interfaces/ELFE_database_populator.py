@@ -31,7 +31,7 @@ class StudyCase():
 
 def drop_and_recreate(credentials):
 	from database.ELFE_db_creator import create_tables
-	queries = [ f"DROP TABLE IF EXISTS {ELFE_database_names[table_id]};" for table_id in ELFE_database_names]
+	queries = [ ("DROP TABLE IF EXISTS %s;", [ELFE_database_names[table_id]]) for table_id in ELFE_database_names]
 	execute_queries(credentials, queries)
 	create_tables(credentials)
 
