@@ -42,7 +42,7 @@ def get_ECS_to_schedule(credentials, timestamp, ECS_not_to_schedule: Union[List[
 			+ " FROM {0} AS epm" 
 	    	+ " INNER JOIN {1} AS ecs ON epm.id=ecs.equipement_pilote_ou_mesure_id" 
 			+ " INNER JOIN {2} AS hc ON ecs.id = hc.equipement_pilote_ballon_ecs_id"
-			+ "WHERE hc.actif=true and epm.equipement_pilote_ou_mesure_mode_id=%s AND epm.timestamp_derniere_mise_en_marche + 12 * 3600 <= %s").format(
+			+ " WHERE hc.actif=true and epm.equipement_pilote_ou_mesure_mode_id=%s AND epm.timestamp_derniere_mise_en_marche + 12 * 3600 <= %s").format(
 				sql.Identifier(ELFE_database_names['ELFE_EquipementPilote']),
 				sql.Identifier(ELFE_database_names['ELFE_BallonECS']),
 				sql.Identifier(ELFE_database_names['ELFE_BallonECSHeuresCreuses'])
