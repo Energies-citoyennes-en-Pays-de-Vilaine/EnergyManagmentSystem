@@ -53,7 +53,7 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 	midnight = get_midnight_date(timestamp)
 	midnight_timestamp = midnight.timestamp()
 	ECS_not_to_schedule = get_equipment_started_last_round(db_credentials["EMS"], timestamp, "result_ecs")
-	ecs_to_schedule = get_ECS_to_schedule(db_credentials["elfe"], ECS_not_to_schedule)
+	ecs_to_schedule = get_ECS_to_schedule(db_credentials["ELFE"], ECS_not_to_schedule)
 	
 	ecs_consumers = []
 	for ecs_id in ecs_to_schedule:
