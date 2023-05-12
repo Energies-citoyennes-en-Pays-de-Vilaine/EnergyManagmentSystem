@@ -64,6 +64,7 @@ if [ "$HAS_TO_INSTALL_MILP" -ne 0 ] || [ "$HAS_TO_INSTALL_ANACONDA" -ne 0 ]
 fi
 
 echo "sourcing bashrc at $BASHRCPATH"
+echo "[WARNING] some bashrc files disable the non-interactive mode to use them, if the below section fails try there first $BASHRCPATH"
 source $BASHRCPATH
 echo "activating milp env"
 conda activate milp
