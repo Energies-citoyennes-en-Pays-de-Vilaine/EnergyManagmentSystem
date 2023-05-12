@@ -5,17 +5,23 @@ CONFIG_FOLDER="/etc/ems"
 HAS_TO_INSTALL_ANACONDA=0
 HAS_TO_UPDATE=0
 HAS_TO_INSTALL_POSTGRES=0
-HAS_TO_CREATE_DATABASE=0
+HAS_TO_CREATE_DATABASE=1
+HAS_TO_CREATE_OUT_DATABASE=1
+HAS_TO_GRANT_PERMISSIONS=1
 HAS_TO_INSTALL_MILP=0
-HAS_TO_CREATE_SERVICES=1
+HAS_TO_CREATE_SERVICES=0
+
 EMS_DB="test"
 EMS_USER="testu"
-EMS_DB_CONFIG_FILENAME="db_credentials_test.py"
+EMS_DB_CONFIG_FILENAME="db_credentials.py"
 
 ELFE_OUT_PASS="pass"
 ELFE_OUT_USER="testeu"
 ELFE_OUT_HOST="localhost"
-ELFE_OUT_DB="ems_sortie"
+ELFE_OUT_DB="ems_sortie_test"
+COMMAND_USER="testusr"
+#next line comes from internal value from EMS, do not modify
+EMS_RESULT_TABLE="result"
 
 ELFE_DB="elfe_coordo"
 ELFE_OPTIONS="-c search_path=test,public"
@@ -45,7 +51,7 @@ if [ "$HAS_TO_INSTALL_ANACONDA" -ne 0 ]
 	chmod +x /tmp/anaconda_installer.sh
 	/tmp/anaconda_installer.sh -b
 	eval "$(~/anaconda3/bin/conda shell.bash hook)"
-	conda init
+	conda init bash
 	rm /tmp/anaconda_installer.sh
 fi
 
@@ -57,14 +63,26 @@ if [ "$HAS_TO_INSTALL_MILP" -ne 0 ] || [ "$HAS_TO_INSTALL_ANACONDA" -ne 0 ]
 	conda env create -f "$EMSFOLDER/anaconda.yml"
 fi
 
+echo "sourcing bashrc at $BASHRCPATH"
+source $BASHRCPATH
 echo "activating milp env"
-source "$BASHRCPATH"
 conda activate milp
 
 if [ "$HAS_TO_INSTALL_POSTGRES" -ne 0 ]
 	then
 	echo "installing postgresql"
 	apt install postgresql
+fi
+
+if [ "$HAS_TO_CREATE_OUT_DATABASE" -ne 0 ]
+	then
+	echo "creating output database"
+	su - postgres -c "export PGPASSWORD=\"$ELFE_OUT_PASS\"; psql -h $ELFE_OUT_HOST -d postgres -U $ELFE_OUT_USER -c \"CREATE DATABASE $ELFE_OUT_DB WITH OWNER $ELFE_OUT_USER;\""
+	if [ "$HAS_TO_GRANT_PERMISSIONS" -ne 0 ]
+		then
+		echo "granting database connection permissions to user $COMMAND_USER"
+		su - postgres -c "export PGPASSWORD=\"$ELFE_OUT_PASS\"; psql -h $ELFE_OUT_HOST -d $ELFE_OUT_DB -U $ELFE_OUT_USER -c \"GRANT CONNECT ON DATABASE $ELFE_OUT_DB TO $COMMAND_USER;\""
+		fi
 fi
 
 if [ "$HAS_TO_INSTALL_POSTGRES" -ne 0 ] || [ "$HAS_TO_CREATE_DATABASE" -ne 0 ]
@@ -106,7 +124,13 @@ if [ "$HAS_TO_INSTALL_POSTGRES" -ne 0 ] || [ "$HAS_TO_CREATE_DATABASE" -ne 0 ]
 	python -m database.EMS_db_creator
 	echo "creating tables for EMS output database"
 	python -m database.EMS_OUT_db_creator
+	if [ "$HAS_TO_GRANT_PERMISSIONS" -ne 0 ]
+		then
+		echo "granting select permission to $COMMAND_USER on table $EMS_RESULT_TABLE"
+		su - postgres -c "export PGPASSWORD=\"$ELFE_OUT_PASS\"; psql -h $ELFE_OUT_HOST -d $ELFE_OUT_DB -U $ELFE_OUT_USER -c \"GRANT SELECT ON TABLE $EMS_RESULT_TABLE TO $COMMAND_USER;\""
+	fi
 fi
+
 
 echo "creating the config folder $CONFIG_FOLDER"
 mkdir -p $CONFIG_FOLDER
