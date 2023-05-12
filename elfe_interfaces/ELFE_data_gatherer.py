@@ -105,8 +105,7 @@ def get_electric_vehicle(timestamp) -> List[VehicleConsumer]:
 		INNER JOIN {ELFE_database_names['ELFE_VehiculeElectriqueGenerique']} AS ve ON ve.equipement_pilote_ou_mesure_id = m.id\
 		WHERE m.equipement_pilote_ou_mesure_mode_id={MODE_PILOTE}"
 	vehicle_to_schedule_query_result = fetch(db_credentials["ELFE"], vehicle_to_schedule_query)
-	vehicle_not_to_schedule = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
-	vehicle_not_to_schedule = [int(vehicle_not_to_schedule[0]) for vehicle_not_to_schedule in vehicle_not_to_schedule]
+	vehicle_not_to_schedule = get_equipment_started_last_round(db_credentials["EMS"], timestamp, "result")
 	vehicles : List[VehicleConsumer] = []
 	if vehicle_to_schedule_query_result != None:
 		for vehicle in vehicle_to_schedule_query_result:
