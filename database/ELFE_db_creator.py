@@ -1,18 +1,7 @@
 from credentials.db_credentials import db_credentials
 from database.EMS_db_creator import execute_queries
 from database.ELFE_db_types import ELFE_BallonECS, ELFE_BallonECSHeuresCreuses, ELFE_ChauffageAsservi, ELFE_ChauffageNonAsservi ,ELFE_ChauffageAsserviModeleThermique, ELFE_EquipementPilote, ELFE_MachineGenerique, ELFE_MachineGeneriqueCycle, ELFE_VehiculeElectriqueGenerique
-
-ELFE_database_names = {
-	"ELFE_BallonECS"                       : "equipement_pilote_ballon_ecs",
-	"ELFE_BallonECSHeuresCreuses"          : "equipement_pilote_ballon_ecs_heures_creuses",
-	"ELFE_ChauffageAsservi"                : "equipement_pilote_chauffage_asservi",
-	"ELFE_ChauffageAsserviModeleThermique" : "chauffage_asservi_modele_thermique",
-	"ELFE_ChauffageNonAsservi"             : "equipement_pilote_chauffage_non_asservi",
-	"ELFE_EquipementPilote"                : "equipement_pilote_ou_mesure",
-	"ELFE_MachineGenerique"                : "equipement_pilote_machine_generique",
-	"ELFE_MachineGeneriqueCycle"           : "equipement_pilote_machine_generique_cycle",
-	"ELFE_VehiculeElectriqueGenerique"     : "equipement_pilote_vehicule_electrique_generique",
-}
+from database.ELFE_db_types import ELFE_database_names
 
 def create_tables(credentials):
 	tables_queries = [

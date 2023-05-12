@@ -1,5 +1,5 @@
 from database.ELFE_db_types import ELFE_BallonECS, ELFE_BallonECSHeuresCreuses, ELFE_ChauffageAsservi, ELFE_ChauffageAsserviModeleThermique, ELFE_ChauffageNonAsservi, ELFE_EquipementPilote, ELFE_MachineGenerique, ELFE_MachineGeneriqueCycle, ELFE_VehiculeElectriqueGenerique
-from database.ELFE_db_creator import ELFE_database_names
+from database.ELFE_db_types import ELFE_database_names
 from database.EMS_db_types import EMSCycle, EMSCycleData, EMSDeviceTemperatureData, EMSMachineData, EMSPowerCurveData, InitialWheatherForecast, EMS_Modele_Thermique
 from database.query import execute_queries, fetch
 from credentials.db_credentials import db_credentials

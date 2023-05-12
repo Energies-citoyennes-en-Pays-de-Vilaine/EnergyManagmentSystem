@@ -1,6 +1,6 @@
 from typing import List
 from database.EMS_db_types import EMSResult, EMSResultEcs
-from database.ELFE_db_creator import ELFE_database_names
+from database.ELFE_db_types import ELFE_database_names
 from database.query import fetch
 from credentials.db_credentials import db_credentials
 from math import ceil
