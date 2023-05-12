@@ -5,7 +5,7 @@ from database.query import execute_queries, fetch
 from database.EMS_getters import *
 from database.ELFE_getters import *
 from credentials.db_credentials import db_credentials
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from solution.ConsumerTypes.HeaterConsumer import HeaterConsumer
 from solution.ConsumerTypes.SumConsumer import SumConsumer, SumPeriod
 from solution.ConsumerTypes.MachineConsumer import MachineConsumer
@@ -33,7 +33,7 @@ def get_machines(timestamp) -> List[MachineConsumer]:
 		if machine.Id in machines_not_to_schedule:
 			print(f"not to schedule {machine.Id}")
 			continue
-		cycle_filename = get_cycle_filename_for_machine(db_credentials["EMS"], f"default_cycle_for_machine({machine.zabbix_id}")
+		cycle_filename = get_cycle_filename_for_machine(db_credentials["EMS"], f"default_cycle_for_machine({machine.zabbix_id}", machine.zabbix_id)
 	
 		cycle_data = []
 		with open(f"data/in_use/{cycle_filename}") as inp:
@@ -52,75 +52,50 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 	#ECS means "Eau Chaude Sanitaire" which is the hot water tank
 	midnight = get_midnight_date(timestamp)
 	midnight_timestamp = midnight.timestamp()
-	ECS_not_to_schedule = fetch(db_credentials["EMS"], (f"SELECT machine_id FROM result_ecs WHERE first_valid_timestamp=%s AND decisions_0=1", [timestamp]))
-	ECS_not_to_schedule = [i[0] for i in ECS_not_to_schedule]
-	query = (f"SELECT epm.id, ecs.mesures_puissance_elec_id ,ecs.volume_ballon, ecs.puissance_chauffe, hc.actif, hc.debut, hc.fin, epm.equipement_pilote_ou_mesure_type_id\
-		FROM {ELFE_database_names['ELFE_EquipementPilote']} AS epm\
-		INNER JOIN {ELFE_database_names['ELFE_BallonECS']} AS ecs ON epm.id = ecs.equipement_pilote_ou_mesure_id\
-		INNER JOIN {ELFE_database_names['ELFE_BallonECSHeuresCreuses']} AS hc ON ecs.id = hc.equipement_pilote_ballon_ecs_id\
-		WHERE hc.actif=true and epm.equipement_pilote_ou_mesure_mode_id={MODE_PILOTE} AND epm.timestamp_derniere_mise_en_marche + 12 * 3600 <= %s", [timestamp])
-	query_results = fetch(db_credentials["ELFE"], query)
-	ECS_ELFE_in_piloted_mode = {}
-	for result in query_results:
-		(epmid, zabbixid, volume, power, actif, start, end, epmtype) = result
-		if epmid in ECS_not_to_schedule:
+	ECS_not_to_schedule = get_equipment_started_last_round(db_credentials["EMS"], timestamp, "result_ecs")
+	ecs_to_schedule = get_ECS_to_schedule(db_credentials["elfe"])
+	ECS_ELFE_in_piloted_mode : Dict[int, ECSToScheduleType] = {}
+	for ecs in ecs_to_schedule:
+		if ecs.Id in ECS_not_to_schedule:
 			continue
-		if epmid not in ECS_ELFE_in_piloted_mode:
-			ECS_ELFE_in_piloted_mode[epmid] = {
-				"epmid"     : epmid,
-				"zabbixid"  : zabbixid,
-				"volume"    : volume,
-				"power"     : power,
-				"actif"     : actif,
-				"start"     : start,
-				"end"       : end,
-				"epmtype"   : epmtype,
-				}
-		elif (end - start > ECS_ELFE_in_piloted_mode[epmid]["end"] - ECS_ELFE_in_piloted_mode[epmid]["start"]):
-			ECS_ELFE_in_piloted_mode[epmid] = {
-				"epmid"     : epmid,
-				"zabbixid"  : zabbixid,
-				"volume"    : volume,
-				"power"     : power,
-				"actif"     : actif,
-				"start"     : start,
-				"end"       : end,
-				"epmtype"   : epmtype,
-				}
+		if ecs.Id not in ECS_ELFE_in_piloted_mode:
+			ECS_ELFE_in_piloted_mode[ecs.Id] = ecs
+		elif (ecs.end - ecs.start > ECS_ELFE_in_piloted_mode[ecs.Id].end - ECS_ELFE_in_piloted_mode[ecs.Id].start):
+			ECS_ELFE_in_piloted_mode[ecs.Id] = ecs
 	ecs_consumers = []
 	for ecs_id in ECS_ELFE_in_piloted_mode:
-		ecs = ECS_ELFE_in_piloted_mode[ecs_id]
-		last_consumption = fetch(db_credentials["EMS"], ("SELECT last_energy FROM ems_ecs WHERE elfe_zabbix_id=%s", [ecs["zabbixid"]]))
+		ecs : ECSToScheduleType = ECS_ELFE_in_piloted_mode[ecs_id]
+		last_consumption = fetch(db_credentials["EMS"], ("SELECT last_energy FROM ems_ecs WHERE elfe_zabbix_id=%s", [ecs.zabbix_id]))
 		if (len(last_consumption) == 0):
 			last_consumption = 0
 			print("no last consumption known")
 		else: 
 			last_consumption = last_consumption[0][0]
-		duration_hour = last_consumption / ecs["power"] + 2#add two hours to be safe, to be put in a config file
+		duration_hour = last_consumption / ecs.power_W + 2#add two hours to be safe, to be put in a config file
 		duration_step = duration_hour * 4 #WARNING, quick and dirty, couples the code to 15min simulation step. To be reworked
 		duration_step = ceil(duration_step)
 		ecs_curve = []
 		for i in range(duration_step):
-			ecs_curve.append(ecs["power"])
+			ecs_curve.append(ecs.power_W)
 		possible_starts = [
-			midnight_timestamp + ecs["start"] - 24 * 3600,
-			midnight_timestamp + ecs["start"],
-			midnight_timestamp + ecs["start"] + 24 * 3600,
+			midnight_timestamp + ecs.start - 24 * 3600,
+			midnight_timestamp + ecs.start,
+			midnight_timestamp + ecs.start + 24 * 3600,
 		]
 		possible_ends = [
-			midnight_timestamp + ecs["end"] - 24 * 3600,
-			midnight_timestamp + ecs["end"],
-			midnight_timestamp + ecs["end"] + 24 * 3600
+			midnight_timestamp + ecs.end - 24 * 3600,
+			midnight_timestamp + ecs.end,
+			midnight_timestamp + ecs.end + 24 * 3600
 		]
 		consumer : ECSConsumer
 		print(timestamp - possible_starts[0], timestamp - possible_ends[0])
 		if (timestamp > possible_starts[0] and timestamp < possible_ends[0]):
-			consumer = ECSConsumer(ecs["epmid"], ecs_curve, possible_starts[0], possible_ends[0], ecs["power"], ecs["volume"])
+			consumer = ECSConsumer(ecs.Id, ecs_curve, possible_starts[0], possible_ends[0], ecs.power_W, ecs.volume_L)
 		elif (timestamp <= possible_starts[0] or (timestamp > possible_starts[1] and timestamp < possible_ends[1])): 
-			consumer = ECSConsumer(ecs["epmid"], ecs_curve, possible_starts[1], possible_ends[1], ecs["power"], ecs["volume"])
+			consumer = ECSConsumer(ecs.Id, ecs_curve, possible_starts[1], possible_ends[1], ecs.power_W, ecs.volume_L)
 		else:
-			consumer = ECSConsumer(ecs["epmid"], ecs_curve, possible_starts[2], possible_ends[2], ecs["power"], ecs["volume"])
-		consumer.consumer_machine_type = ecs["epmtype"]
+			consumer = ECSConsumer(ecs.Id, ecs_curve, possible_starts[2], possible_ends[2], ecs.power_W, ecs.volume_L)
+		consumer.consumer_machine_type = ecs.equipment_type
 		ecs_consumers.append(consumer)
 	return (ecs_consumers)
 

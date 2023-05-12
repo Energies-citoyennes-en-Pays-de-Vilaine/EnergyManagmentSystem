@@ -1,4 +1,5 @@
 import psycopg2
+from psycopg2 import sql
 def execute_queries(credentials, queries):
 	cred = credentials
 	try:
@@ -7,7 +8,7 @@ def execute_queries(credentials, queries):
 		connection = psycopg2.connect(host = cred["host"], database = cred["database"], user = cred["user"], password = cred["password"], options=cred["options"])
 		cursor = connection.cursor()
 		for query in queries:
-			if (isinstance(query, str)):
+			if (isinstance(query, str) or isinstance(query, sql.Composed)):
 				cursor.execute(query)
 			else:
 				cursor.execute(query[0], query[1])
@@ -29,7 +30,7 @@ def fetch(credentials, query):
 			cred["options"] = ""
 		connection = psycopg2.connect(host = cred["host"], database = cred["database"], user = cred["user"], password = cred["password"], options=cred["options"])
 		cursor = connection.cursor()
-		if (isinstance(query, str)):
+		if (isinstance(query, str) or isinstance(query, sql.Composed)):
 			cursor.execute(query)
 		else:
 			cursor.execute(query[0], query[1])
