@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Union
 from dataclasses import dataclass
 from database.query import fetch
 from database.ELFE_db_types import ELFE_database_names
@@ -37,7 +37,7 @@ class ECSToScheduleType():
 	end            : int
 	equipment_type : int
 
-def get_ECS_to_schedule(credentials) -> List[ECSToScheduleType]:
+def get_ECS_to_schedule(credentials, ECS_not_to_schedule: Union[List[int], None] = None) -> List[ECSToScheduleType]:
 	query = (sql.SQL(f" SELECT epm.id, ecs.mesures_puissance_elec_id, machine.mesures_puissance_elec_id, machine.timestamp_de_fin_souhaite, machine.delai_attente_maximale_apres_fin, equipement.equipement_pilote_ou_mesure_type_id"
 			+ f" FROM {0} AS machine" 
 	    	+ f" INNER JOIN {1} AS cycle ON cycle.id = machine.cycle_equipement_pilote_machine_generique_id " 
@@ -50,4 +50,14 @@ def get_ECS_to_schedule(credentials) -> List[ECSToScheduleType]:
 			[MODE_PILOTE])
 	result = fetch(credentials, query)
 	result_typed : List[ECSToScheduleType] = [ECSToScheduleType(r[0], r[1], r[2], r[3], r[4], r[5], r[6]) for r in result]
-	return result_typed
+	
+	#gets only the biggest period where it can be scheduled
+	biggest_period_ecs : Dict[int, ECSToScheduleType] = {}
+	for ecs in result_typed:
+		if ECS_not_to_schedule != None and ecs.Id in ECS_not_to_schedule:
+			continue
+		if ecs.Id not in biggest_period_ecs:
+			biggest_period_ecs[ecs.Id] = ecs
+		elif (ecs.end - ecs.start > biggest_period_ecs[ecs.Id].end - biggest_period_ecs[ecs.Id].start):
+			biggest_period_ecs[ecs.Id] = ecs
+	return biggest_period_ecs

@@ -53,15 +53,8 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 	midnight = get_midnight_date(timestamp)
 	midnight_timestamp = midnight.timestamp()
 	ECS_not_to_schedule = get_equipment_started_last_round(db_credentials["EMS"], timestamp, "result_ecs")
-	ecs_to_schedule = get_ECS_to_schedule(db_credentials["elfe"])
-	ECS_ELFE_in_piloted_mode : Dict[int, ECSToScheduleType] = {}
-	for ecs in ecs_to_schedule:
-		if ecs.Id in ECS_not_to_schedule:
-			continue
-		if ecs.Id not in ECS_ELFE_in_piloted_mode:
-			ECS_ELFE_in_piloted_mode[ecs.Id] = ecs
-		elif (ecs.end - ecs.start > ECS_ELFE_in_piloted_mode[ecs.Id].end - ECS_ELFE_in_piloted_mode[ecs.Id].start):
-			ECS_ELFE_in_piloted_mode[ecs.Id] = ecs
+	ecs_to_schedule = get_ECS_to_schedule(db_credentials["elfe"], ECS_not_to_schedule)
+	
 	ecs_consumers = []
 	for ecs_id in ECS_ELFE_in_piloted_mode:
 		ecs : ECSToScheduleType = ECS_ELFE_in_piloted_mode[ecs_id]
