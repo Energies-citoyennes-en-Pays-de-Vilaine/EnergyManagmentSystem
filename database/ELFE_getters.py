@@ -38,7 +38,7 @@ class ECSToScheduleType():
 	equipment_type : int
 
 def get_ECS_to_schedule(credentials, timestamp, ECS_not_to_schedule: Union[List[int], None] = None) -> List[ECSToScheduleType]:
-	query = (sql.SQL(" SELECT epm.id, ecs.mesures_puissance_elec_id, machine.mesures_puissance_elec_id, machine.timestamp_de_fin_souhaite, machine.delai_attente_maximale_apres_fin, equipement.equipement_pilote_ou_mesure_type_id"
+	query = (sql.SQL(" SELECT epm.id, ecs.mesures_puissance_elec_id ,ecs.volume_ballon, ecs.puissance_chauffe, hc.debut, hc.fin, epm.equipement_pilote_ou_mesure_type_id"
 			+ " FROM {0} AS epm" 
 	    	+ " INNER JOIN {1} AS ecs ON epm.id=ecs.equipement_pilote_ou_mesure_id" 
 			+ " INNER JOIN {2} AS hc ON ecs.id = hc.equipement_pilote_ballon_ecs_id"
