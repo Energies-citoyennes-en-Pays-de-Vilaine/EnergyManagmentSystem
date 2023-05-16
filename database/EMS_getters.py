@@ -22,3 +22,12 @@ def get_cycle_filename_for_machine(credentials, cycle_name: str, zabbix_id: int)
 		csv_cycle = "default.csv"
 		print("not found in database", zabbix_id)
 	return csv_cycle
+
+def get_last_consumption(credentials, zabbix_id : int) -> int:
+	last_consumption_result = fetch(credentials, ("SELECT last_energy FROM ems_ecs WHERE elfe_zabbix_id=%s", [zabbix_id]))
+	last_consumption = 0
+	try:
+		last_consumption = last_consumption_result[0][0]
+	except KeyError:
+		print("no last consumption known for consumer with id ", zabbix_id)
+	return last_consumption

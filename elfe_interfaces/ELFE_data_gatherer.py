@@ -58,12 +58,7 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 	ecs_consumers = []
 	for ecs_id in ecs_to_schedule:
 		ecs : ECSToScheduleType = ecs_to_schedule[ecs_id]
-		last_consumption = fetch(db_credentials["EMS"], ("SELECT last_energy FROM ems_ecs WHERE elfe_zabbix_id=%s", [ecs.zabbix_id]))
-		if (len(last_consumption) == 0):
-			last_consumption = 0
-			print("no last consumption known")
-		else: 
-			last_consumption = last_consumption[0][0]
+		last_consumption = get_last_consumption(db_credentials["EMS"], ecs.zabbix_id) 
 		duration_hour = last_consumption / ecs.power_W + 2#add two hours to be safe, to be put in a config file
 		duration_step = duration_hour * 4 #WARNING, quick and dirty, couples the code to 15min simulation step. To be reworked
 		duration_step = ceil(duration_step)
@@ -81,10 +76,9 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 			midnight_timestamp + ecs.end + 24 * 3600
 		]
 		consumer : ECSConsumer
-		print(timestamp - possible_starts[0], timestamp - possible_ends[0])
-		if (timestamp > possible_starts[0] and timestamp < possible_ends[0]):
+		if (timestamp <= possible_starts[0] or timestamp > possible_starts[0] and timestamp < possible_ends[0]):
 			consumer = ECSConsumer(ecs.Id, ecs_curve, possible_starts[0], possible_ends[0], ecs.power_W, ecs.volume_L)
-		elif (timestamp <= possible_starts[0] or (timestamp > possible_starts[1] and timestamp < possible_ends[1])): 
+		elif (timestamp <= possible_starts[1] or (timestamp > possible_starts[1] and timestamp < possible_ends[1])): 
 			consumer = ECSConsumer(ecs.Id, ecs_curve, possible_starts[1], possible_ends[1], ecs.power_W, ecs.volume_L)
 		else:
 			consumer = ECSConsumer(ecs.Id, ecs_curve, possible_starts[2], possible_ends[2], ecs.power_W, ecs.volume_L)
