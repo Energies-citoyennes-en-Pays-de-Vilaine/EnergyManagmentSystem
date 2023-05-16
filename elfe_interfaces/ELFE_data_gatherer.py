@@ -205,10 +205,10 @@ def get_heater_consumer(timestamp : int, calculationParams: CalculationParams) -
 		in_periods : List[bool]  = [False for i in simulation_timestamps]
 		target_temperature_low : List[float] = [0.0 for i in simulation_timestamps]
 		target_temperature_high : List[float] = [0.0 for i in simulation_timestamps]
-		t_low_eco      : int = (heater.temperature_eco - heater.delta_temp_maximale_temp_demandee) / 100 # data is in centiKelvin in the database
-		t_high_eco     : int = (heater.temperature_eco + heater.delta_temp_maximale_temp_demandee) / 100 # data is in centiKelvin in the database
-		t_low_comfort  : int = (heater.temperature_confort - heater.delta_temp_maximale_temp_demandee) / 100 # data is in centiKelvin in the database
-		t_high_comfort : int = (heater.temperature_confort + heater.delta_temp_maximale_temp_demandee) / 100 # data is in centiKelvin in the database
+		t_low_eco      : int = (heater.temperature_eco - heater.delta_temp_maximale_temp_demandee) / 10 # data is in deciKelvin in the database
+		t_high_eco     : int = (heater.temperature_eco + heater.delta_temp_maximale_temp_demandee) / 10 # data is in deciKelvin in the database
+		t_low_comfort  : int = (heater.temperature_confort - heater.delta_temp_maximale_temp_demandee) / 10 # data is in deciKelvin in the database
+		t_high_comfort : int = (heater.temperature_confort + heater.delta_temp_maximale_temp_demandee) / 10 # data is in deciKelvin in the database
 		for i, simulation_timestamp in enumerate(simulation_timestamps):#there might be an optimisation possible
 			for p in periods:
 				if simulation_timestamp >= p.start and simulation_timestamp < p.end:
