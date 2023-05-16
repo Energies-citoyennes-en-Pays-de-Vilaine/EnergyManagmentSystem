@@ -30,7 +30,7 @@ if __name__ == "__main__":
 	round_start_timestamp = get_round_timestamp()
 	simulation_datas = get_simulation_datas()
 	sim_params : CalculationParams = get_calculation_params(simulation_datas)
-	consumers : List[Consumer_interface]= get_machines(timestamp) + get_ECS(timestamp) + get_electric_vehicle(timestamp) + get_heater_consumer(timestamp) + get_sum_consumer(timestamp)
+	consumers : List[Consumer_interface]= get_machines(timestamp) + get_ECS(timestamp) + get_electric_vehicle(timestamp) + get_heater_consumer(timestamp, sim_params) + get_sum_consumer(timestamp, sim_params)
 	if (conf.log_problem_settings_active):
 		log_run_conditions_to_file(f"{conf.log_problem_settings_path}/{timestamp}_{round_start_timestamp}.py", timestamp, round_start_timestamp, sim_params, consumers)
 	problem = Problem(consumers, sim_params)
