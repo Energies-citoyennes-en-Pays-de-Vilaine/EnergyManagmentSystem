@@ -73,6 +73,7 @@ class ELFE_Chauffage():
 @dataclass(init=True, repr=True)
 class ELFE_ChauffageAsservi(ELFE_Chauffage):
 	Id                                         : int
+	equipement_pilote_ou_mesure                : int
 	temperature_eco                            : int
 	temperature_confort                        : int
 	prog_semaine_periode_1_confort_actif       : bool
