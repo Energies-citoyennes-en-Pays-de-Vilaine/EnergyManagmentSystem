@@ -203,8 +203,8 @@ def get_heater_consumer(timestamp : int, calculationParams: CalculationParams) -
 		periods = list(filter(lambda x : x.start < calculationParams.end , periods))
 		simulation_timestamps : List[int] = calculationParams.get_time_array()
 		in_periods : List[bool]  = [False for i in simulation_timestamps]
-		target_temperature_low : List[float] = [0.0 for i in simulation_timestamp]
-		target_temperature_high : List[float] = [0.0 for i in simulation_timestamp]
+		target_temperature_low : List[float] = [0.0 for i in simulation_timestamps]
+		target_temperature_high : List[float] = [0.0 for i in simulation_timestamps]
 		t_low_eco      : int = (heater.temperature_eco - heater.delta_temp_maximale_temp_demandee) / 100 # data is in centiKelvin in the database
 		t_high_eco     : int = (heater.temperature_eco + heater.delta_temp_maximale_temp_demandee) / 100 # data is in centiKelvin in the database
 		t_low_comfort  : int = (heater.temperature_confort - heater.delta_temp_maximale_temp_demandee) / 100 # data is in centiKelvin in the database
