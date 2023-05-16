@@ -72,6 +72,7 @@ class ELFE_Chauffage():
 @serializableThroughDatabase
 @dataclass(init=True, repr=True)
 class ELFE_ChauffageAsservi(ELFE_Chauffage):
+	Id                                         : int
 	temperature_eco                            : int
 	temperature_confort                        : int
 	prog_semaine_periode_1_confort_actif       : bool

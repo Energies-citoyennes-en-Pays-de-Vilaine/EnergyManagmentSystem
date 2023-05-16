@@ -225,7 +225,7 @@ def get_heater_consumer(timestamp : int, calculationParams: CalculationParams) -
 		m_th : EMS_Modele_Thermique = EMS_Modele_Thermique.create_from_select_output(m_th_query[0]) 
 		T_ext_response = fetch(db_credentials["EMS"], ("SELECT wheather_timestamp, temperature FROM initialweather WHERE wheather_timestamp >= %s",[get_round_timestamp()]))
 		T_ext = np.array([T_ext_response[i][0] for i in range(len(calculationParams.get_time_array()))])
-		heater_consumer : HeaterConsumer = HeaterConsumer(heater.id, t_init, initial_state, T_ext, target_temperature_low, target_temperature_high, m_th.R_th, m_th.C_th, heater.puissance)
+		heater_consumer : HeaterConsumer = HeaterConsumer(heater.Id, t_init, initial_state, T_ext, target_temperature_low, target_temperature_high, m_th.R_th, m_th.C_th, heater.puissance)
 		heater_consumers.append(heater_consumer)
 	return heater_consumers
 
