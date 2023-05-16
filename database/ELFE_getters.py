@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from database.query import fetch
 from database.ELFE_db_types import ELFE_database_names
 from psycopg2 import sql
-from ELFE_db_types import ELFE_ChauffageNonAsservi
+from database.ELFE_db_types import ELFE_ChauffageNonAsservi
 MODE_PILOTE = 30
 
 @dataclass
