@@ -44,6 +44,8 @@ def serializableThroughDatabase(clas):
 					args.append(f"{key} BOOLEAN {'NOT NULL' if not dbannotation.is_db_nullable else ''}")
 				elif (base_type == str):
 					args.append(f"{key} TEXT    {'PRIMARY KEY' if dbannotation.is_db_primary else ''} {'NOT NULL' if not dbannotation.is_db_nullable else ''}")
+				elif (base_type == float):
+					args.append(f"{key} REAL    {'PRIMARY KEY' if dbannotation.is_db_primary else ''} {'NOT NULL' if not dbannotation.is_db_nullable else ''}")
 				else:
 					print(annotations[key])
 			else:
@@ -54,6 +56,8 @@ def serializableThroughDatabase(clas):
 						args.append(f"{key}_{i} BOOLEAN {'NOT NULL' if not dbannotation.is_db_nullable else ''}")
 					elif (base_type == str):
 						args.append(f"{key}_{i} TEXT    {'NOT NULL' if not dbannotation.is_db_nullable else ''}")
+					elif(base_type == float):
+						args.append(f"{key}_{i} REAL    {'NOT NULL' if not dbannotation.is_db_nullable else ''}")
 					else:
 						print(annotations[key])
 			
@@ -85,7 +89,9 @@ def serializableThroughDatabase(clas):
 				if (base_type == int):
 					args.append(f"{key}")
 					values.append(self.__getattribute__(key))
-				
+				elif (base_type == float):
+					args.append(f"{key}")
+					values.append(self.__getattribute__(key))
 				elif (base_type == str):
 					args.append(f"{key}")
 					values.append(self.__getattribute__(key))
@@ -99,7 +105,9 @@ def serializableThroughDatabase(clas):
 					if (base_type == int):
 						args.append(f"{key}_{i}")
 						values.append(self.__getattribute__(key)[i])
-					
+					elif (base_type == float):
+						args.append(f"{key}_{i}")
+						values.append(self.__getattribute__(key)[i])
 					elif (base_type == str):
 						args.append(f"{key}_{i}")
 						values.append(self.__getattribute__(key)[i])
@@ -138,6 +146,9 @@ def serializableThroughDatabase(clas):
 				if (base_type == int):
 					args.append(f"{key}")
 					values.append(self.__getattribute__(key))
+				elif (base_type == float):
+					args.append(f"{key}")
+					values.append(self.__getattribute__(key))
 				elif (base_type == str):
 					args.append(f"{key}")
 					values.append(self.__getattribute__(key))
@@ -151,6 +162,9 @@ def serializableThroughDatabase(clas):
 					if (base_type == int):
 						args.append(f"{key}_{i}")
 						values.append(self.__getattribute__(key)[i])
+					elif (base_type == int):
+						args.append(f"{key}")
+						values.append(self.__getattribute__(key))
 					elif (base_type == str):
 						args.append(f"{key}_{i}")
 						values.append(self.__getattribute__(key)[i])
@@ -187,6 +201,9 @@ def serializableThroughDatabase(clas):
 				if (base_type == int):
 					args.append(f"{key}")
 					values.append(self.__getattribute__(key))
+				elif (base_type == float):
+					args.append(f"{key}")
+					values.append(self.__getattribute__(key))
 				elif (base_type == str):
 					args.append(f"{key}")
 					values.append(self.__getattribute__(key))
@@ -200,6 +217,9 @@ def serializableThroughDatabase(clas):
 					if (base_type == int):
 						args.append(f"{key}_{i}")
 						values.append(self.__getattribute__(key)[i])
+					elif (base_type == float):
+						args.append(f"{key}")
+						values.append(self.__getattribute__(key))
 					elif (base_type == str):
 						args.append(f"{key}_{i}")
 						values.append(self.__getattribute__(key)[i])
@@ -228,6 +248,8 @@ def serializableThroughDatabase(clas):
 					obj[list(annotations.keys())[i]] = int(output[j])
 				elif (base_type == bool):
 					obj[list(annotations.keys())[i]] = bool(output[j])
+				elif (base_type == float):
+					obj[list(annotations.keys())[i]] = float(output[j])
 				else:
 					obj[list(annotations.keys())[i]] = output[j]
 				j = j + 1
@@ -236,6 +258,8 @@ def serializableThroughDatabase(clas):
 				for k in range(dbannotation.db_element_count):
 					if (base_type == int):
 						obj[list(annotations.keys())[i]][k] = int(output[j])
+					elif (base_type == float):
+						obj[list(annotations.keys())[i]] = float(output[j])
 					elif (base_type == bool):
 						obj[list(annotations.keys())[i]][k] = bool(output[j])
 					else:

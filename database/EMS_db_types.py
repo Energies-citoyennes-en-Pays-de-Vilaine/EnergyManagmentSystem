@@ -98,5 +98,5 @@ class EMS_ECS():
 @dataclass(init=True, repr=True)
 class EMS_Modele_Thermique():
 	Id : PrimaryAutoInt
-	R_th : int
+	R_th : float
 	C_th : int
