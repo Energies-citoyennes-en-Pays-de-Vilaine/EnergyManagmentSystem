@@ -43,7 +43,7 @@ def get_machines(timestamp) -> List[MachineConsumer]:
 		cycle_duration = DELTA_SIMULATION * len(cycle_data)
 		end_time = max( DELTA_SIMULATION + cycle_duration + timestamp, machine.end_timestamp)
 		start_time = machine.end_timestamp - machine.max_delay - cycle_duration
-		machine_consumer = MachineConsumer(machine.Id, cycle_data, start_time, end_time)
+		machine_consumer = MachineConsumer(machine.Id, cycle_data, start_time, end_time, 1, machine.equipment_type)
 		machine_consumer.consumer_machine_type = machine.equipment_type
 		to_return.append(machine_consumer)
 	return to_return
@@ -77,32 +77,21 @@ def get_ECS(timestamp) -> List[ECSConsumer]:
 		]
 		consumer : ECSConsumer
 		if (timestamp <= possible_starts[0] or timestamp > possible_starts[0] and timestamp < possible_ends[0]):
-			consumer = ECSConsumer(ecs.Id, ecs_curve, possible_starts[0], possible_ends[0], ecs.power_W, ecs.volume_L)
+			consumer = ECSConsumer(ecs.Id, ecs_curve, possible_starts[0], possible_ends[0], ecs.power_W, ecs.volume_L, ecs.equipment_type)
 		elif (timestamp <= possible_starts[1] or (timestamp > possible_starts[1] and timestamp < possible_ends[1])): 
-			consumer = ECSConsumer(ecs.Id, ecs_curve, possible_starts[1], possible_ends[1], ecs.power_W, ecs.volume_L)
+			consumer = ECSConsumer(ecs.Id, ecs_curve, possible_starts[1], possible_ends[1], ecs.power_W, ecs.volume_L, ecs.equipment_type)
 		else:
-			consumer = ECSConsumer(ecs.Id, ecs_curve, possible_starts[2], possible_ends[2], ecs.power_W, ecs.volume_L)
-		consumer.consumer_machine_type = ecs.equipment_type
+			consumer = ECSConsumer(ecs.Id, ecs_curve, possible_starts[2], possible_ends[2], ecs.power_W, ecs.volume_L, ecs.equipment_type)
 		ecs_consumers.append(consumer)
 	return (ecs_consumers)
 
 def get_electric_vehicle(timestamp) -> List[VehicleConsumer]:
-	vehicle_to_schedule_query = f"SELECT m.id, ve.pourcentage_charge_restant, ve.pourcentage_charge_finale_minimale_souhaitee, ve.timestamp_dispo_souhaitee, ve.puissance_de_charge, ve.capacite_de_batterie, m.equipement_pilote_ou_mesure_type_id\
-		FROM {ELFE_database_names['ELFE_EquipementPilote']} AS m\
-		INNER JOIN {ELFE_database_names['ELFE_VehiculeElectriqueGenerique']} AS ve ON ve.equipement_pilote_ou_mesure_id = m.id\
-		WHERE m.equipement_pilote_ou_mesure_mode_id={MODE_PILOTE}"
-	vehicle_to_schedule_query_result = fetch(db_credentials["ELFE"], vehicle_to_schedule_query)
 	vehicle_not_to_schedule = get_equipment_started_last_round(db_credentials["EMS"], timestamp, "result")
+	vehicle_to_schedule = get_electric_vehicle_to_schedule(db_credentials["ELFE"], vehicle_not_to_schedule)
 	vehicles : List[VehicleConsumer] = []
-	if vehicle_to_schedule_query_result != None:
-		for vehicle in vehicle_to_schedule_query_result:
-			(Id, current_charge_pourc, target_charge_pourc, end_timestamp, power_watt, capacity_watt_hour, epmtype) = vehicle
-			if Id not in vehicle_not_to_schedule:
-				vehicle_consumer : VehicleConsumer = VehicleConsumer(Id, power_watt, capacity_watt_hour, current_charge_pourc, target_charge_pourc, timestamp, end_timestamp)
-				vehicle_consumer.consumer_machine_type = epmtype
-				vehicles.append(vehicle_consumer)
-			else:
-				print("electic vehicle not to schedule", Id)
+	for v in vehicle_to_schedule:
+		vehicle_consumer : VehicleConsumer = VehicleConsumer(v.Id, v.power_W, v.capa_WH, v.current_charge_left_percent, v.target_charge_percent, timestamp, v.end_timestamp, v.equipement_type)
+		vehicles.append(vehicle_consumer)
 	return vehicles
 
 def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> List[SumConsumer]:

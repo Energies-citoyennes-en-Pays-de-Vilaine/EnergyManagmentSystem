@@ -61,3 +61,36 @@ def get_ECS_to_schedule(credentials, timestamp, ECS_not_to_schedule: Union[List[
 		elif (ecs.end - ecs.start > biggest_period_ecs[ecs.Id].end - biggest_period_ecs[ecs.Id].start):
 			biggest_period_ecs[ecs.Id] = ecs
 	return biggest_period_ecs
+
+@dataclass
+class ElectricVehicleToScheduleType:
+	Id : int
+	current_charge_left_percent : int
+	target_charge_percent       : int
+	end_timestamp               : int
+	power_W                     : int
+	capa_WH                     : int
+	equipement_type             : int
+
+def get_electric_vehicle_to_schedule(credentials, vehicle_not_to_schedule : Union[List[int], None] = None) -> List[ElectricVehicleToScheduleType]:
+	query = (
+		sql.SQL("SELECT m.id, ve.pourcentage_charge_restant, ve.pourcentage_charge_finale_minimale_souhaitee, \
+	    ve.timestamp_dispo_souhaitee, ve.puissance_de_charge, ve.capacite_de_batterie, m.equipement_pilote_ou_mesure_type_id\
+		FROM {0} AS m\
+		INNER JOIN {1} AS ve ON ve.equipement_pilote_ou_mesure_id = m.id\
+		WHERE m.equipement_pilote_ou_mesure_mode_id=%s").format(
+			sql.Identifier(ELFE_database_names['ELFE_EquipementPilote']),
+			sql.Identifier(ELFE_database_names['ELFE_VehiculeElectriqueGenerique'])
+		),
+		[MODE_PILOTE]
+	)
+	result = fetch(credentials, query)
+	if result == None:
+		print("error, returning empty list for electric vehicle to prevent crash")
+		return []
+	result_typed : List[ElectricVehicleToScheduleType] = []
+	for r in result:
+		if vehicle_not_to_schedule == None or r[0] not in vehicle_not_to_schedule:
+			result_typed.append(ElectricVehicleToScheduleType(r[0], r[1], r[2], r[3], r[4], r[5], r[6]))
+	return result_typed
+	
