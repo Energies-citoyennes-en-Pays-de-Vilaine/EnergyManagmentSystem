@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from database.query import fetch
 from database.ELFE_db_types import ELFE_database_names
 from psycopg2 import sql
-
+from ELFE_db_types import ELFE_ChauffageNonAsservi
 MODE_PILOTE = 30
 
 @dataclass
@@ -93,4 +93,21 @@ def get_electric_vehicle_to_schedule(credentials, vehicle_not_to_schedule : Unio
 		if vehicle_not_to_schedule == None or r[0] not in vehicle_not_to_schedule:
 			result_typed.append(ElectricVehicleToScheduleType(r[0], r[1], r[2], r[3], r[4], r[5], r[6]))
 	return result_typed
-	
+
+def get_elfe_not_piloted_heater(credentials) -> List[ELFE_ChauffageNonAsservi]:
+	query = (sql.SQL("SELECT heater.* \
+		FROM {0} AS heater\
+		INNER JOIN {1} AS epm ON epm.id = heater.equipement_pilote_ou_mesure_id\
+		WHERE epm.equipement_pilote_ou_mesure_mode_id = %s").format(
+			sql.Identifier(ELFE_database_names['ELFE_ChauffageNonAsservi']),
+			sql.Identifier(ELFE_database_names['ELFE_EquipementPilote'])
+		),
+		[MODE_PILOTE])
+	result = fetch(credentials, query)
+	to_return : List[ELFE_ChauffageNonAsservi] = []
+	if (result == None):
+		print("an error occured in ELFE_Chauffage_non_asservi, sending back empty array not to block")
+		return []
+	for r in result:
+		to_return.append(ELFE_ChauffageNonAsservi.create_from_select_output(r))
+	return to_return

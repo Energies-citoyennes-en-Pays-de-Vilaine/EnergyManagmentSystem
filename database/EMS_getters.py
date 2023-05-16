@@ -31,3 +31,6 @@ def get_last_consumption(credentials, zabbix_id : int) -> int:
 	except KeyError:
 		print("no last consumption known for consumer with id ", zabbix_id)
 	return last_consumption
+
+def get_consumer_activation_ratio_starting_at(credentials, consumer_id, first_valid_timestamp):
+	pass

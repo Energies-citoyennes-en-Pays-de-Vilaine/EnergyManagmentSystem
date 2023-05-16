@@ -98,12 +98,7 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 	"""
 	Sum consumers currently are only made of heaters on which we don't have access to the room's heat
 	"""
-	elfe_heater_query = f"SELECT heater.* \
-		FROM {ELFE_database_names['ELFE_ChauffageNonAsservi']} AS heater\
-		INNER JOIN {ELFE_database_names['ELFE_EquipementPilote']} AS epm ON epm.id = heater.equipement_pilote_ou_mesure_id\
-		WHERE epm.equipement_pilote_ou_mesure_mode_id = {MODE_PILOTE}"	
-	elfe_heater_result = fetch(db_credentials["ELFE"], elfe_heater_query)
-	elfe_heater : List[ELFE_ChauffageNonAsservi] = [ELFE_ChauffageNonAsservi.create_from_select_output(result) for result in elfe_heater_result]
+	elfe_heater : List[ELFE_ChauffageNonAsservi] = get_elfe_not_piloted_heater(db_credentials["ELFE"])
 	starting_periods : List[datetime] = [get_midnight_date(timestamp - DAY_TIME_SECONDS), get_midnight_date(timestamp), get_midnight_date(timestamp + DAY_TIME_SECONDS)]
 	sum_consumers : List[SumConsumer] = []
 	for heater in elfe_heater:
@@ -229,7 +224,7 @@ def get_heater_consumer(timestamp : int, calculationParams: CalculationParams) -
 		m_th_query = fetch(db_credentials["EMS"], ("SELECT * FROM ems_modele_thermique where id=%s", [heater.modele_thermique_id]))
 		m_th : EMS_Modele_Thermique = EMS_Modele_Thermique.create_from_select_output(m_th_query[0]) 
 		T_ext_response = fetch(db_credentials["EMS"], ("SELECT wheather_timestamp, temperature FROM initialwheather WHERE wheather_timestamp >= %s",[get_round_timestamp()]))
-		T_ext = np.array([T_ext_response[0][i] for i in range(len(calculationParams.get_time_array))])
+		T_ext = np.array([T_ext_response[i][0] for i in range(len(calculationParams.get_time_array))])
 		heater_consumer : HeaterConsumer = HeaterConsumer(heater.id, t_init, initial_state, T_ext, target_temperature_low, target_temperature_high, m_th.R_th, m_th.C_th, heater.puissance)
 		heater_consumers.append(heater_consumer)
 	return heater_consumers
