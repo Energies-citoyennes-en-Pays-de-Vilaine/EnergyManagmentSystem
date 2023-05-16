@@ -1,4 +1,4 @@
-from elfe_interfaces.ELFE_data_gatherer import get_machines, get_ECS, get_electric_vehicle
+from elfe_interfaces.ELFE_data_gatherer import get_machines, get_ECS, get_electric_vehicle, get_sum_consumer, get_heater_consumer
 from elfe_interfaces.ELFE_data_gatherer import get_calculation_params, get_simulation_datas
 from utils.time.timestamp import get_round_timestamp, get_timestamp
 from database.EMS_db_types import EMSPowerCurveData, EMSResult, EMSResultEcs
@@ -30,7 +30,7 @@ if __name__ == "__main__":
 	round_start_timestamp = get_round_timestamp()
 	simulation_datas = get_simulation_datas()
 	sim_params : CalculationParams = get_calculation_params(simulation_datas)
-	consumers : List[Consumer_interface]= get_machines(timestamp) + get_ECS(timestamp) + get_electric_vehicle(timestamp)
+	consumers : List[Consumer_interface]= get_machines(timestamp) + get_ECS(timestamp) + get_electric_vehicle(timestamp) + get_heater_consumer(timestamp) + get_sum_consumer(timestamp)
 	if (conf.log_problem_settings_active):
 		log_run_conditions_to_file(f"{conf.log_problem_settings_path}/{timestamp}_{round_start_timestamp}.py", timestamp, round_start_timestamp, sim_params, consumers)
 	problem = Problem(consumers, sim_params)
