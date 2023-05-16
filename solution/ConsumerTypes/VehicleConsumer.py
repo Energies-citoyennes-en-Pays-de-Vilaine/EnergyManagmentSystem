@@ -6,6 +6,7 @@ from solution.Calculation_Params import CalculationParams
 from solution.Utils.utils import maxi, mini
 from math import ceil, floor
 from typing import TypedDict
+from dataclasses import dataclass
 class _CalculatedTimeParameters(TypedDict):
 	start_time          : int
 	end_time            : int
@@ -14,13 +15,15 @@ class _CalculatedTimeParameters(TypedDict):
 	end_time_min_charge : int
 	end_time_max_charge : int
 	steps_count         : int
+
+@dataclass(init=False, repr=True)
 class VehicleConsumer(Consumer_interface):
 	id : int # Elfe_Equipement_pilote_id
 	power_watt : int
 	capacity_watt_hour : int
 	initial_charge_pourc : int
 	end_charge_pourc : int
-	def __init__(self, id, power_watt, capacity_watt_hour, initial_charge_pourc, end_charge_pourc, start_time, end_time):
+	def __init__(self, id, power_watt, capacity_watt_hour, initial_charge_pourc, end_charge_pourc, start_time, end_time, consumer_machine_type = -1):
 		self.id = id
 		self.power_watt = power_watt
 		self.capacity_watt_hour = capacity_watt_hour
@@ -28,6 +31,7 @@ class VehicleConsumer(Consumer_interface):
 		self.end_charge_pourc = end_charge_pourc
 		self.start_time = start_time
 		self.end_time = end_time #vehicle must be charged up to end_charge_pourc before the end time
+		self.consumer_machine_type = consumer_machine_type
 		self.has_base_consumption = False
 		self.is_reocurring = False
 	def _get_f_contrib(self, calculationParams : CalculationParams) -> List[float]:

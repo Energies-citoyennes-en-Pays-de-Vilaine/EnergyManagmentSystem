@@ -6,12 +6,15 @@ from solution.Calculation_Params import CalculationParams
 import numpy as np
 from typing import *
 from solution.ConsumerTypes.types.SumPeriod import SumPeriod
+from dataclasses import dataclass
+
+@dataclass(init=False, repr=True)
 class SumConsumer(Consumer_interface):
     conso_low            : float
     conso_high           : float
     sum_periods          : List[SumPeriod]
     variables_timestamps : List[int]
-    def __init__(self, id,  conso_low: float, conso_high: float, sum_periods : List[SumPeriod]):
+    def __init__(self, id,  conso_low: float, conso_high: float, sum_periods : List[SumPeriod], consumer_machine_type = -1):
         self.conso_low   = conso_low
         self.conso_high  = conso_high
         self.sum_periods = sum_periods#sum_period to assert that : expected_sum_min <=Sum(conso_high_t) <= expected_sum_max for each time period
@@ -19,6 +22,7 @@ class SumConsumer(Consumer_interface):
         self.has_base_consumption = not (conso_low == 0)
         self.id = id
         self.is_reocurring = True
+        self.consumer_machine_type = consumer_machine_type
     def _get_f_contrib(self, calculationParams : CalculationParams) -> List[float]:
         return [0 for i in range(self._get_minimizing_variables_count(calculationParams))]
     def _get_integrality(self, calculationParams : CalculationParams) -> List[int]:

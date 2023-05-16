@@ -3,11 +3,12 @@ from solution.Exceptions.ListShapeException import check_list_size
 from solution.Exceptions.SpecifiedListTypeException import *
 from solution.Exceptions.FunctionNotExistingException import *
 from solution.Calculation_Params import CalculationParams
+from dataclasses import InitVar
 import numpy as np
 class Consumer_interface():
-	has_base_consumption : bool
-	is_reocurring: bool
-	consumer_machine_type : int # must be set up by the get in database
+	has_base_consumption : InitVar[bool]
+	is_reocurring: InitVar[bool]
+	consumer_machine_type : Optional[int]
 
 	def get_f_contrib(self, calculationParams : CalculationParams) -> List[float]:
 		checkFunctionExist(self, "_get_f_contrib")

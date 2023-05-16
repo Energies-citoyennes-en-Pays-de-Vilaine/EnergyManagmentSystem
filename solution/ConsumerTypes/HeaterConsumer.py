@@ -2,9 +2,11 @@ import numpy as np
 from solution.Calculation_Params import CalculationParams
 from solution.Consumer_interface import Consumer_interface
 from typing import *
+from dataclasses import dataclass
 #TODO think about how to use it as a cooler
 #power -> Tinit -> Text
 #TODO add some strong testing that text and Twish has values for all sim_size
+@dataclass(repr=True, init=False)
 class HeaterConsumer(Consumer_interface):
     """
         temperatures are in K
@@ -17,7 +19,7 @@ class HeaterConsumer(Consumer_interface):
     R_th          : float
     C_th          : float
     P_rad         : float
-    def __init__(self, id, T_init: float, initial_state: bool, T_ext: np.ndarray, T_wish_low: np.ndarray, T_wish_high: np.ndarray, R_th: float, C_th: float, P_rad: float) -> None:
+    def __init__(self, id, T_init: float, initial_state: bool, T_ext: np.ndarray, T_wish_low: np.ndarray, T_wish_high: np.ndarray, R_th: float, C_th: float, P_rad: float, consumer_machine_type = -1) -> None:
         self.T_init        = T_init 
         self.initial_state = initial_state 
         self.T_ext         = T_ext   
@@ -27,7 +29,8 @@ class HeaterConsumer(Consumer_interface):
         self.C_th          = C_th    
         self.P_rad         = P_rad
         self.has_base_consumption = False
-        self.id = id   
+        self.id = id
+        self.consumer_machine_type = consumer_machine_type
         self.is_reocurring = True
 
     def simulate_next_step(self, calculationParams : CalculationParams, current_temp, T_ext, next_T_ext, P_th) -> float:

@@ -10,6 +10,9 @@ class Config():
 	heater_eco_sliding_percentage : int
 	heater_eco_sliding_period_s   : int
 	heater_forced_eco_active      : bool
+	log_problem_settings_active   : bool
+	log_problem_settings_path     : str
+
 
 def get_config() -> Config:
 	return Config(
@@ -19,4 +22,6 @@ def get_config() -> Config:
 		heater_eco_sliding_percentage = 25,
 		heater_eco_sliding_period_s   = HOUR_TIMESTAMP,
 		heater_forced_eco_active      = True,
+		log_problem_settings_active   = True,
+		log_problem_settings_path     = "data/run_conditions"
 	)

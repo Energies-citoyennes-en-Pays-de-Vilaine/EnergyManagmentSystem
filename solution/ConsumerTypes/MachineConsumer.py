@@ -3,15 +3,21 @@ from typing import *
 from solution.Consumer_interface import Consumer_interface
 from solution.Calculation_Params import CalculationParams
 from solution.Utils.utils import maxi, mini
-
+from dataclasses import dataclass
 from typing import TypedDict
 class _CalculatedTimeParametersMachine(TypedDict):
 	start_time          : int
 	end_time            : int
 	steps_count         : int
-
+@dataclass(repr=True, init=False)
 class MachineConsumer(Consumer_interface):
-    def __init__(self, id, profile, start_time, end_time, machine_count = 1):
+    id:int
+    profile:int
+    start_time:int
+    end_time:int
+    machine_count:int
+    consumer_machine_type:int
+    def __init__(self, id, profile, start_time, end_time, machine_count = 1, consumer_machine_type = -1):
         self.id = id
         self.profile = profile
         self.start_time = start_time
@@ -19,6 +25,7 @@ class MachineConsumer(Consumer_interface):
         self.machine_count = machine_count
         self.has_base_consumption = False
         self.is_reocurring = False
+        self.consumer_machine_type = consumer_machine_type
     def _get_f_contrib(self, calculationParams : CalculationParams) -> List[float]:
         self._make_machine_possible(calculationParams)
         return [0.0] * self.get_minimizing_variables_count(calculationParams)
