@@ -16,6 +16,7 @@ from solution.ConsumerTypes.HeaterConsumer import HeaterConsumer
 from solution.ConsumerTypes.MachineConsumer import MachineConsumer
 from solution.ConsumerTypes.SumConsumer import SumConsumer
 from solution.ConsumerTypes.VehicleConsumer import VehicleConsumer
+from logger.run_conditions_logger import log_run_conditions_to_file
 from bodge.ECS_transmitter import get_ecs_results_to_transmit
 from time import time
 from config.config import Config, get_config
@@ -31,14 +32,7 @@ if __name__ == "__main__":
 	sim_params : CalculationParams = get_calculation_params(simulation_datas)
 	consumers : List[Consumer_interface]= get_machines(timestamp) + get_ECS(timestamp) + get_electric_vehicle(timestamp)
 	if (conf.log_problem_settings_active):
-		with open(f"{conf.log_problem_settings_path}/{timestamp}_{round_start_timestamp}.py", "w") as out:
-			print(f"timestamp = {timestamp}", file=out)
-			print(f"round_start_timestamp = {round_start_timestamp}", file=out)
-			print(f"sim_params = {sim_params}", file=out)
-			print(f"consumers = [", file=out)
-			for consumer in consumers:
-				print(f"\t{consumer},", file=out)
-			print(f"]", file=out)
+		log_run_conditions_to_file(f"{conf.log_problem_settings_path}/{timestamp}_{round_start_timestamp}.py", timestamp, round_start_timestamp, sim_params, consumers)
 	problem = Problem(consumers, sim_params)
 
 	problem.prepare()
