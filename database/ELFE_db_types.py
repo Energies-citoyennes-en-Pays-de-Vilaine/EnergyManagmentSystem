@@ -41,6 +41,7 @@ class ELFE_ChauffageAsserviModeleThermique():
 	description : str
 
 
+@serializableThroughDatabase
 @dataclass(init=True, repr=True)
 class ELFE_Chauffage():
 	prog_semaine_periode_1_confort_actif       : bool
@@ -68,6 +69,8 @@ class ELFE_Chauffage():
 			if self.prog_semaine_periode_2_confort_actif == True:
 				periods.append(Period(int(midnight_date.timestamp()) + self.prog_semaine_periode_2_confort_heure_debut, int(midnight_date.timestamp()) + self.prog_semaine_periode_2_confort_heure_fin))
 		return periods
+@serializableThroughDatabase
+@dataclass(init=True, repr=True)
 class ELFE_ChauffageAsservi(ELFE_Chauffage):
 	temperature_eco                            : int
 	temperature_confort                        : int
