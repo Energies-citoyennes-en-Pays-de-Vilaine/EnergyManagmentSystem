@@ -138,12 +138,13 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 				summ = 0
 		sum_periods : List[SumPeriod] = []
 		for p in periods:
-			expected_sum : int = round((100.0 - heater.pourcentage_eco_force) / 100.0 * (count + (p.end - p .start) / calculationParams.step_size))
+			expected_ratio : int = (100.0 - heater.pourcentage_eco_force) / 100.0
+			expected_sum : int =  round( expected_ratio * (count + (p.end - p .start) / calculationParams.step_size))
 			expected_sum_left : int = expected_sum - summ
 			steps_left : int = round((p.end - p .start) / calculationParams.step_size)
 			if (expected_sum_left > steps_left):
 				print(f"something went wrong with heater {heater.equipement_pilote_ou_mesure_id} period({p}), reducing expected sum left")
-				print(f"sum {expected_sum}, left {expected_sum_left}, steps {steps_left}")
+				print(f"ratio {expected_ratio} end {p.end} start {p.start} sum {expected_sum}, left {expected_sum_left}, steps {steps_left}")
 				expected_sum_left = steps_left
 			sliding_period_steps : int = round(config.heater_eco_sliding_period_s / calculationParams.step_size)
 			sliding_period_count : int = steps_left // sliding_period_steps
