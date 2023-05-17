@@ -96,6 +96,6 @@ class SumConsumer(Consumer_interface):
         base_consumption = np.zeros((calculationParams.get_simulation_size(),))
         if self.conso_low == 0:
             return base_consumption
-        for i in self.get_variables_timestamps(calculationParams):
+        for i, timestamp in enumerate(self.get_variables_timestamps(calculationParams)):
             base_consumption[i] = self.conso_low
         return base_consumption
