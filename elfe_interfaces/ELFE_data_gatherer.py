@@ -118,7 +118,7 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 		first_period_cutted.cut(calculationParams.begin, calculationParams.end)
 		for p in periods:
 			p.cut(calculationParams.begin , calculationParams.end)
-		period_filtered : List[Period] = list(filter(lambda x : x.end - x.start > 0), periods)
+		period_filtered : List[Period] = list(filter(lambda x : x.end - x.start > 0, periods))
 		if len(periods) == 0:
 			print(f"no periods left to schedule for heater {heater.equipement_pilote_ou_mesure_id} after cutting on the simulation params")
 			continue
