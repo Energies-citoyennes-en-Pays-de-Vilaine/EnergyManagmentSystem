@@ -3,6 +3,10 @@ from dataclasses import dataclass
 
 @dataclass(init=False, repr=True)
 class SumPeriod():
+    beginning        : int
+    end              : int
+    expected_sum_min : int
+    expected_sum_max : int
     def __init__(self, beginning: int, end: int, expected_sum_min: int, expected_sum_max : Union[int, None] = None):
         self.beginning        : int = beginning
         self.end              : int = end
