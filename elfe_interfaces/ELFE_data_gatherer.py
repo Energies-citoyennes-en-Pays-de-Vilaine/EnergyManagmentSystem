@@ -130,8 +130,12 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 			   [first_period.start, heater.equipement_pilote_ou_mesure_id]
 			   )
 			heater_history_result = fetch(db_credentials["EMS"], heater_history_query)
-			count = heater_history_result[0][0]
-			summ  = heater_history_result[0][1]
+			try:
+				count = heater_history_result[0][0]
+				summ  = heater_history_result[0][1]
+			except IndexError as e:
+				count = 0
+				summ = 0
 		sum_periods : List[SumPeriod] = []
 		for p in periods:
 			expected_sum : int = round((100.0 - heater.pourcentage_eco_force) / 100.0 * (count + (p.end - p .start) / calculationParams.step_size))
