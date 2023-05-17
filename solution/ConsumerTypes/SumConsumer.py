@@ -6,14 +6,15 @@ from solution.Calculation_Params import CalculationParams
 import numpy as np
 from typing import *
 from solution.ConsumerTypes.types.SumPeriod import SumPeriod
-from dataclasses import dataclass
+from dataclasses import dataclass, InitVar
 
 @dataclass(init=False, repr=True)
 class SumConsumer(Consumer_interface):
+    id                   : int
     conso_low            : float
     conso_high           : float
     sum_periods          : List[SumPeriod]
-    variables_timestamps : List[int]
+    variables_timestamps : InitVar[List[int]]
     def __init__(self, id,  conso_low: float, conso_high: float, sum_periods : List[SumPeriod], consumer_machine_type = -1):
         self.conso_low   = conso_low
         self.conso_high  = conso_high

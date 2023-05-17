@@ -11,6 +11,7 @@ class HeaterConsumer(Consumer_interface):
     """
         temperatures are in K
     """
+    id            : int
     T_init        : float
     initial_state : bool
     T_ext         : np.ndarray #note T_ext[0] has to be the current temperature
