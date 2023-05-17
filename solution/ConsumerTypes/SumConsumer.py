@@ -96,29 +96,30 @@ class SumConsumer(Consumer_interface):
                 if self.sum_periods[j].beginning <= timestamps[i] and self.sum_periods[j].end > timestamps[i]:
                     tofill[j + ypar, i + xpar] = 1
                     period_count += 1
-            print(f"{j}: {self.sum_periods[j]}period ( {self.sum_periods[j].beginning}, {self.sum_periods[j].end}) had period count {period_count}")
             tofill[i + ypar + len(self.sum_periods), i + xpar] = 1
-        print(timestamps)
     def _get_consumption_curve(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
         consumption = self._get_base_consumption(calculationParams)
-        timestamps = calculationParams.get_time_array()
-        for i in range(len(timestamps)):
+        timestamps = self.get_variables_timestamps(calculationParams)
+        base_timestamps = calculationParams.get_time_array()
+        for i, timestamp in enumerate(timestamps):
             if variables[i] != 0.0:
-                consumption[timestamps[i]] += variables[i] * (self.conso_high - self.conso_low)
+                consumption[base_timestamps.index(timestamp)] += variables[i] * (self.conso_high - self.conso_low)
         return consumption
     
     def _get_decisions(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
         timestamps = self.get_variables_timestamps(calculationParams)
+        base_timestamps = calculationParams.get_time_array()
         decisions =  np.zeros((calculationParams.get_simulation_size(),), dtype=np.int64)
-        for i in range(len(timestamps)):
+        for i,timestamp in enumerate(timestamps):
             if variables[i] != 0.0:
-                decisions[timestamps[i]] += np.round(variables[i])
+                decisions[base_timestamps.index(timestamp)] += np.round(variables[i])
         return decisions
 
     def _get_base_consumption(self, calculationParams : CalculationParams) -> np.ndarray:
         base_consumption = np.zeros((calculationParams.get_simulation_size(),))
+        base_timestamps = calculationParams.get_time_array()
         if self.conso_low == 0:
             return base_consumption
-        for i, timestamp in enumerate(self.get_variables_timestamps(calculationParams)):
+        for i in range(len(base_timestamps)):
             base_consumption[i] = self.conso_low
         return base_consumption
