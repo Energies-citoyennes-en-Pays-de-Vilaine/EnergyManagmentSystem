@@ -90,6 +90,8 @@ class Problem():
         else:
             result = opt.milp(self.minimizing_matrix, integrality = self.integrality, bounds = opt.Bounds(lb = 0, ub = np.inf), constraints = opt.LinearConstraint(self.constraint_matrix, self.constraint_bound_low, self.constraint_bound_high), options={"time_limit": timeout})
         self.result = result.x
+        if (result.x == None):
+            print("fatal error, solver didn't work")
         self.has_results = True
         self.fun_val     = result.fun
         return result
