@@ -161,9 +161,6 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 			summ = 0
 		sum_consumer : SumConsumer = SumConsumer(heater.equipement_pilote_ou_mesure_id, heater.puissance_moyenne_eco, heater.puissance_moyenne_confort, sum_periods)
 		sum_consumers.append(sum_consumer)
-		print(periods)
-		print([p - timestamp for p in periods])
-		print(elfe_heater)
 	return sum_consumers
 
 def get_temperature_forecast(timestamp_start : int, timestamp_end : int, timestamp_list : List[int]) -> np.ndarray:
