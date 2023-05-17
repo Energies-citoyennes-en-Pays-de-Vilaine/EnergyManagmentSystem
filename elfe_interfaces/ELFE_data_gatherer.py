@@ -110,6 +110,8 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 		periods = get_merged_periods(periods)
 		periods = list(filter(lambda x : (x - timestamp).end > 0, periods))
 		periods = sorted(periods, key=lambda x : x.start)
+		for p in periods:
+			print(p - timestamp)
 		if len(periods) == 0:
 			print(f"no periods to schedule for heater {heater.equipement_pilote_ou_mesure_id}")
 			continue
