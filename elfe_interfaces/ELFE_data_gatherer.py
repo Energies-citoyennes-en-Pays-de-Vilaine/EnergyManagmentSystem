@@ -125,7 +125,7 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 		count : int = 0
 		summ : int = 0
 		if (first_period_cutted in period_filtered):
-			heater_history_query = ("SELECT COUNT(*) as c, SUM(decisions[0]) as s FROM result WHERE\
+			heater_history_query = ("SELECT COUNT(*) as c, SUM(decisions_0) as s FROM result WHERE\
 			   first_valid_timestamp > %s AND machine_id = %s GROUP BY machine_id",
 			   [first_period.start, heater.equipement_pilote_ou_mesure_id]
 			   )
