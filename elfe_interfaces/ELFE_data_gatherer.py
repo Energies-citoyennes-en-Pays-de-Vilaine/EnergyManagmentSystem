@@ -110,8 +110,6 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 		periods = get_merged_periods(periods)
 		periods = list(filter(lambda x : (x - timestamp).end > 0, periods))
 		periods = sorted(periods, key=lambda x : x.start)
-		for p in periods:
-			print(p - timestamp)
 		if len(periods) == 0:
 			print(f"no periods to schedule for heater {heater.equipement_pilote_ou_mesure_id}")
 			continue
@@ -145,6 +143,7 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 			steps_left : int = round((p.end - p .start) / calculationParams.step_size)
 			if (expected_sum_left > steps_left):
 				print(f"something went wrong with heater {heater.equipement_pilote_ou_mesure_id} period({p}), reducing expected sum left")
+				print(f"sum {expected_sum}, left {expected_sum_left}, steps {steps_left}")
 				expected_sum_left = steps_left
 			sliding_period_steps : int = round(config.heater_eco_sliding_period_s / calculationParams.step_size)
 			sliding_period_count : int = steps_left // sliding_period_steps
