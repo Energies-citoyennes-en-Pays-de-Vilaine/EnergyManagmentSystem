@@ -33,6 +33,7 @@ class SumConsumer(Consumer_interface):
         raise "not implemented yet"
 
     def _get_functionnal_constraints_boundaries(self, calculationParams : CalculationParams) -> List[List[float]]:
+        self.sum_periods = self._get_feasible_periods(calculationParams)
         bound_min = [sum_period.expected_sum_min for sum_period in self.sum_periods]#TODO add check that each sum_period is fesible to include them or not !!!!important
         bound_max = [sum_period.expected_sum_max for sum_period in self.sum_periods]
         return [bound_min[:] + [0 for i in range(self._get_minimizing_variables_count(calculationParams))], bound_max[:] + [1 for i in range(self._get_minimizing_variables_count(calculationParams))]]
@@ -53,11 +54,32 @@ class SumConsumer(Consumer_interface):
         return timestamps_used
         
     def _get_minimizing_variables_count(self, calculationParams : CalculationParams) -> int:
+        self.sum_periods = self._get_feasible_periods(calculationParams)
         return len(self.get_variables_timestamps(calculationParams))
 
     def _get_constraints_size(self, calculationParams : CalculationParams) -> int:
+        self.sum_periods = self._get_feasible_periods(calculationParams)
         return len(self.sum_periods) + len(self.get_variables_timestamps(calculationParams))
-
+    def _get_feasible_periods(self, calculationParams: CalculationParams) -> List[SumPeriod]:
+        sum_periods = []
+        for i, sum_period in enumerate(self.sum_periods):
+            if sum_period.end < sum_period.beginning:
+                print(f"{sum_period} was baddly generated, end is lower thant beginning, dropping it")
+                continue
+            start = max(sum_period.beginning, calculationParams.begin)
+            end   = min(sum_period.end, calculationParams.end)
+            min_sum = sum_period.expected_sum_min
+            max_sum = sum_period.expected_sum_max
+            if (min_sum < 0 or max_sum < 0):
+                print(f"constraint is wrong so dropping it because it expects a negative sum {sum_period}")
+                continue
+            if ((end - start) / calculationParams.step_size < min_sum):
+                min_sum = (end - start) / calculationParams.step_size
+            if (max_sum < min_sum):
+                max_sum = min_sum
+            sum_periods.append(SumPeriod(start, end, min_sum, max_sum))
+        return sum_periods
+        
     def _fill_minimizing_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpars: List[int], ypars: List[int]):
         x = xpars[0]
         y = ypars[0]
@@ -67,18 +89,19 @@ class SumConsumer(Consumer_interface):
 
     def _fill_functionnal_constraints(self, calculationParams: CalculationParams, tofill: np.ndarray, xpar: int, ypar: int):
         timestamps = self.get_variables_timestamps(calculationParams)
+        self.sum_periods = self._get_feasible_periods(calculationParams)
         for j in range(len(self.sum_periods)):
             period_count = 0
             for i in range(len(timestamps)):
                 if self.sum_periods[j].beginning <= timestamps[i] and self.sum_periods[j].end > timestamps[i]:
                     tofill[j + ypar, i + xpar] = 1
                     period_count += 1
-            print(f"period ( {self.sum_periods[j].beginning}, {self.sum_periods[j].end}) had period count {period_count}")
+            print(f"{j}: {self.sum_periods[j]}period ( {self.sum_periods[j].beginning}, {self.sum_periods[j].end}) had period count {period_count}")
             tofill[i + ypar + len(self.sum_periods), i + xpar] = 1
         print(timestamps)
     def _get_consumption_curve(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
         consumption = self._get_base_consumption(calculationParams)
-        timestamps = self.get_variables_timestamps(calculationParams)
+        timestamps = calculationParams.get_time_array()
         for i in range(len(timestamps)):
             if variables[i] != 0.0:
                 consumption[timestamps[i]] += variables[i] * (self.conso_high - self.conso_low)

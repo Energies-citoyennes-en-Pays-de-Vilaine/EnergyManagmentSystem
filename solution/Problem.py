@@ -92,6 +92,7 @@ class Problem():
         self.result = result.x
         if (result.x is None):
             print("fatal error, solver didn't work")
+            print(result)
         self.has_results = True
         self.fun_val     = result.fun
         return result

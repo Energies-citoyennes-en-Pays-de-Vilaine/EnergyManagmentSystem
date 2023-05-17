@@ -151,7 +151,7 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 			sliding_period_max : int = sliding_period_steps
 			for i in range(sliding_period_count):
 				start_time : int = i * calculationParams.step_size
-				sum_period : SumPeriod = SumPeriod(p.start + start_time, p.end + start_time, sliding_period_min, sliding_period_max)
+				sum_period : SumPeriod = SumPeriod(p.start + start_time, p.start + start_time + sliding_period_steps * calculationParams.step_size, sliding_period_min, sliding_period_max)
 				sum_periods.append(sum_period)
 			
 			sum_periods.append(SumPeriod(p.start, p.end, expected_sum_left, steps_left))
