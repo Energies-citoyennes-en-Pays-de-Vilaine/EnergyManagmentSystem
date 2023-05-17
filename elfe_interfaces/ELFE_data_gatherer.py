@@ -119,7 +119,7 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 		for p in periods:
 			p.cut(calculationParams.begin , calculationParams.end)
 		period_filtered : List[Period] = list(filter(lambda x : x.end - x.start > 0, periods))
-		if len(periods) == 0:
+		if len(period_filtered) == 0:
 			print(f"no periods left to schedule for heater {heater.equipement_pilote_ou_mesure_id} after cutting on the simulation params")
 			continue
 		count : int = 0
@@ -137,7 +137,7 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 				count = 0
 				summ = 0
 		sum_periods : List[SumPeriod] = []
-		for p in periods:
+		for p in period_filtered:
 			expected_ratio : int = (100.0 - heater.pourcentage_eco_force) / 100.0
 			expected_sum : int =  round( expected_ratio * (count + (p.end - p .start) / calculationParams.step_size))
 			expected_sum_left : int = expected_sum - summ
