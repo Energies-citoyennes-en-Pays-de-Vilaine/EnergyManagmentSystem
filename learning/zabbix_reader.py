@@ -1,11 +1,10 @@
 import requests
-from learning.data_reader_interface import DataReaderInterface
 from datetime import datetime
 import json
 import numpy as np
 import re
 import matplotlib.pyplot as plt
-class ZabbixReader(DataReaderInterface):
+class ZabbixReader():
 	url : str
 	username : str
 	password : str

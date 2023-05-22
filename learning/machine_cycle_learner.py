@@ -32,6 +32,8 @@ for item in items:
 		power_items[item] = items[item]
 i = 0
 
+#this file should be moved to the services folder for all services to be in the same place but this could be a breaking change if the service isn't correctly updated alongside
+
 for item in power_items:
 	#power_items[item] is the id
 	
@@ -83,39 +85,4 @@ for item in power_items:
 		execute_queries(db_credentials["EMS"], [
 			selected_cycle.get_update_in_table_str(MACHINE_CYCLE_NAME)
 		])
-#else:
-	#	print(item, power_items[item], 'is known')
-	#first let's append the new machines
-"""
-for item in power_items:
-	print(i, item, power_items[item])
-	current_timestamp = int(datetime.now().timestamp())
-	data = zr.readData(power_items[item], current_timestamp - 3 * 24*60*60, current_timestamp)
-	curves = make_curves([int(d) for d in data["timestamps"]], data["values"], THRESH_BEGIN, THRESH_END, 15*60, 1)
-	#plt.figure(1 + i * 2)
-	#plt.plot([int(d) for d in data["timestamps"]], data["values"])
-	if len(curves) >= 1:
-		plt.figure(1 + i * 2)
-		plt.plot([int(d) for d in data["timestamps"]], data["values"])
-		plt.plot([int(data["timestamps"][0]), int(data["timestamps"][-1])], [THRESH_BEGIN, THRESH_BEGIN])
-		plt.plot([int(data["timestamps"][0]), int(data["timestamps"][-1])], [THRESH_END,   THRESH_END])
-		fig = plt.figure(2 + i * 2)
-		(plots) = fig.subplots(len(curves))
-		if (len(curves) ==  1):
-			plots = [plots]
-		for current_curve_index in range(len(curves)):
-			curve = curves[current_curve_index]
-			delta = curve.delta_T 
-			out_times = [[i * delta, (i + 1) * delta] for i in range(len(curve.points))]
-			out_merged = []
-			for out in out_times:
-				out_merged += out
-			points = []
-			for point in curve.points:
-				points.append(point)
-				points.append(point)
-			plots[current_curve_index].plot(out_merged, points)
-			plots[current_curve_index].plot([i - curve.timestamp for i in curve.origin_timestamp], curve.origin_points)
-	i = i + 1	
-plt.show()
-"""
+
