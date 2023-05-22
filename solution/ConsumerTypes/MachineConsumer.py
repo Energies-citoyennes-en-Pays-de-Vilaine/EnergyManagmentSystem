@@ -32,21 +32,6 @@ class MachineConsumer(Consumer_interface):
     def _get_integrality(self, calculationParams : CalculationParams) -> List[int]:
         self._make_machine_possible(calculationParams)
         return [1] * self.get_minimizing_variables_count(calculationParams)
-    def _get_minimizing_constraints(self, calculationParams : CalculationParams) -> List[np.ndarray]:
-        #better mecanism may be thought about in the future
-        #DO NOT USE UNTIL THIS MESSAGE DISAPEAR
-        self._make_machine_possible(calculationParams)
-        sim_size = calculationParams.get_simulation_size()
-        first_constraint = np.zeros((sim_size, self._get_minimizing_variables_count(calculationParams)))
-        start_time = maxi(self.start_time, calculationParams.begin)
-        start_step = int(round((start_time - calculationParams.begin) / calculationParams.step_size))
-        for i in range(self._get_minimizing_variables_count):
-            for j in range(len(self.profile)):
-                first_constraint[start_step + i + j][i] = self.profile[j]
-        return [first_constraint]# has to be modified for tests
-    def _get_functionnal_constraints(self, calculationParams : CalculationParams) -> np.ndarray:
-        self._make_machine_possible(calculationParams)
-        return np.ones((1, self._get_constraints_size(calculationParams)))
     def _get_functionnal_constraints_boundaries(self, calculationParams : CalculationParams) -> List[List[List[float]]]:
         self._make_machine_possible(calculationParams)
         return [[self.machine_count], [self.machine_count]]

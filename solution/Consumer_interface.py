@@ -23,14 +23,22 @@ class Consumer_interface():
 		return integrality
 
 	def get_minimizing_constraints(self, calculationParams : CalculationParams) -> List[np.ndarray]:
-		checkFunctionExist(self, "_get_minimizing_constraints")
-		minimizing_constraints = self._get_minimizing_constraints(calculationParams)
+		matrices_to_return : List[np.ndarray] = [] #TODO add a mecanism to identify the others if v2 is required
+		height = calculationParams.get_simulation_size()
+		width = self.get_constraints_size(calculationParams)
+		matrices_to_return.append(np.zeros((height, width)))
+		#zeros is height, width
+		self.fill_minimizing_constraints(calculationParams, matrices_to_return[0], [0], [0])
+		minimizing_constraints = matrices_to_return
 		check_for_specified_list_type_exception(minimizing_constraints, np.ndarray)
 		return minimizing_constraints
 
 	def get_functionnal_constraints(self, calculationParams : CalculationParams) -> np.ndarray:
-		checkFunctionExist(self, "_get_functionnal_constraints")
-		functionnal_constraints = self._get_functionnal_constraints(calculationParams)
+		checkFunctionExist(self, "_fill_functionnal_constraints")
+		width = self.get_minimizing_variables_count(calculationParams)
+		height = self.get_constraints_size(calculationParams)
+		to_fill = np.zeros((height, width))
+		functionnal_constraints = self.fill_functionnal_constraints(calculationParams, to_fill, 0, 0)
 		check_for_specified_numpy_array_type_exception(functionnal_constraints, np.float64)
 		return functionnal_constraints
 	

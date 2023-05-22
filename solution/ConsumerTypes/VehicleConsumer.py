@@ -40,14 +40,7 @@ class VehicleConsumer(Consumer_interface):
 	def _get_integrality(self, calculationParams : CalculationParams) -> List[int]:
 		self._make_machine_possible(calculationParams)
 		return [1] * self.get_minimizing_variables_count(calculationParams)
-	def _get_minimizing_constraints(self, calculationParams : CalculationParams) -> List[np.ndarray]:
-		#better mecanism may be thought about in the future
-		#DO NOT USE UNTIL THIS MESSAGE DISAPEAR
-		self._make_machine_possible(calculationParams)
-		raise NotImplementedError()
-	def _get_functionnal_constraints(self, calculationParams : CalculationParams) -> np.ndarray:
-		self._make_machine_possible(calculationParams)
-		return np.ones((1, self._get_constraints_size(calculationParams)))
+		
 	def _get_functionnal_constraints_boundaries(self, calculationParams : CalculationParams) -> List[List[List[float]]]:
 		self._make_machine_possible(calculationParams)
 		return [[1], [1]]

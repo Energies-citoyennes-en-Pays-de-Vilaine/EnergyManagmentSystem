@@ -28,10 +28,7 @@ class SumConsumer(Consumer_interface):
         return [0 for i in range(self._get_minimizing_variables_count(calculationParams))]
     def _get_integrality(self, calculationParams : CalculationParams) -> List[int]:
         return [1 for i in range(self._get_minimizing_variables_count(calculationParams))]
-    def _get_minimizing_constraints(self, calculationParams : CalculationParams) -> List[np.ndarray]:
-        raise "not implemented yet"
-    def _get_functionnal_constraints(self, calculationParams : CalculationParams) -> np.ndarray:
-        raise "not implemented yet"
+
 
     def _get_functionnal_constraints_boundaries(self, calculationParams : CalculationParams) -> List[List[float]]:
         self.sum_periods = self._get_feasible_periods(calculationParams)

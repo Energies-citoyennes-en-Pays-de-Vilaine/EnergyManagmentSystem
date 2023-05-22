@@ -47,10 +47,6 @@ class HeaterConsumer(Consumer_interface):
     def _get_integrality(self, calculationParams : CalculationParams) -> List[int]:
         return [1 for i in range(calculationParams.get_simulation_size())] + [0] + [0 for i in range(calculationParams.get_simulation_size())]
     
-    def _get_minimizing_constraints(self, calculationParams : CalculationParams) -> List[np.ndarray]:
-        raise "not implemented yet"
-    def _get_functionnal_constraints(self, calculationParams : CalculationParams) -> np.ndarray:
-        raise "not implemented yet"
     def _get_functionnal_constraints_boundaries(self, calculationParams : CalculationParams) -> List[List[float]]:
         #start with Power constraints
         #form : - Prad(i) + a2 Tin(i) + a1 Tin(i + 1)  == a2 Text(i) + a1 Text(i + 1)
