@@ -11,6 +11,7 @@ HAS_TO_GRANT_PERMISSIONS=0
 HAS_TO_INSTALL_MILP=0
 HAS_TO_CREATE_SERVICES=1
 HAS_TO_INSTALL_PREDICTION_HISTORIZER=1
+HAS_TO_DROP_DATABASE=0
 
 EMS_DB="test"
 EMS_USER="testu"
@@ -97,8 +98,12 @@ if [ "$HAS_TO_INSTALL_POSTGRES" -ne 0 ] || [ "$HAS_TO_CREATE_DATABASE" -ne 0 ]
 	then
 	#cleanup
 	echo "creating database"
-	su - postgres -c "psql -c \"DROP DATABASE $EMS_DB;\""
-	su - postgres -c "psql -c \"DROP USER $EMS_USER;\""
+	if [ "$HAS_TO_DROP_DATABASE" -ne 0 ]
+	then
+		echo "dropping database"
+		su - postgres -c "psql -c \"DROP DATABASE $EMS_DB;\""
+		su - postgres -c "psql -c \"DROP USER $EMS_USER;\""
+	fi
 
 	POSTGRES_PASSWORD="$(LC_ALL=C tr -dc '[:alnum:]' < /dev/urandom | head -c20)"
 	echo "setting encryption method for password as postgres-s default is really bad"
@@ -144,6 +149,11 @@ if [ "$HAS_TO_INSTALL_POSTGRES" -ne 0 ] || [ "$HAS_TO_CREATE_DATABASE" -ne 0 ]
 	python -m database.EMS_db_creator
 	echo "creating tables for EMS output database"
 	python -m database.EMS_OUT_db_creator
+	if [ "$HAS_TO_INSTALL_PREDICTION_HISTORIZER" -ne 0 ]
+	then
+		echo "creating history database"
+		python -m database.history_db_creator
+	fi
 	if [ "$HAS_TO_GRANT_PERMISSIONS" -ne 0 ]
 		then
 		echo "granting select permission to $COMMAND_USER on table $EMS_RESULT_TABLE"

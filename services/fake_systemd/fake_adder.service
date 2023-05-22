@@ -4,8 +4,8 @@ Wants=fake_adder.timer
 
 [Service]
 Type=oneshot
-Environment=BASHRCPATH= EMSFOLDER=
-ExecStart=/usr/bin/bash -c 'source "$BASHRCPATH"; cd "$EMSFOLDER"; conda activate milp; python -m services.fake_adder'
+EnvironmentFile=/etc/ems/EMS_systemd_config.txt
+ExecStart=/usr/bin/bash -c 'source "$BASHRCPATH"; cd "$EMSFOLDER"; conda activate milp; python -m services.fake_services.fake_adder'
 
 [Install]
 WantedBy=multi-user.target                         
