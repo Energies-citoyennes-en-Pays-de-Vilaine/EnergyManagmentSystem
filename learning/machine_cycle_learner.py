@@ -32,7 +32,7 @@ for item in items:
 		power_items[item] = items[item]
 i = 0
 
-#this file should be moved to the services folder for all services to be in the same place but this could be a breaking change if the service isn't correctly updated alongside
+#TODO: this file should be moved to the services folder for all services to be in the same place but this could be a breaking change if the service isn't correctly updated alongside
 
 for item in power_items:
 	#power_items[item] is the id

@@ -5,7 +5,7 @@ from credentials.db_credentials import db_credentials
 from credentials.zabbix_credentials import zabbix_credentials
 from datetime import datetime
 from learning.curve import get_full_curve_snapped
-from learning.persistance import persistance_prediction
+from predict.persistance import persistance_prediction
 import matplotlib.pyplot as plt
 
 CURVE_KEY        = "Equilibre General P=C bis"

@@ -6,7 +6,7 @@ from credentials.db_credentials import db_credentials
 from credentials.zabbix_credentials import zabbix_credentials
 from datetime import datetime
 from learning.curve import get_full_curve_snapped
-from learning.persistance import persistance_prediction
+from predict.persistance import persistance_prediction
 import matplotlib.pyplot as plt
 
 
@@ -41,4 +41,3 @@ for i in range(len(prediction)):
 execute_queries(db_credentials["EMS"], data_to_post_to_database)
 print(current_timestamp)
 
-#penser !! Roman => mardi yves

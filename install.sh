@@ -6,14 +6,21 @@ HAS_TO_INSTALL_ANACONDA=0
 HAS_TO_UPDATE=0
 HAS_TO_INSTALL_POSTGRES=0
 HAS_TO_CREATE_DATABASE=1
-HAS_TO_CREATE_OUT_DATABASE=1
-HAS_TO_GRANT_PERMISSIONS=1
+HAS_TO_CREATE_OUT_DATABASE=0
+HAS_TO_GRANT_PERMISSIONS=0
 HAS_TO_INSTALL_MILP=0
-HAS_TO_CREATE_SERVICES=0
+HAS_TO_CREATE_SERVICES=1
+HAS_TO_INSTALL_PREDICTION_HISTORIZER=1
 
 EMS_DB="test"
 EMS_USER="testu"
 EMS_DB_CONFIG_FILENAME="db_credentials.py"
+
+EMS_HISTO_PASS="0"
+#if EMS_HISTO_PASS is exactly '0', then it will be changed
+EMS_HISTO_USER="$EMS_USER"
+EMS_HISTO_HOST="localhost"
+EMS_HISTO_DB="$EMS_DB"
 
 ELFE_OUT_PASS="pass"
 ELFE_OUT_USER="testeu"
@@ -113,7 +120,19 @@ if [ "$HAS_TO_INSTALL_POSTGRES" -ne 0 ] || [ "$HAS_TO_CREATE_DATABASE" -ne 0 ]
 	sed -i "s/myOutSuperDatabase/$ELFE_OUT_DB/g" "$EMSFOLDER/credentials/$EMS_DB_CONFIG_FILENAME"
 	sed -i "s/myOutSuperUser/$ELFE_OUT_USER/g" "$EMSFOLDER/credentials/$EMS_DB_CONFIG_FILENAME"
 	sed -i "s/myOutSuperPassword/$ELFE_OUT_PASS/g" "$EMSFOLDER/credentials/$EMS_DB_CONFIG_FILENAME"
-
+	if [ "$HAS_TO_INSTALL_PREDICTION_HISTORIZER" -ne 0 ]
+	then
+		echo "setting up EMS config for EMS historizer database"
+		if [ "$EMS_HISTO_PASS" = "0" ]
+		then
+			echo "using newly generated elfe password"
+			EMS_HISTO_PASS="$POSTGRES_PASSWORD"
+		fi
+		sed -i "s/myHistoSuperHost/$EMS_HISTO_HOST/g" "$EMSFOLDER/credentials/$EMS_DB_CONFIG_FILENAME"
+		sed -i "s/myHistoSuperDatabase/$EMS_HISTO_DB/g" "$EMSFOLDER/credentials/$EMS_DB_CONFIG_FILENAME"
+		sed -i "s/myHistoSuperUser/$EMS_HISTO_USER/g" "$EMSFOLDER/credentials/$EMS_DB_CONFIG_FILENAME"
+		sed -i "s/myHistoSuperPassword/$EMS_HISTO_PASS/g" "$EMSFOLDER/credentials/$EMS_DB_CONFIG_FILENAME"
+	fi
 	echo "setting up EMS config for ELFE database"
 	sed -i "s/myELFESuperHost/$ELFE_OUT_HOST/g" "$EMSFOLDER/credentials/$EMS_DB_CONFIG_FILENAME"
 	sed -i "s/myELFESuperDatabase/$ELFE_DB/g" "$EMSFOLDER/credentials/$EMS_DB_CONFIG_FILENAME"
@@ -165,4 +184,9 @@ if [ "$HAS_TO_CREATE_SERVICES" -ne 0 ]
 	systemctl enable user_temp.timer
 	echo "installing meteo concept service"
 	systemctl enable Meteo_concept.timer
+	if [ "$HAS_TO_INSTALL_PREDICTION_HISTORIZER" -ne 0 ]
+	then
+		echo "installing the power prediction historizer service"
+		systemctl enable prediction_historizer.service
+	fi
 fi

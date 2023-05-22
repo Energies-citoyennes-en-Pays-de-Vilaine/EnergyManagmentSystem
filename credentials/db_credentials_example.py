@@ -13,10 +13,10 @@ db_credentials = {
         "options"  : "myELFESuperOptions",
 	},
 	"EMS_HISTO" : {
-    	"host"     : "mySuperHost",
-		"database" : "mySuperDatabase",
-		"user"     : "mySuperUser",
-		"password" : "mySuperPassword",
+    	"host"     : "myHistoSuperHost",
+		"database" : "myHistoSuperDatabase",
+		"user"     : "myHistoSuperUser",
+		"password" : "myHistoSuperPassword",
 	},
 	"EMS_SORTIE" : {
 		"host"     : "myOutSuperHost",
