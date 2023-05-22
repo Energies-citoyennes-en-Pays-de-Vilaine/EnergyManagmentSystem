@@ -15,8 +15,26 @@ class Curve():
 		self.origin_timestamp = origin_timestamp
 		self.timestamp = timestamp
 	def cut_last_points(self, count):
-		return Curve(self.delta_T, np.array(self.points[:-count]), self.origin_points, self.origin_timestamp, self.timestamp)
-
+		origin_points = []
+		origin_timestamps = []
+		for i in range(len(self.origin_points)):
+			if (self.origin_timestamp[i] >= self.timestamp and self.origin_timestamp[i] <  self.timestamp + (len(self.points) - count + 1) * self.delta_T):
+				origin_points.append(self.origin_points[i])
+				origin_timestamps.append(self.origin_timestamp[i])
+		return Curve(self.delta_T, np.array(self.points[:-count]), np.array(origin_points), np.array(origin_timestamps), self.timestamp)
+	def plot_curve(self, fig : plt.figure, full=False):
+		if fig == None:
+			fig = plt
+		timestamps = []
+		values = []
+		for i in range(len(self.points)):
+			timestamps.append(self.timestamp + i * self.delta_T)
+			timestamps.append(self.timestamp + (i + 1) * self.delta_T)
+			values.append(self.points[i])
+			values.append(self.points[i])
+		fig.plot(timestamps, values)
+		if full is True:
+			fig.plot(self.origin_timestamp, self.origin_points)
 def get_full_curve(times: List[int], data: List[int], period : int, base_index : int):
 	#we assume the list is ordered by time ascending
 	current_list = []
@@ -88,7 +106,7 @@ def get_curve_starting_at(index, times : List[int], data : List[float], threshol
 		else:
 			count_period = 0
 		if (count_period > required_low_period_count):
-			return Curve(period, curve[:i + 1], data[index:], times[index:], times[index])
+			return Curve(period, curve[:i], data[index:], times[index:], times[index])
 	return None
 
 def fetch_past_time(times, time, index) -> Union[int, None]:

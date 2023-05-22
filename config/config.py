@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 HOUR_TIMESTAMP = 60*60
-
 @dataclass(init= True, repr=True)
 class Config():
 	delta_time_simulation_s       : int
@@ -25,3 +24,13 @@ def get_config() -> Config:
 		log_problem_settings_active   = True,
 		log_problem_settings_path     = "data/run_conditions"
 	)
+@dataclass(init=True, repr=True)
+class MachineLearnerConfig():
+	default_thresh_begin    : int = 40
+	default_thresh_end      : int = 40
+	default_period          : int = 15*60
+	default_period_count    : int = 1
+	delta_time_acquisition  : int = 3 * 24 * 60 * 60
+	machine_table_name      : str = "machine"
+	machine_cycle_name      : str = "cycle"
+	machine_cycle_data_name : str = "cycledata"

@@ -6,6 +6,7 @@ from database.EMS_db_types import EMSCycle, EMSCycleData, EMSMachineData
 from database.query import fetch, execute_queries
 from learning.curve import Curve, make_curves
 from datetime import datetime
+from config.config import MachineLearnerConfig
 import shutil
 import matplotlib.pyplot as plt
 zr = ZabbixReader("http://mqtt.projet-elfe.fr/api_jsonrpc.php", zabbix_credentials["username"], zabbix_credentials["password"])
@@ -15,13 +16,15 @@ items = {}
 for tag in tags:
 	items = {**items, **zr.get_items_by_tag(tag)}
 power_items = {}
-DEFAULT_THRESH_BEGIN = 40
-DEFAULT_THRESH_END   = 40
-DEFAULT_PERIOD       = 15*60
-DEFAULT_PERIOD_COUNT = 1
-MACHINE_TABLE_NAME = "machine"
-MACHINE_CYCLE_NAME = "cycle"
-MACHINE_CYCLE_DATA_NAME = "cycledata"
+config : MachineLearnerConfig = MachineLearnerConfig()
+DEFAULT_THRESH_BEGIN = config.default_thresh_begin
+DEFAULT_THRESH_END   = config.default_thresh_end
+DEFAULT_PERIOD       = config.default_period
+DEFAULT_PERIOD_COUNT = config.default_period_count
+DELTA_TIME_ACQUISITION = config.delta_time_acquisition
+MACHINE_TABLE_NAME = config.machine_table_name
+MACHINE_CYCLE_NAME = config.machine_cycle_name
+MACHINE_CYCLE_DATA_NAME = config.machine_cycle_data_name
 known_machines = fetch(db_credentials["EMS"], "SELECT * FROM machine")
 known_machines = [EMSMachineData.create_from_select_output(machine) for machine in known_machines]
 for item in items:
@@ -56,7 +59,7 @@ for item in power_items:
 	selected_cycle_data : EMSCycleData = EMSCycleData.create_from_select_output(cycle_data[0])
 	#gathers data :
 	current_timestamp = int(datetime.now().timestamp())
-	data = zr.readData(power_items[item], current_timestamp - 3 * 24*60*60, current_timestamp)
+	data = zr.readData(power_items[item], current_timestamp - DELTA_TIME_ACQUISITION, current_timestamp)
 	curves = make_curves([int(d) for d in data["timestamps"]], data["values"], current_machine.threshold_begin, current_machine.threshold_end, current_machine.period, current_machine.period_count)
 	if (len(curves) < 1):
 		continue
