@@ -37,8 +37,8 @@ class Consumer_interface():
 		checkFunctionExist(self, "_fill_functionnal_constraints")
 		width = self.get_minimizing_variables_count(calculationParams)
 		height = self.get_constraints_size(calculationParams)
-		to_fill = np.zeros((height, width))
-		functionnal_constraints = self.fill_functionnal_constraints(calculationParams, to_fill, 0, 0)
+		functionnal_constraints = np.zeros((height, width))
+		self.fill_functionnal_constraints(calculationParams, functionnal_constraints, 0, 0)
 		check_for_specified_numpy_array_type_exception(functionnal_constraints, np.float64)
 		return functionnal_constraints
 	
