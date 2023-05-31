@@ -31,7 +31,7 @@ def plot_bounds_for_machine(figure, machine : EMSMachineData, timestamps):
 if __name__ == "__main__":
 	current_timestamp = int(datetime.now().timestamp())
 	current_machine = None
-	if (len(argv) < 3):
+	if (len(argv) < 2):
 		known_machines = fetch(db_credentials["EMS"], ("SELECT * FROM machine WHERE machine.id_machine_elfe=%s", [int(argv[1])]))
 		known_machines = [EMSMachineData.create_from_select_output(machine) for machine in known_machines]
 		if len(known_machines) != 0:
