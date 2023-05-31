@@ -54,12 +54,13 @@ if __name__ == "__main__":
 	if PLOT_GRID is True:
 		print("test0")
 		plot_bounds_for_machine(plt, current_machine, [int(d) for d in data["timestamps"]])
-	(figure, axes) = plt.subplots(len(curves), 1)
-	figure.canvas.manager.set_window_title("acquired curve by first timestamp")
-	if len(curves) == 1:
-		axes = [axes]
-	for i in range(len(curves)):
-		curves[i].plot_curve(axes[i], True)
-		if PLOT_GRID is True:
-			plot_bounds_for_machine(axes[i], current_machine, curves[i].origin_timestamp.tolist())
+	if (len(curves) != 0):
+		(figure, axes) = plt.subplots(len(curves), 1)
+		figure.canvas.manager.set_window_title("acquired curve by first timestamp")
+		if len(curves) == 1:
+			axes = [axes]
+		for i in range(len(curves)):
+			curves[i].plot_curve(axes[i], True)
+			if PLOT_GRID is True:
+				plot_bounds_for_machine(axes[i], current_machine, curves[i].origin_timestamp.tolist())
 	plt.show()
