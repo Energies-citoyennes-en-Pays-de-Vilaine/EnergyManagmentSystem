@@ -31,13 +31,12 @@ def plot_bounds_for_machine(figure, machine : EMSMachineData, timestamps):
 if __name__ == "__main__":
 	current_timestamp = int(datetime.now().timestamp())
 	current_machine = None
-	"""if (len(argv) < 2):
+	if (len(argv) < 3):
 		known_machines = fetch(db_credentials["EMS"], ("SELECT * FROM machine WHERE machine.id_machine_elfe=%s", [int(argv[1])]))
 		known_machines = [EMSMachineData.create_from_select_output(machine) for machine in known_machines]
 		if len(known_machines) != 0:
 			current_machine = known_machines[0]
-	else:"""
-	if 1:
+	if current_machine == None:
 		machine_learner_config = MachineLearnerConfig()
 		threshold_begin = machine_learner_config.default_thresh_begin if len(argv) < 3 else int(argv[2])
 		threshold_end   = machine_learner_config.default_thresh_end   if len(argv) < 4 else int(argv[3])
