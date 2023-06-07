@@ -30,15 +30,46 @@ if __name__ == "__main__":
 	round_start_timestamp = get_round_timestamp()
 	simulation_datas = get_simulation_datas()
 	sim_params : CalculationParams = get_calculation_params(simulation_datas)
-	consumers : List[Consumer_interface]= get_machines(timestamp) + get_ECS(timestamp) + get_electric_vehicle(timestamp) + get_heater_consumer(timestamp, sim_params) + get_sum_consumer(timestamp, sim_params)
-	if (conf.log_problem_settings_active):
-		log_run_conditions_to_file(f"{conf.log_problem_settings_path}/{timestamp}_{round_start_timestamp}.py", timestamp, round_start_timestamp, sim_params, consumers)
-	problem = Problem(consumers, sim_params)
-
-	problem.prepare()
-	t1 = time()
-	problem.solve(conf.max_time_to_solve_s)
-	t2 = time()
+	machines_consumers : List[Consumer_interface] = []
+	ecs_consumers : List[Consumer_interface] = []
+	electric_vehicle_consumers : List[Consumer_interface] = []
+	heater_consumers : List[Consumer_interface] = []
+	sum_consumers : List[Consumer_interface] = []
+	try:
+		machines_consumers = get_machines(timestamp)
+	except Exception as e:
+		print(e)
+	try:
+		ecs_consumers = get_ECS(timestamp)
+	except Exception as e:
+		print(e)
+	try:
+		electric_vehicle_consumers = get_electric_vehicle(timestamp)
+	except Exception as e:
+		print(e)
+	try:
+		heater_consumers = get_heater_consumer(timestamp, sim_params)
+	except Exception as e:
+		print(e)
+	try:
+		sum_consumers = get_sum_consumer(timestamp, sim_params)
+	except Exception as e:
+		print(e)
+	consumer_types = [machines_consumers, ecs_consumers, electric_vehicle_consumers, heater_consumers, sum_consumers]
+	for i in range(len(consumer_types)):
+		consumers : List[Consumer_interface] = []
+		for j in range(len(consumer_types) - i):
+			consumers += consumer_types[j]
+		if (conf.log_problem_settings_active):
+			log_run_conditions_to_file(f"{conf.log_problem_settings_path}/{timestamp}_{round_start_timestamp}_{i}.py", timestamp, round_start_timestamp, sim_params, consumers)
+		problem = Problem(consumers, sim_params)
+		problem.prepare()
+		t1 = time()
+		res = problem.solve(conf.max_time_to_solve_s)
+		t2 = time()
+		if (res.success == True):
+			break
+		print(f"could not solve all consumers, retrying with less consumer types {i}")
 	run_time_ms = int(1000 * (t2 - t1))
 	decisions = problem.get_decisions()
 	results = []
