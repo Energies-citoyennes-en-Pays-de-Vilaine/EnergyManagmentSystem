@@ -43,7 +43,7 @@ def get_machines(timestamp) -> List[MachineConsumer]:
 		cycle_duration = DELTA_SIMULATION * len(cycle_data)
 		end_time = max( DELTA_SIMULATION + cycle_duration + timestamp, machine.end_timestamp)
 		start_time = machine.end_timestamp - machine.max_delay - cycle_duration
-		machine_consumer = MachineConsumer(machine.Id, cycle_data, start_time, end_time, 1, machine.equipment_type)
+		machine_consumer = MachineConsumer(id=machine.Id, profile = cycle_data, start_time = start_time, end_time = end_time, machine_count = 1, consumer_machine_type = machine.equipment_type)
 		machine_consumer.consumer_machine_type = machine.equipment_type
 		to_return.append(machine_consumer)
 	return to_return

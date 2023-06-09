@@ -26,6 +26,7 @@ def get_machines_to_schedule(credentials) -> List[MachineToScheduleType]:
 			),  [MODE_PILOTE])
 	result = fetch(credentials, query)
 	result_typed : List[MachineToScheduleType] = [MachineToScheduleType(r[0], r[1], r[2], r[3], r[4], r[5]) for r in result]
+	print("[debug info machine]", result_typed)
 	return result_typed
 @dataclass
 class ECSToScheduleType():
@@ -60,6 +61,7 @@ def get_ECS_to_schedule(credentials, timestamp, ECS_not_to_schedule: Union[List[
 			biggest_period_ecs[ecs.Id] = ecs
 		elif (ecs.end - ecs.start > biggest_period_ecs[ecs.Id].end - biggest_period_ecs[ecs.Id].start):
 			biggest_period_ecs[ecs.Id] = ecs
+	print("[debug info ECS]", biggest_period_ecs)
 	return biggest_period_ecs
 
 @dataclass
@@ -92,6 +94,7 @@ def get_electric_vehicle_to_schedule(credentials, vehicle_not_to_schedule : Unio
 	for r in result:
 		if vehicle_not_to_schedule == None or r[0] not in vehicle_not_to_schedule:
 			result_typed.append(ElectricVehicleToScheduleType(r[0], r[1], r[2], r[3], r[4], r[5], r[6]))
+	print("[debug info Electric vehicle]", result_typed)
 	return result_typed
 
 def get_elfe_not_piloted_heater(credentials) -> List[ELFE_ChauffageNonAsservi]:
@@ -110,4 +113,5 @@ def get_elfe_not_piloted_heater(credentials) -> List[ELFE_ChauffageNonAsservi]:
 		return []
 	for r in result:
 		to_return.append(ELFE_ChauffageNonAsservi.create_from_select_output(r))
+	print("[debug info chauffage non asservi]", to_return)
 	return to_return
