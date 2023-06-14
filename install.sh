@@ -1,5 +1,6 @@
 #!/bin/bash
-
+{
+set -e
 CONFIG_FILENAME="EMS_systemd_config.txt"
 CONFIG_FOLDER="/etc/ems"
 HAS_TO_INSTALL_ANACONDA=0
@@ -10,7 +11,7 @@ HAS_TO_CREATE_OUT_DATABASE=0
 HAS_TO_GRANT_PERMISSIONS=0
 HAS_TO_INSTALL_MILP=0
 HAS_TO_CREATE_SERVICES=1
-HAS_TO_INSTALL_PREDICTION_HISTORIZER=1
+HAS_TO_INSTALL_PREDICTION_HISTORIZER=0
 HAS_TO_DROP_DATABASE=0
 
 EMS_DB="test"
@@ -80,7 +81,9 @@ conda activate milp
 if [ "$HAS_TO_INSTALL_POSTGRES" -ne 0 ]
 	then
 	echo "installing postgresql"
-	apt install postgresql
+	apt install -y postgresql
+	echo "starting postgres"
+	pg_ctlcluster 13 main start
 fi
 
 if [ "$HAS_TO_CREATE_OUT_DATABASE" -ne 0 ]
@@ -200,3 +203,4 @@ if [ "$HAS_TO_CREATE_SERVICES" -ne 0 ]
 		systemctl enable prediction_historizer.service
 	fi
 fi
+} 2>&1 | tee install.log
