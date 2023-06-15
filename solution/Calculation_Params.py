@@ -15,6 +15,16 @@ class CalculationParams():
 		self.end = end #end is always included in the simulation; this may be important for later
 		self.step_size = step_size
 		self.time_delta = time_delta
+		self.check()
+	def check(self, werror = True) -> bool:
+		if (self.get_simulation_size() != len(self.base_minimization_constraints[0])):
+			print("[\u001b[31merror\u001b[0m]: wrong size for calculationParams, constraint size:", len(self.base_minimization_constraints[0]), "expected to be", self.get_simulation_size() )
+			return False
+		if (self.time_delta != self.step_size):
+			print("[\u001b[35;1mwarning\u001b[0m]: different step_size isn't fully supported yet, use with utmost care")
+			if werror:
+				return False
+		return True
 	def get_simulation_size(self) -> int:
 		result = (self.end - self.begin) / self.step_size
 		return int(result) + 1

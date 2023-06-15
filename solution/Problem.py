@@ -83,6 +83,8 @@ class Problem():
     def solve(self, timeout: int = 100, has_solver : bool = False, force : bool = False):
         if self.has_results and not force:
             return
+        if not self.calculationParams.check():
+            return
         if not self.is_ready_to_run:
             self.prepare()
         if has_solver:
