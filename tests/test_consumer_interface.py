@@ -3,7 +3,7 @@ import numpy as np
 from solution.Consumer_interface import *
 from solution.Calculation_Params import CalculationParams
 from solution.Exceptions.ListShapeException import ListShapeException
-basic_calculation_params = CalculationParams(0, 5, 1, 1, [0 for i in range(6)])
+basic_calculation_params = CalculationParams(0, 5, 1, 1, [[0 for i in range(6)]])
 basic_vars = [1.0, 2.0, 3.0]
 class Consumer_No_implemented_Methods(Consumer_interface):
 	pass
