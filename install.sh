@@ -185,22 +185,37 @@ if [ "$HAS_TO_CREATE_SERVICES" -ne 0 ]
 	echo "installing services"
 	echo "installing ECS acquisition service"
 	systemctl enable ECS_acquisition.timer
+	systemctl start ECS_acquisition.timer
+
 	echo "installing EMS launcher service"
 	systemctl enable EMS_launcher.timer
+	systemctl start EMS_launcher.timer
+
 	echo "installing learning cleaner service"
 	systemctl enable learning_cleaner.timer
+	systemctl start learning_cleaner.timer
+
 	echo "installing machine cycle learner service"
 	systemctl enable machine_cycle_learner.timer
+	systemctl start machine_cycle_learner.timer
+
 	echo "installing power prediction service"
 	systemctl enable power_prediction.timer
+	systemctl start power_prediction.timer
+
 	echo "installing user temp service"
 	systemctl enable user_temp.timer
+	systemctl start user_temp.timer
+
 	echo "installing meteo concept service"
 	systemctl enable Meteo_concept.timer
+	systemctl start Meteo_concept.timer
+
 	if [ "$HAS_TO_INSTALL_PREDICTION_HISTORIZER" -ne 0 ]
 	then
 		echo "installing the power prediction historizer service"
 		systemctl enable prediction_historizer.service
+		systemctl start prediction_historizer.service
 	fi
 fi
 } 2>&1 | tee install.log
