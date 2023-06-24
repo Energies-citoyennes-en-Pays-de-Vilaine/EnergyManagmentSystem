@@ -57,19 +57,24 @@ if __name__ == "__main__":
 		print(e)
 	consumer_types = [machines_consumers, ecs_consumers, electric_vehicle_consumers, heater_consumers, sum_consumers]
 	for i in range(len(consumer_types)):
-		consumers : List[Consumer_interface] = []
-		for j in range(len(consumer_types) - i):
-			consumers += consumer_types[j]
-		if (conf.log_problem_settings_active):
-			log_run_conditions_to_file(f"{conf.log_problem_settings_path}/{timestamp}_{round_start_timestamp}_{i}.py", timestamp, round_start_timestamp, sim_params, consumers)
-		problem = Problem(consumers, sim_params)
-		problem.prepare()
-		t1 = time()
-		res = problem.solve(conf.max_time_to_solve_s)
-		t2 = time()
-		if (res.success == True):
-			break
-		print(f"could not solve all consumers, retrying with less consumer types {i}")
+		try:
+			consumers : List[Consumer_interface] = []
+			for j in range(len(consumer_types) - i):
+				consumers += consumer_types[j]
+			if (conf.log_problem_settings_active):
+				log_run_conditions_to_file(f"{conf.log_problem_settings_path}/{timestamp}_{round_start_timestamp}_{i}.py", timestamp, round_start_timestamp, sim_params, consumers)
+			problem = Problem(consumers, sim_params)
+			problem.prepare()
+			t1 = time()
+			res = problem.solve(conf.max_time_to_solve_s)
+			t2 = time()
+			if (res.success == True):
+				break
+			print(f"could not solve all consumers, retrying with less consumer types {i}")
+		except Exception as e:
+			print("an error occured, retrying with less consumers")
+			print(e)
+
 	run_time_ms = int(1000 * (t2 - t1))
 	decisions = problem.get_decisions()
 	results = []
