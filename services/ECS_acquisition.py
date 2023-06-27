@@ -8,7 +8,7 @@ DELTA_TIME = 24 * 3600 # 24H
 DELTA_TIME_24H = 24 * 3600 # 24H
 
 current_time = int(datetime.now().timestamp())
-zr = ZabbixReader("http://mqtt.projet-elfe.fr/api_jsonrpc.php", zabbix_credentials["username"], zabbix_credentials["password"])
+zr = ZabbixReader(zabbix_credentials["url"], zabbix_credentials["username"], zabbix_credentials["password"])
 zr.get_token()
 items = zr.get_items_by_tag("ECS")
 items_energie = []

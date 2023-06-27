@@ -12,7 +12,7 @@ CURVE_KEY        = "Equilibre General P=C bis"
 CURVE_PERIOD     = 15 * 60
 DAY_DURATION     = 24 * 60 * 60
 CURVE_DATA_TABLE = "prediction"
-zr = ZabbixReader("http://mqtt.projet-elfe.fr/api_jsonrpc.php", zabbix_credentials["username"], zabbix_credentials["password"])
+zr = ZabbixReader(zabbix_credentials["url"], zabbix_credentials["username"], zabbix_credentials["password"])
 zr.get_token()
 
 items = zr.get_items()

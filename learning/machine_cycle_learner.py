@@ -9,7 +9,7 @@ from datetime import datetime
 from config.config import MachineLearnerConfig
 import shutil
 import matplotlib.pyplot as plt
-zr = ZabbixReader("http://mqtt.projet-elfe.fr/api_jsonrpc.php", zabbix_credentials["username"], zabbix_credentials["password"])
+zr = ZabbixReader(zabbix_credentials["url"], zabbix_credentials["username"], zabbix_credentials["password"])
 zr.get_token()
 tags = ["LV", "LL", "SL"]
 items = {}

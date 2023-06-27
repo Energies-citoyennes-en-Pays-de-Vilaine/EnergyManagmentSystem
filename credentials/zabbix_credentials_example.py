@@ -1,4 +1,5 @@
 zabbix_credentials = {
     "username": "mySuperUsername",
-    "password": "mySuperPassword"
+    "password": "mySuperPassword",
+    "url"     : "http://mySuperUrl",
     }
