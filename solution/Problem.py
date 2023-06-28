@@ -111,12 +111,12 @@ class Problem():
         for consumer in self.consumers:
             decisions.append(
                 {
-                    "id"         : consumer.id,
-                    "reocurring" :  consumer.is_reocurring,
-                    "is_ECS"     : type(consumer) == ECSConsumer,
-                    "minimizing_variables" : self.self.result[i: i+consumer.get_minimizing_variables_count(self.calculationParams)],
-                    "decisions"  : consumer.get_decisions(self.calculationParams, self.result[i: i+consumer.get_minimizing_variables_count(self.calculationParams)]).tolist(),
-                    "consumer"   : consumer
+                    "id"                   : consumer.id,
+                    "reocurring"           :  consumer.is_reocurring,
+                    "is_ECS"               : type(consumer) == ECSConsumer,
+                    "minimizing_variables" : self.result[i: i+consumer.get_minimizing_variables_count(self.calculationParams)],
+                    "decisions"            : consumer.get_decisions(self.calculationParams, self.result[i: i+consumer.get_minimizing_variables_count(self.calculationParams)]).tolist(),
+                    "consumer"             : consumer
                 })
             i += consumer.get_minimizing_variables_count(self.calculationParams)
         return decisions
