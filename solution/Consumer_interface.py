@@ -73,7 +73,6 @@ class Consumer_interface():
 	def get_decisions(self, calculationParams : CalculationParams, variables : List[float]) -> np.ndarray:
 		checkFunctionExist(self, "_get_decisions")
 		decisions = self._get_decisions(calculationParams, variables)
-		check_for_specified_numpy_array_type_exception(decisions, np.int64)
 		return decisions
 
 	def get_base_consumption(self, calculationParams : CalculationParams) -> np.ndarray:
