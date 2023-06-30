@@ -98,7 +98,8 @@ def get_electric_vehicle_to_schedule(credentials, vehicle_not_to_schedule : Unio
 	return result_typed
 
 def get_elfe_not_piloted_heater(credentials) -> List[ELFE_ChauffageNonAsservi]:
-	query = (sql.SQL("SELECT heater.* \
+	#not piloted means that we have no temperature sensor here
+	query = (sql.SQL("SELECT heater.*, epm.equipement_pilote_ou_mesure_type \
 		FROM {0} AS heater\
 		INNER JOIN {1} AS epm ON epm.id = heater.equipement_pilote_ou_mesure_id\
 		WHERE epm.equipement_pilote_ou_mesure_mode_id = %s").format(
@@ -112,6 +113,8 @@ def get_elfe_not_piloted_heater(credentials) -> List[ELFE_ChauffageNonAsservi]:
 		print("an error occured in ELFE_Chauffage_non_asservi, sending back empty array not to block")
 		return []
 	for r in result:
-		to_return.append(ELFE_ChauffageNonAsservi.create_from_select_output(r))
+		new_elem = ELFE_ChauffageNonAsservi.create_from_select_output(r[:-1])
+		new_elem.equipement_type = r[-1]
+		to_return.append(new_elem)
 	print("[debug info chauffage non asservi]", to_return)
 	return to_return

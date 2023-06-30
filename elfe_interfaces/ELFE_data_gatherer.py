@@ -159,7 +159,7 @@ def get_sum_consumer(timestamp : int, calculationParams: CalculationParams) -> L
 			sum_periods.append(SumPeriod(p.start, p.end, expected_sum_left, steps_left))
 			count = 0
 			summ = 0
-		sum_consumer : SumConsumer = SumConsumer(heater.equipement_pilote_ou_mesure_id, heater.puissance_moyenne_eco, heater.puissance_moyenne_confort, sum_periods)
+		sum_consumer : SumConsumer = SumConsumer(heater.equipement_pilote_ou_mesure_id, heater.puissance_moyenne_eco, heater.puissance_moyenne_confort, sum_periods, heater.equipement_type)
 		sum_consumers.append(sum_consumer)
 	return sum_consumers
 
@@ -192,7 +192,7 @@ def get_heater_consumer(timestamp : int, calculationParams: CalculationParams) -
 		WHERE epm.equipement_pilote_ou_mesure_mode_id = {MODE_PILOTE}"	
 	elfe_heater_result = fetch(db_credentials["ELFE"], elfe_heater_query)
 	elfe_heater : List[ELFE_ChauffageAsservi] = [ELFE_ChauffageAsservi.create_from_select_output(result[:-2]) for result in elfe_heater_result]
-	print("[debug heater]", elfe_heater_result, elfe_heater)
+	print("[debug heater]", elfe_heater)
 	starting_periods : List[datetime] = [get_midnight_date(timestamp - DAY_TIME_SECONDS), get_midnight_date(timestamp), get_midnight_date(timestamp + DAY_TIME_SECONDS)]
 	heater_consumers : List[SumConsumer] = []
 	for heater_id in range(len(elfe_heater)):
