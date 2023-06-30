@@ -99,7 +99,7 @@ def get_electric_vehicle_to_schedule(credentials, vehicle_not_to_schedule : Unio
 
 def get_elfe_not_piloted_heater(credentials) -> List[ELFE_ChauffageNonAsservi]:
 	#not piloted means that we have no temperature sensor here
-	query = (sql.SQL("SELECT heater.*, epm.equipement_pilote_ou_mesure_type \
+	query = (sql.SQL("SELECT heater.*, epm.equipement_pilote_ou_mesure_type_id \
 		FROM {0} AS heater\
 		INNER JOIN {1} AS epm ON epm.id = heater.equipement_pilote_ou_mesure_id\
 		WHERE epm.equipement_pilote_ou_mesure_mode_id = %s").format(
