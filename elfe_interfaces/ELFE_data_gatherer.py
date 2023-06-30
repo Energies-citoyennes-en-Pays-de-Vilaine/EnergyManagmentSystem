@@ -186,15 +186,17 @@ def get_temperature_forecast(timestamp_start : int, timestamp_end : int, timesta
 	return forecast
 
 def get_heater_consumer(timestamp : int, calculationParams: CalculationParams) -> List[HeaterConsumer]:
-	elfe_heater_query = f"SELECT heater.* \
+	elfe_heater_query = f"SELECT heater.*, epm.id, epm.equipement_pilote_ou_mesure_type_id \
 		FROM {ELFE_database_names['ELFE_ChauffageAsservi']} AS heater\
 		INNER JOIN {ELFE_database_names['ELFE_EquipementPilote']} AS epm ON epm.id = heater.equipement_pilote_ou_mesure_id\
 		WHERE epm.equipement_pilote_ou_mesure_mode_id = {MODE_PILOTE}"	
 	elfe_heater_result = fetch(db_credentials["ELFE"], elfe_heater_query)
-	elfe_heater : List[ELFE_ChauffageAsservi] = [ELFE_ChauffageAsservi.create_from_select_output(result) for result in elfe_heater_result]
+	elfe_heater : List[ELFE_ChauffageAsservi] = [ELFE_ChauffageAsservi.create_from_select_output(result[:-2]) for result in elfe_heater_result]
+	print("[debug heater]", elfe_heater_result, elfe_heater)
 	starting_periods : List[datetime] = [get_midnight_date(timestamp - DAY_TIME_SECONDS), get_midnight_date(timestamp), get_midnight_date(timestamp + DAY_TIME_SECONDS)]
 	heater_consumers : List[SumConsumer] = []
-	for heater in elfe_heater:
+	for heater_id in range(len(elfe_heater)):
+		heater = elfe_heater[heater_id]
 		periods : List[Period] = []
 		for start in starting_periods:
 			periods += heater.get_periods(start)
@@ -229,7 +231,7 @@ def get_heater_consumer(timestamp : int, calculationParams: CalculationParams) -
 		T_ext_response = fetch(db_credentials["EMS"], ("SELECT wheather_timestamp, temperature FROM initialweather WHERE wheather_timestamp >= %s ORDER BY wheather_timestamp ASC",[get_round_timestamp()]))
 		t_ex = [T_ext_response[0][1],T_ext_response[0][1]] + [T_ext_response[i][1] for i in range(len(calculationParams.get_time_array()))]
 		T_ext = np.array(t_ex)
-		heater_consumer : HeaterConsumer = HeaterConsumer(heater.Id, t_init, initial_state, T_ext, target_temperature_low, target_temperature_high, m_th.R_th, m_th.C_th, heater.puissance)
+		heater_consumer : HeaterConsumer = HeaterConsumer(heater.Id, t_init, initial_state, T_ext, target_temperature_low, target_temperature_high, m_th.R_th, m_th.C_th, heater.puissance, elfe_heater_result[heater_id][-1])
 		heater_consumers.append(heater_consumer)
 	return heater_consumers
 
