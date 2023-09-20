@@ -29,7 +29,9 @@ def get_last_consumption(credentials, zabbix_id : int) -> int:
 	try:
 		last_consumption = last_consumption_result[0][0]
 	except KeyError:
-		print("no last consumption known for consumer with id ", zabbix_id)
+		print("no last consumption known for consumer with id (key)", zabbix_id)
+	except IndexError:
+		print("no last consumption known for consumer with id (index)", zabbix_id)
 	return last_consumption
 
 def get_consumer_activation_ratio_starting_at(credentials, consumer_id, first_valid_timestamp):
