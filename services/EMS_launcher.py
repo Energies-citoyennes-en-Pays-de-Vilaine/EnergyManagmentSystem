@@ -38,23 +38,23 @@ if __name__ == "__main__":
 	try:
 		machines_consumers = get_machines(timestamp)
 	except Exception as e:
-		print(e, "tb=", e.__traceback__)
+		print(e, "tb=", e.__traceback__.tb_frame)
 	try:
 		ecs_consumers = get_ECS(timestamp)
 	except Exception as e:
-		print(e, "tb=", e.__traceback__)
+		print(e, "tb=", e.__traceback__.tb_frame)
 	try:
 		electric_vehicle_consumers = get_electric_vehicle(timestamp)
 	except Exception as e:
-		print(e, "tb=", e.__traceback__)
+		print(e, "tb=", e.__traceback__.tb_frame)
 	try:
 		heater_consumers = get_heater_consumer(timestamp, sim_params)
 	except Exception as e:
-		print(e, "tb=", e.__traceback__)
+		print(e, "tb=", e.__traceback__.tb_frame)
 	try:
 		sum_consumers = get_sum_consumer(timestamp, sim_params)
 	except Exception as e:
-		print(e, "tb=", e.__traceback__)
+		print(e, "tb=", e.__traceback__.tb_frame)
 	consumer_types = [machines_consumers, ecs_consumers, electric_vehicle_consumers, heater_consumers, sum_consumers]
 	for i in range(len(consumer_types)):
 		try:
