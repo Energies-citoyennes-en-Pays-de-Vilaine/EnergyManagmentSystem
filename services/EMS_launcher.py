@@ -38,23 +38,23 @@ if __name__ == "__main__":
 	try:
 		machines_consumers = get_machines(timestamp)
 	except Exception as e:
-		print(e)
+		print(e, "tb=", e.__traceback__)
 	try:
 		ecs_consumers = get_ECS(timestamp)
 	except Exception as e:
-		print(e)
+		print(e, "tb=", e.__traceback__)
 	try:
 		electric_vehicle_consumers = get_electric_vehicle(timestamp)
 	except Exception as e:
-		print(e)
+		print(e, "tb=", e.__traceback__)
 	try:
 		heater_consumers = get_heater_consumer(timestamp, sim_params)
 	except Exception as e:
-		print(e)
+		print(e, "tb=", e.__traceback__)
 	try:
 		sum_consumers = get_sum_consumer(timestamp, sim_params)
 	except Exception as e:
-		print(e)
+		print(e, "tb=", e.__traceback__)
 	consumer_types = [machines_consumers, ecs_consumers, electric_vehicle_consumers, heater_consumers, sum_consumers]
 	for i in range(len(consumer_types)):
 		try:
@@ -73,7 +73,7 @@ if __name__ == "__main__":
 			print(f"could not solve all consumers, retrying with less consumer types {i}")
 		except Exception as e:
 			print("an error occured, retrying with less consumers")
-			print(e)
+			print(e, "tb=", e.__traceback__)
 
 	run_time_ms = int(1000 * (t2 - t1))
 	decisions = problem.get_decisions()
