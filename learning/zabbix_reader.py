@@ -43,6 +43,12 @@ class ZabbixReader():
 			self.token = token
 			self.last_refresh = datetime.now()
 		return self.token
+	def get_items_full(self):
+		data = self.send_request("item.get", {}, True)["result"]
+		items = {}
+		for d in data:
+			items[d["name"]] = int(d["itemid"])
+		return items
 	def get_items(self):
 		data = self.send_request("item.get", {}, True)["result"]
 		items = {}
@@ -75,6 +81,7 @@ class ZabbixReader():
 			})
 		return to_return
 	def readData(self, clientID, time_from, time_till) -> np.ndarray:
+		#TODO fix typing for this function
 		data = self.send_request("history.get", {
 			"itemids" : clientID,
 			"history": 0,

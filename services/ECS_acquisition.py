@@ -35,4 +35,19 @@ for i in items_puissance:
         if (energie_conso < 0):
             energie_conso = 0
         queries.append(EMS_ECS(items[f"{i} puissance"], energie_conso).get_create_or_update_in_table_str("ems_ecs"))
+    else:
+        try:#this is a beta test code, so if it crashes then it will not corrupt the service, TODO remove the try cause when working for a while
+            curves = zr.readData(items[f"{i} puissance"], current_time - DELTA_TIME, current_time)
+            ts = [current_time - DELTA_TIME] + curves["timestamps"] + [current_time]
+            power = [0.0] + curves["values"] + [0.0]
+            if (len(power) == 2):
+                continue
+            energy_ws = 0.0
+            for j in range(len(power) - 1):
+                energy_ws += ((power[i] + power[i + 1]) / 2) * (ts[i+1] - ts[i])
+            energy_wh = energy_ws / 3600 #converts to WH
+            queries.append(EMS_ECS(items[f"{i} puissance"], energy_wh).get_create_or_update_in_table_str("ems_ecs"))
+        except Exception as e:
+            print("[BETA ECS POWER error]", e, "tb=", e.__traceback__.tb_frame)
+        
 execute_queries(db_credentials["EMS"], queries)
