@@ -8,7 +8,7 @@ Pour en savoir plus sur le projet ELFE - *Expérimentons Localement la Flexibili
 
 ## Documentation
 Ce code est prévu pour fonctionner en articulation avec les autres composants informatiques du projet ELFE (à retrouver dans leurs dépôts dédiés).
-L'utilisation de ce code est détaillée dans le ficher "documentation.pdf" présent dans le dépot.
+L'installation, l'utilisation et la composition de ce code sont détaillées dans les fichiers de documentation au format *pdf* présents dans le dépot.
 
 ## Auteurs et Licence
 * Ce code a été écrit par **Youen Froger - ENS Rennes**. 
