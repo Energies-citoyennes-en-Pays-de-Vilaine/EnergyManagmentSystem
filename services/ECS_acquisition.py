@@ -44,7 +44,10 @@ for i in items_puissance:
                 continue
             energy_ws = 0.0
             for j in range(len(power) - 1):
-                energy_ws += ((power[i] + power[i + 1]) / 2) * (ts[i+1] - ts[i])
+                try:
+                    energy_ws += ((power[j] + power[j + 1]) / 2) * (ts[j + 1] - ts[j])
+                except ZeroDivisionError as E:
+                    print("[BETA ECS POWER error]", e)
             energy_wh = energy_ws / 3600 #converts to WH
             queries.append(EMS_ECS(items[f"{i} puissance"], energy_wh).get_create_or_update_in_table_str("ems_ecs"))
         except Exception as e:
